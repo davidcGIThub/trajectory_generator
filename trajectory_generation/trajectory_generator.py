@@ -13,7 +13,7 @@ from bsplinegenerator.bspline_to_minvo import get_composite_bspline_to_minvo_con
 from trajectory_generation.safe_flight_corridor import SFC_Data, SFC
 from trajectory_generation.obstacle import Obstacle
 from trajectory_generation.waypoint_data import Waypoint, WaypointData
-from trajectory_generation.dynamic_bounds import DynamicBounds
+from trajectory_generation.dynamic_bounds import DerivativeBounds, TurningBound
 import time
 
 class TrajectoryGenerator:
@@ -38,13 +38,13 @@ class TrajectoryGenerator:
         self._obstacle_cons_obj = ObstacleConstraints(self._dimension)
         self._num_intervals_free_space = num_intervals_free_space
         
-    def generate_trajectory(self, waypoint_data: WaypointData, dynamic_bounds: DynamicBounds = None,
+    def generate_trajectory(self, waypoint_data: WaypointData, derivative_bounds: DerivativeBounds = None, turning_bound: TurningBound = None,
                 sfc_data: SFC_Data = None, obstacles: list = None, objective_function_type: str = "minimal_velocity_path"):
         num_intervals = self.__get_num_intervals(sfc_data)
         num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
         point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
         num_cont_pts = self.__get_num_control_points(num_intervals)
-        constraints = self.__get_constraints(num_cont_pts, waypoint_data, dynamic_bounds, sfc_data, obstacles, num_intermediate_waypoints)
+        constraints = self.__get_constraints(num_cont_pts, waypoint_data, derivative_bounds, turning_bound, sfc_data, obstacles, num_intermediate_waypoints)
         objectiveFunction = self.__get_objective_function(objective_function_type)
         objective_variable_bounds = self.__create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints)
         waypoint_sequence = waypoint_data.get_waypoint_locations()
@@ -60,7 +60,8 @@ class TrajectoryGenerator:
             constraints=constraints, 
             options = minimize_options)
         optimized_control_points = np.reshape(result.x[0:num_cont_pts*self._dimension] ,(self._dimension,num_cont_pts))
-        return optimized_control_points
+        scale_factor = result.x[num_cont_pts*self._dimension]
+        return optimized_control_points, scale_factor
     
     def __get_objective_function(self, objective_function_type):
         if objective_function_type == "minimal_distance_path":
@@ -71,6 +72,15 @@ class TrajectoryGenerator:
             return self.__minimize_jerk_control_points_objective_function
         else:
             raise Exception("Error, Invalid objective function type")
+        
+    def __create_objective_variable_bounds(self, num_cont_pts, num_intermediate_waypoints):
+        lower_bounds = np.zeros(num_cont_pts*self._dimension + 1 + num_intermediate_waypoints) - np.inf
+        upper_bounds = np.zeros(num_cont_pts*self._dimension + 1 + num_intermediate_waypoints) + np.inf
+        lower_bounds[num_cont_pts*self._dimension] = 0.000001
+        if num_intermediate_waypoints > 0:
+            num_intervals = num_cont_pts - self._order
+            upper_bounds[-num_intermediate_waypoints:] = num_intervals
+        return Bounds(lb=lower_bounds, ub=upper_bounds)
 
     def __get_num_intervals(self, sfc_data: SFC_Data):
         num_intervals = self._num_intervals_free_space
@@ -105,7 +115,7 @@ class TrajectoryGenerator:
         return intermediate_waypoint_times
 
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
-        dynamic_bounds: DynamicBounds, sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
+        derivative_bounds: DerivativeBounds, turning_bound: TurningBound, sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
         waypoints = np.concatenate((waypoint_data.start_waypoint.location, waypoint_data.end_waypoint.location),1)
         waypoint_constraint = self.__create_waypoint_constraint(waypoints, num_cont_pts, num_intermediate_waypoints)
         constraints = [waypoint_constraint]
@@ -121,18 +131,12 @@ class TrajectoryGenerator:
             if(num_intermediate_waypoints > 1):
                 intermediate_waypoint_time_constraints = self.__create_intermediate_waypoint_time_scales_constraint(num_cont_pts, num_intermediate_waypoints)
                 constraints.append(intermediate_waypoint_time_constraints)
-        if dynamic_bounds.checkIfDerivativesActive() is not None:
-            derivatives_constraint = self.__create_derivatives_constraint(dynamic_bounds, num_cont_pts)
+        if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive() is not None:
+            derivatives_constraint = self.__create_derivatives_constraint(derivative_bounds, num_cont_pts)
             constraints.append(derivatives_constraint)
-        if dynamic_bounds.max_curvature is not None:
-            curvature_constraint = self.__create_curvature_constraint(dynamic_bounds.max_curvature, num_cont_pts)
-            constraints.append(curvature_constraint)
-        if dynamic_bounds.max_angular_rate is not None:
-            angular_rate_constraint = self.__create_angular_rate_constraint(dynamic_bounds.max_angular_rate, num_cont_pts)
-            constraints.append(angular_rate_constraint)
-        if dynamic_bounds.max_centripetal_acceleration is not None:
-            centripetal_acceleration_constraint = self.__create_centripetal_acceleration_constraint(dynamic_bounds.max_centripetal_acceleration, num_cont_pts)
-            constraints.append(centripetal_acceleration_constraint)
+        if turning_bound is not None and turning_bound.checkIfTurningBoundActive():
+            turning_constraint = self.__create_turning_constraint(turning_bound, num_cont_pts)
+            constraints.append(turning_constraint)
         if sfc_data is not None:
             sfc_constraint = self.__create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints)
             constraints.append(sfc_constraint)
@@ -140,15 +144,6 @@ class TrajectoryGenerator:
             obstacle_constraint = self.__create_obstacle_constraints(obstacles, num_cont_pts)
             constraints.append(obstacle_constraint)
         return tuple(constraints)
-
-    def __create_objective_variable_bounds(self, num_cont_pts, num_intermediate_waypoints):
-        lower_bounds = np.zeros(num_cont_pts*self._dimension + 2 + num_intermediate_waypoints) - np.inf
-        upper_bounds = np.zeros(num_cont_pts*self._dimension + 2 + num_intermediate_waypoints) + np.inf
-        lower_bounds[num_cont_pts*self._dimension] = 0.000001
-        if num_intermediate_waypoints > 0:
-            num_intervals = num_cont_pts - self._order
-            upper_bounds[-num_intermediate_waypoints:] = num_intervals
-        return Bounds(lb=lower_bounds, ub=upper_bounds)
 
     def __minimize_jerk_control_points_objective_function(self, variables, num_cont_pts):
         # for third order splines only
@@ -271,8 +266,8 @@ class TrajectoryGenerator:
         end_waypoint_derivative_constraint = NonlinearConstraint(end_waypoint_derivative_constraint_function, lb= lower_bound, ub=upper_bound)
         return end_waypoint_derivative_constraint
     
-    def __create_derivatives_constraint(self, dynamic_bounds: DynamicBounds, num_cont_pts):
-        if dynamic_bounds.max_velocity is not None and dynamic_bounds.max_acceleration is not None:
+    def __create_derivatives_constraint(self, derivative_bounds: DerivativeBounds, num_cont_pts):
+        if derivative_bounds.max_velocity is not None and derivative_bounds.max_acceleration is not None:
             constraints = np.zeros(2)
         else:
             constraints = np.zeros(1)
@@ -280,46 +275,43 @@ class TrajectoryGenerator:
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
             velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
             count = 0
-            if dynamic_bounds.max_velocity is not None:
+            if derivative_bounds.max_velocity is not None:
                 velocity_bound = np.max(np.linalg.norm(velocity_control_points,2,0))
-                constraints[count] = velocity_bound - dynamic_bounds.max_velocity
+                constraints[count] = velocity_bound - derivative_bounds.max_velocity
                 count += 1
-            if dynamic_bounds.max_acceleration is not None:
+            if derivative_bounds.max_acceleration is not None:
                 acceleration_control_points = (velocity_control_points[:,1:] - velocity_control_points[:,0:-1])/scale_factor
                 acceleration_bound = np.max(np.linalg.norm(acceleration_control_points,2,0))
-                constraints[count] = acceleration_bound - dynamic_bounds.max_acceleration
+                constraints[count] = acceleration_bound - derivative_bounds.max_acceleration
             return constraints
         lower_bound = - np.inf
         upper_bound = 0
         derivatives_constraint = NonlinearConstraint(derivatives_constraint_function , lb = lower_bound, ub = upper_bound)
         return derivatives_constraint
 
-    def __create_curvature_constraint(self, max_curvature, num_cont_pts):
-        def curvature_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            return self._turning_const_obj.get_spline_curvature_constraint(control_points,max_curvature)
-        lower_bound = - np.inf
-        upper_bound = 0
-        curvature_constraint = NonlinearConstraint(curvature_constraint_function , lb = lower_bound, ub = upper_bound)
-        return curvature_constraint
-    
-    def __create_angular_rate_constraint(self, max_angular_rate, num_cont_pts):
-        def angular_rate_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            return self._turning_const_obj.get_spline_angular_rate_constraint(control_points, max_angular_rate, scale_factor)
-        lower_bound = - np.inf
-        upper_bound = 0
-        angular_rate_constraint = NonlinearConstraint(angular_rate_constraint_function , lb = lower_bound, ub = upper_bound)
-        return angular_rate_constraint
-    
-    def __create_centripetal_acceleration_constraint(self, max_angular_rate, num_cont_pts):
+    def __create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts):
         def centripetal_acceleration_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            return self._turning_const_obj.get_spline_centripetal_acceleration_constraint(control_points, max_angular_rate, scale_factor)
+            return self._turning_const_obj.get_spline_centripetal_acceleration_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+        def angular_rate_constraint_function(variables):
+            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            return self._turning_const_obj.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+        def curvature_constraint_function(variables):
+            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            return self._turning_const_obj.get_spline_curvature_constraint(control_points,turning_bound.max_turning_bound)
+        if turning_bound.bound_type == "curvature":
+            constraint_function = curvature_constraint_function
+        elif turning_bound.bound_type == "centripetal_acceleration":
+            constraint_function = centripetal_acceleration_constraint_function
+        elif turning_bound.bound_type == "angular_rate":
+            constraint_function = angular_rate_constraint_function
+        else:
+            raise Exception("Not valid turning bound type")
         lower_bound = - np.inf
         upper_bound = 0
-        centripetal_acceleration_constraint = NonlinearConstraint(centripetal_acceleration_constraint_function , lb = lower_bound, ub = upper_bound)
-        return centripetal_acceleration_constraint
+        turning_constraint = NonlinearConstraint(constraint_function , lb = lower_bound, ub = upper_bound)
+        return turning_constraint
+    
 
     def __create_safe_flight_corridor_constraint(self, sfc_data: SFC_Data, num_cont_pts, num_intermediate_waypoints):
         # create the rotation matrix.
@@ -401,7 +393,6 @@ class TrajectoryGenerator:
         return M_rot
 
     def __create_initial_control_points(self, total_num_cont_pts, point_sequence):
-
         num_segments = np.shape(point_sequence)[1] - 1
         if num_segments < 2:
             start_point = point_sequence[:,0]

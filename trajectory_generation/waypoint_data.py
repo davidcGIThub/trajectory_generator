@@ -52,6 +52,24 @@ class WaypointData:
             return np.shape(self.intermediate_locations)[1]
         else:
             return 0
+        
+def plot2D_waypoints(waypoint_data: WaypointData, ax):
+    locations = waypoint_data.get_waypoint_locations()
+    ax.scatter(locations[0,:],locations[1,:],color="b")
+    distance = waypoint_data.get_distance()
+    if waypoint_data.start_waypoint.checkIfVelocityActive():
+        start_pos = waypoint_data.start_waypoint.location
+        start_vel = waypoint_data.start_waypoint.velocity
+        ax.quiver(start_pos.item(0), start_pos.item(1), 
+                  start_vel.item(0), start_vel.item(1), color = "b")
+    if waypoint_data.end_waypoint.checkIfVelocityActive():
+        end_pos = waypoint_data.end_waypoint.location
+        end_vel = waypoint_data.end_waypoint.velocity
+        ax.quiver(end_pos.item(0), end_pos.item(1), 
+                  end_vel.item(0), end_vel.item(1), color = "b")
+    if waypoint_data.intermediate_locations is not None:
+        ax.scatter(waypoint_data.intermediate_locations[0,:], 
+                   waypoint_data.intermediate_locations[1,:],color="b")
 
 def plot3D_waypoints(waypoint_data: WaypointData, ax):
     locations = waypoint_data.get_waypoint_locations()

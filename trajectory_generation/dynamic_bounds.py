@@ -4,21 +4,18 @@ import matplotlib.pyplot as plt
         
 @dataclass
 class TurningBound:
-    max_curvature: float = None
-    max_angular_rate: float = None
-    max_centripetal_acceleration: float = None
+    max_turning_bound: float = None
+    bound_type: str = None # "angular_rate", "curvature", "centripetal_acceleration"
 
     def checkIfTurningBoundActive(self):
-        if self.max_curvature is not None or self.max_angular_rate is not None or \
-            self.max_centripetal_acceleration is not None:
+        if self.max_turning_bound is not None:
             return True
         else:
             return False
         
 
 @dataclass
-class DynamicBounds:
-    turning_bound: TurningBound = None
+class DerivativeBounds:
     max_velocity: float = None
     max_acceleration: float = None
 

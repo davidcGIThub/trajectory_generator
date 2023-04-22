@@ -136,12 +136,12 @@ double CrossTermBounds<D>::evaluate_interval_centripetal_acceleration_bound(Eige
     }
     else
     {
-        centripetal_acceleration_bound = d_data.max_acceleration;
-        double centripetal_acceleration = d_data.max_cross_term/d_data.min_velocity;
-        if (centripetal_acceleration < centripetal_acceleration_bound)
-        {
-            centripetal_acceleration_bound = centripetal_acceleration;
-        }
+        // centripetal_acceleration_bound = d_data.max_acceleration;
+        double centripetal_acceleration_bound = d_data.max_cross_term/d_data.min_velocity;
+        // if (centripetal_acceleration < centripetal_acceleration_bound)
+        // {
+        //     centripetal_acceleration_bound = centripetal_acceleration;
+        // }
     }
     return centripetal_acceleration_bound;
 

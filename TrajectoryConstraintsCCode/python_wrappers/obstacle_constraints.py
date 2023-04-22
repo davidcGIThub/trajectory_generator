@@ -6,7 +6,7 @@ import numpy as np
 script_dir = os.path.abspath(os.path.dirname(__file__))
 libname_str = os.path.join(script_dir)
 libname = pathlib.Path(libname_str)
-lib = ctypes.CDLL(libname / "../build/src/libPathObjectivesAndConstraints.so")
+lib = ctypes.CDLL(libname / "../build/src/libTrajectoryConstraints.so")
 
 class ObstacleConstraints(object):
 
