@@ -66,6 +66,7 @@ double CrossTermBounds<D>::evaluate_interval_curvature_bound(Eigen::Matrix<doubl
     double scale_factor = 1;
     DerivativeBoundsData d_data = get_derivative_bound_data(control_points, scale_factor);
     double curvature_bound;
+    double curvature;
     if (d_data.min_velocity <= 1.0e-8)
     {
         double acceleration_at_min_vel = 
@@ -83,7 +84,7 @@ double CrossTermBounds<D>::evaluate_interval_curvature_bound(Eigen::Matrix<doubl
     else
     {
         curvature_bound = d_data.max_acceleration/(d_data.min_velocity*d_data.min_velocity);
-        double curvature = d_data.max_cross_term/(d_data.min_velocity*d_data.min_velocity*d_data.min_velocity);
+        curvature = d_data.max_cross_term/(d_data.min_velocity*d_data.min_velocity*d_data.min_velocity);
         if (curvature < curvature_bound)
         {
             curvature_bound = curvature;
@@ -97,6 +98,7 @@ double CrossTermBounds<D>::evaluate_interval_angular_rate_bound(Eigen::Matrix<do
 {
     DerivativeBoundsData d_data = get_derivative_bound_data(control_points, scale_factor);
     double angular_rate_bound;
+    double angular_rate;
     if (d_data.min_velocity <= 1.0e-8)
     {
         double acceleration_at_min_vel = 
@@ -114,7 +116,7 @@ double CrossTermBounds<D>::evaluate_interval_angular_rate_bound(Eigen::Matrix<do
     else
     {
         angular_rate_bound = d_data.max_acceleration/(d_data.min_velocity);
-        double angular_rate = d_data.max_cross_term/(d_data.min_velocity*d_data.min_velocity);
+        angular_rate = d_data.max_cross_term/(d_data.min_velocity*d_data.min_velocity);
         if (angular_rate < angular_rate_bound)
         {
             angular_rate_bound = angular_rate;
@@ -129,6 +131,7 @@ double CrossTermBounds<D>::evaluate_interval_centripetal_acceleration_bound(Eige
 {
     DerivativeBoundsData d_data = get_derivative_bound_data(control_points, scale_factor);
     double centripetal_acceleration_bound;
+    double centripetal_acceleration;
     if (d_data.min_velocity <= 1.0e-8)
     {
         centripetal_acceleration_bound = 0;
@@ -136,12 +139,12 @@ double CrossTermBounds<D>::evaluate_interval_centripetal_acceleration_bound(Eige
     }
     else
     {
-        // centripetal_acceleration_bound = d_data.max_acceleration;
-        double centripetal_acceleration_bound = d_data.max_cross_term/d_data.min_velocity;
-        // if (centripetal_acceleration < centripetal_acceleration_bound)
-        // {
-        //     centripetal_acceleration_bound = centripetal_acceleration;
-        // }
+        centripetal_acceleration_bound = d_data.max_acceleration;
+        centripetal_acceleration = d_data.max_cross_term/d_data.min_velocity;
+        if (centripetal_acceleration < centripetal_acceleration_bound)
+        {
+            centripetal_acceleration_bound = centripetal_acceleration;
+        }
     }
     return centripetal_acceleration_bound;
 

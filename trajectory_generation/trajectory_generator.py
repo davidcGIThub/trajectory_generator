@@ -10,6 +10,7 @@ from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point
 from TrajectoryConstraintsCCode.python_wrappers.obstacle_constraints import ObstacleConstraints
 from TrajectoryConstraintsCCode.python_wrappers.turning_constraints import TurningConstraints
 from bsplinegenerator.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
+from trajectory_generation.bspline_to_bezier import get_composite_bspline_to_bezier_conversion_matrix
 from trajectory_generation.safe_flight_corridor import SFC_Data, SFC
 from trajectory_generation.obstacle import Obstacle
 from trajectory_generation.waypoint_data import Waypoint, WaypointData
@@ -189,6 +190,7 @@ class TrajectoryGenerator:
         constraint = LinearConstraint(constraint_matrix, lb=waypoints.flatten(), ub=waypoints.flatten())
         return constraint
     
+    ### convert to c++ code
     def __create_intermediate_waypoint_constraints(self, intermediate_locations, num_cont_pts, num_intermediate_waypoints):
         lower_bound = 0
         upper_bound = 0
@@ -271,12 +273,16 @@ class TrajectoryGenerator:
             constraints = np.zeros(2)
         else:
             constraints = np.zeros(1)
+        num_vel_cont_pts = num_cont_pts - 1
+        M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, self._order-1)
         def derivatives_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
             velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
             count = 0
             if derivative_bounds.max_velocity is not None:
-                velocity_bound = np.max(np.linalg.norm(velocity_control_points,2,0))
+                bezier_velocity_control_points = np.transpose(np.dot(M_v, np.transpose(velocity_control_points)))
+                velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points,2,0))
+                # velocity_bound = np.max(np.linalg.norm(velocity_control_points,2,0))
                 constraints[count] = velocity_bound - derivative_bounds.max_velocity
                 count += 1
             if derivative_bounds.max_acceleration is not None:
@@ -292,7 +298,8 @@ class TrajectoryGenerator:
     def __create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts):
         def centripetal_acceleration_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            return self._turning_const_obj.get_spline_centripetal_acceleration_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+            const = self._turning_const_obj.get_spline_centripetal_acceleration_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+            return const
         def angular_rate_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
             return self._turning_const_obj.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
