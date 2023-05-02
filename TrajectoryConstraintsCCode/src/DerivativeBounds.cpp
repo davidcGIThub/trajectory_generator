@@ -63,7 +63,7 @@ std::array<double,2> DerivativeBounds<D>::find_min_velocity_and_time(Eigen::Matr
     for(int index = 0; index < 3; index++)
     {
         double root = roots[index];
-        if(root > 0 && root < 1.0)
+        if(root > 0 && root < scale_factor)
         {
             double velocity = d_eval.calculate_velocity_magnitude(root, control_points,scale_factor);
             if (velocity < min_velocity)
@@ -94,7 +94,7 @@ std::array<double,2> DerivativeBounds<D>::find_max_velocity_and_time(Eigen::Matr
     for(int index = 0; index < 3; index++)
     {
         double root = roots[index];
-        if(root > 0 && root < 1.0)
+        if(root > 0 && root < scale_factor)
         {
             double velocity = d_eval.calculate_velocity_magnitude(root, control_points,scale_factor);
             if (velocity > max_velocity)

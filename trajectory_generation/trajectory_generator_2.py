@@ -282,11 +282,13 @@ class TrajectoryGenerator:
             if derivative_bounds.max_velocity is not None:
                 bezier_velocity_control_points = np.transpose(np.dot(M_v, np.transpose(velocity_control_points)))
                 velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points,2,0))
-                # velocity_bound = np.max(np.linalg.norm(velocity_control_points,2,0))
                 constraints[count] = velocity_bound - derivative_bounds.max_velocity
                 count += 1
             if derivative_bounds.max_acceleration is not None:
                 acceleration_control_points = (velocity_control_points[:,1:] - velocity_control_points[:,0:-1])/scale_factor
+                if derivative_bounds.gravity is not None and self._dimension == 3:
+                    gravity = np.array([[0],[0],[derivative_bounds.gravity]])
+                    acceleration_control_points = acceleration_control_points - gravity
                 acceleration_bound = np.max(np.linalg.norm(acceleration_control_points,2,0))
                 constraints[count] = acceleration_bound - derivative_bounds.max_acceleration
             return constraints
@@ -302,8 +304,7 @@ class TrajectoryGenerator:
             return const
         def angular_rate_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            const = self._turning_const_obj.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
-            return const
+            return self._turning_const_obj.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
         def curvature_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
             return self._turning_const_obj.get_spline_curvature_constraint(control_points,turning_bound.max_turning_bound)

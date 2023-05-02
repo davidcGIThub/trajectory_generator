@@ -7,11 +7,11 @@ import time
 
 num_data_points_per_interval = 1000
 order = 3
-# control_points = np.array([[-3,  -4, -2, -.5, 1  ,   0,  2, 3.5, 3],
-#                             [.5, 3.5,  6, 5.5, 3.7,   2, -1,   2, 5]])
+control_points = np.array([[-3,  -4, -2, -.5, 1  ,   0,  2, 3.5, 3],
+                            [.5, 3.5,  6, 5.5, 3.7,   2, -1,   2, 5]])
 dimension = 2
 num_control_points = order + 4
-control_points = control_points = np.random.randint(10, size=(dimension,num_control_points)) # random
+# control_points = control_points = np.random.randint(10, size=(dimension,num_control_points)) # random
 num_points = 1000
 scale_factor = 1
 bspline = BsplineEvaluation(control_points, order, 0, scale_factor)
@@ -42,13 +42,15 @@ new_centripetal_acceleration_data, new_time_data = new_bspline.get_centripetal_a
 new_initial_control_points = smoother.create_initial_control_points(control_points, order, np.shape(new_control_points)[1])
 
 plt.figure()
-plt.plot(spline_data[0,:],spline_data[1,:])
+plt.plot(spline_data[0,:],spline_data[1,:],label="3rd order spline")
 plt.scatter(control_points[0,:],control_points[1,:])
-plt.plot(control_points[0,:],control_points[1,:],color="tab:blue")
-plt.plot(new_spline_data[0,:],new_spline_data[1,:])
-plt.scatter(new_initial_control_points[0,:],new_initial_control_points[1,:],facecolors='none', edgecolors='tab:orange')
+# plt.plot(control_points[0,:],control_points[1,:],color="tab:blue")
+plt.plot(new_spline_data[0,:],new_spline_data[1,:],'--',label="4th order spline")
+plt.scatter(new_control_points[0,:],new_control_points[1,:])
+# plt.scatter(new_initial_control_points[0,:],new_initial_control_points[1,:],facecolors='none', edgecolors='tab:orange')
 # plt.plot(new_initial_control_points[0,:],new_initial_control_points[1,:],color='tab:orange')
 plt.title("spline")
+plt.legend()
 plt.show()
 
 

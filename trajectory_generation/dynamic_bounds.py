@@ -18,6 +18,9 @@ class TurningBound:
 class DerivativeBounds:
     max_velocity: float = None
     max_acceleration: float = None
+    gravity: float = None
+    max_upward_velocity = None
+    max_downward_velocity = None
 
     def checkIfDerivativesActive(self):
         if self.max_velocity is not None or self.max_acceleration is not None:

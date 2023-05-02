@@ -21,15 +21,15 @@ traj_objective_type = "minimal_acceleration_path"
 sfc_data = None
 obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 # obstacles = None
-max_turning_bound = 4
+max_turning_bound = 1.8
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
 # turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 # turning_bound = TurningBound(max_turning_bound,"curvature")
-turning_bound = None
+# turning_bound = None
 
-max_velocity = 10
+max_velocity = 2
 # max_velocity = None
-max_acceleration = 100
+max_acceleration = 5
 # max_acceleration = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 # derivative_bounds = None
@@ -65,7 +65,6 @@ print("start_velocity: " , start_velocity)
 print("start_acceleraiton: " , start_acceleration)
 print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
-
 
 velocity_matrix, time_data = bspline.get_spline_derivative_data(number_data_points,1)
 acceleration_matrix, time_data = bspline.get_spline_derivative_data(number_data_points,2)
@@ -105,7 +104,7 @@ if turning_bound is not None:
     turn_title = turning_bound.bound_type
     plt.figure()
     plt.plot(time_data, turn_data,color = "b")
-    plt.plot(time_data, acceleration_data,color = "g")
+    # plt.plot(time_data, acceleration_data,color = "g")
     plt.plot(time_data, max_turning_bound + turn_data*0)
     plt.title(turn_title)
     plt.show()

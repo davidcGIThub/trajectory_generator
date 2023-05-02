@@ -120,6 +120,7 @@ double CrossTermBounds<D>::evaluate_interval_angular_rate_bound(Eigen::Matrix<do
         if (angular_rate < angular_rate_bound)
         {
             angular_rate_bound = angular_rate;
+        
         }
     }
     return angular_rate_bound;
