@@ -22,6 +22,15 @@ class DerivativeBounds:
     max_upward_velocity = None
     max_downward_velocity = None
 
+    def __post_init__(self):
+        if self.max_upward_velocity is not None:
+            if self.max_velocity is None:
+                raise Exception("To set max upward velocity you need a general max velocity")
+            if self.max_velocity < self.max_upward_velocity:
+                raise Exception("Max upward velocity should be less than general max velocity")
+
+
+
     def checkIfDerivativesActive(self):
         if self.max_velocity is not None or self.max_acceleration is not None:
             return True

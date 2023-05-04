@@ -269,33 +269,58 @@ class TrajectoryGenerator:
         return end_waypoint_derivative_constraint
     
     def __create_derivatives_constraint(self, derivative_bounds: DerivativeBounds, num_cont_pts):
-        if derivative_bounds.max_velocity is not None and derivative_bounds.max_acceleration is not None:
-            constraints = np.zeros(2)
-        else:
-            constraints = np.zeros(1)
         num_vel_cont_pts = num_cont_pts - 1
         M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, self._order-1)
+        constraints = self.__initialize_derivative_constraint_array(derivative_bounds)
         def derivatives_constraint_function(variables):
             control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
             velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
             count = 0
             if derivative_bounds.max_velocity is not None:
                 bezier_velocity_control_points = np.transpose(np.dot(M_v, np.transpose(velocity_control_points)))
-                velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points,2,0))
-                constraints[count] = velocity_bound - derivative_bounds.max_velocity
+                constraints[count] = self.__calculate_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
                 count += 1
+                if derivative_bounds.max_upward_velocity is not None and self._dimension == 3:
+                    constraints[count] = self.__calculate_upward_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
+                    count += 1
             if derivative_bounds.max_acceleration is not None:
-                acceleration_control_points = (velocity_control_points[:,1:] - velocity_control_points[:,0:-1])/scale_factor
-                if derivative_bounds.gravity is not None and self._dimension == 3:
-                    gravity = np.array([[0],[0],[derivative_bounds.gravity]])
-                    acceleration_control_points = acceleration_control_points - gravity
-                acceleration_bound = np.max(np.linalg.norm(acceleration_control_points,2,0))
-                constraints[count] = acceleration_bound - derivative_bounds.max_acceleration
+                acceleration_constraint = self.__calculate_acceleration_constraint(derivative_bounds, velocity_control_points, scale_factor)
+                constraints[count] = acceleration_constraint
+                count += 1
             return constraints
         lower_bound = - np.inf
         upper_bound = 0
         derivatives_constraint = NonlinearConstraint(derivatives_constraint_function , lb = lower_bound, ub = upper_bound)
         return derivatives_constraint
+    
+    def __initialize_derivative_constraint_array(self, derivative_bounds):
+        length = 0
+        if derivative_bounds.max_velocity is not None:
+            length += 1
+            if derivative_bounds.max_upward_velocity is not None:
+                length += 1
+        if derivative_bounds.max_acceleration is not None:
+            length += 1
+        return np.zeros(length)
+    
+    def __calculate_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds):
+        velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points,2,0))
+        constraint = velocity_bound - derivative_bounds.max_velocity
+        return constraint
+    
+    def __calculate_upward_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds):
+        min_z_vel = np.max(bezier_velocity_control_points[2,:])
+        constraint = min_z_vel - derivative_bounds.max_upward_velocity
+        return constraint
+    
+    def __calculate_acceleration_constraint(self, derivative_bounds, velocity_control_points, scale_factor):
+        acceleration_control_points = (velocity_control_points[:,1:] - velocity_control_points[:,0:-1])/scale_factor
+        if derivative_bounds.gravity is not None and self._dimension == 3:
+            gravity = np.array([[0],[0],[derivative_bounds.gravity]])
+            acceleration_control_points = acceleration_control_points - gravity
+        acceleration_bound = np.max(np.linalg.norm(acceleration_control_points,2,0))
+        constraint = acceleration_bound - derivative_bounds.max_acceleration
+        return constraint
 
     def __create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts):
         def centripetal_acceleration_constraint_function(variables):

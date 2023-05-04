@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from bsplinegenerator.bsplines import BsplineEvaluation
-from trajectory_generation.trajectory_generator_2 import TrajectoryGenerator
+from trajectory_generation.trajectory_generator import TrajectoryGenerator
 from trajectory_generation.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
 from trajectory_generation.path_plotter import set_axes_equal
 from trajectory_generation.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
@@ -22,11 +22,11 @@ sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 
-# max_turning_bound = 0.4 #angular rate
-# turning_bound = TurningBound(max_turning_bound,"angular_rate")
+max_turning_bound = 0.4 #angular rate
+turning_bound = TurningBound(max_turning_bound,"angular_rate")
 
-max_turning_bound = 0.2 #cent accel
-turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
+# max_turning_bound = 0.2 #cent accel
+# turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 
 # max_turning_bound = 0.6 #curv
 # turning_bound = TurningBound(max_turning_bound,"curvature")

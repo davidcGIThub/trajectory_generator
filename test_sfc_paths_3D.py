@@ -48,7 +48,8 @@ max_velocity = 2
 max_acceleration = .8
 gravity = 0.1
 # gravity = None
-derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity)
+max_upward_velocity = 1
+derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity, max_upward_velocity)
 # derivative_bounds = None
 
 ### 1st path
@@ -119,6 +120,8 @@ if gravity is not None:
     plt.plot(time_data, -max_acceleration + gravity + acceleration_data*0)
     plt.title("acceleration z dir ")
     plt.show()
+
+
 
 if turning_bound is not None:
     turn_data = []
