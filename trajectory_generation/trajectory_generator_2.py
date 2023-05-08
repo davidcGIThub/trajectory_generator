@@ -118,9 +118,10 @@ class TrajectoryGenerator:
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
             derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
             sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
-        waypoints = np.concatenate((waypoint_data.start_waypoint.location, waypoint_data.end_waypoint.location),1)
-        waypoint_constraint = self.__create_waypoint_constraint(waypoints, num_cont_pts, num_intermediate_waypoints)
-        constraints = [waypoint_constraint]
+        # __create_terminal_waypoint_location_constraint(self, waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints)
+        start_waypoint_location_constraint = self.__create_terminal_waypoint_location_constraint(waypoint_data.start_waypoint, num_cont_pts, num_intermediate_waypoints)
+        end_waypoint_location_constraint = self.__create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints)
+        constraints = [start_waypoint_location_constraint, end_waypoint_location_constraint]
         if waypoint_data.start_waypoint.checkIfDerivativesActive():
             start_waypoint_derivatives_constraint = self.__create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
             constraints.append(start_waypoint_derivatives_constraint)
@@ -171,25 +172,49 @@ class TrajectoryGenerator:
         objective = np.sum(accel_control_points_squared_sum) + scale_factor
         return objective
 
-    def __create_waypoint_constraint(self, waypoints, num_cont_pts, num_intermediate_waypoints):
+    def __create_terminal_waypoint_location_constraint(self, waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints):
         num_end_waypoints = 2
         num_extra_spaces = 1 + num_intermediate_waypoints
         m = num_end_waypoints
         n = num_cont_pts
         k = self._order
         d = self._dimension
-        constraint_matrix = np.zeros((m*d,n*d))
-        Gamma_0 = np.zeros((self._order+1,1))
-        Gamma_0[self._order,0] = 1
-        Gamma_f = np.ones((self._order+1,1))
-        M_Gamma_0_T = np.dot(self._M,Gamma_0).T
-        M_Gamma_f_T = np.dot(self._M,Gamma_f).T
-        for i in range(self._dimension):
-            constraint_matrix[i*m   ,  i*n        : i*n+k+1] = M_Gamma_0_T
-            constraint_matrix[i*m+1 , (i+1)*n-k-1 : (i+1)*n] = M_Gamma_f_T
-        constraint_matrix = np.concatenate((constraint_matrix,np.zeros((m*d,num_extra_spaces))),1)
-        constraint = LinearConstraint(constraint_matrix, lb=waypoints.flatten(), ub=waypoints.flatten())
+        constraint_matrix = np.zeros((self._dimension,n*d+num_extra_spaces))
+        if waypoint.side == "start":
+            Gamma_0 = np.zeros((self._order+1,1))
+            Gamma_0[self._order,0] = 1
+            M_Gamma_0_T = np.dot(self._M,Gamma_0).T
+            for i in range(self._dimension):
+                constraint_matrix[i,  i*n        : i*n+k+1] = M_Gamma_0_T
+        elif waypoint.side == "end":
+            Gamma_f = np.ones((self._order+1,1))
+            M_Gamma_f_T = np.dot(self._M,Gamma_f).T
+            for i in range(self._dimension):
+                constraint_matrix[i, (i+1)*n-k-1 : (i+1)*n] = M_Gamma_f_T
+        else:
+            raise Exception("Error: Not a start or end Waypoint")
+        constraint = LinearConstraint(constraint_matrix, lb=waypoint.location.flatten(), ub=waypoint.location.flatten())
         return constraint
+    
+    # def __create_terminal_waypoint_location_constraint(self, waypoints, num_cont_pts, num_intermediate_waypoints):
+    #     num_end_waypoints = 2
+    #     num_extra_spaces = 1 + num_intermediate_waypoints
+    #     m = num_end_waypoints
+    #     n = num_cont_pts
+    #     k = self._order
+    #     d = self._dimension
+    #     constraint_matrix = np.zeros((1,n*d+num_extra_spaces))
+    #     Gamma_0 = np.zeros((self._order+1,1))
+    #     Gamma_0[self._order,0] = 1
+    #     Gamma_f = np.ones((self._order+1,1))
+    #     M_Gamma_0_T = np.dot(self._M,Gamma_0).T
+    #     M_Gamma_f_T = np.dot(self._M,Gamma_f).T
+    #     for i in range(self._dimension):
+    #         constraint_matrix[i*m   ,  i*n        : i*n+k+1] = M_Gamma_0_T
+    #         constraint_matrix[i*m+1 , (i+1)*n-k-1 : (i+1)*n] = M_Gamma_f_T
+    #     # constraint_matrix = np.concatenate((constraint_matrix,np.zeros((m*d,num_extra_spaces))),1)
+    #     constraint = LinearConstraint(constraint_matrix, lb=waypoints.flatten(), ub=waypoints.flatten())
+    #     return constraint
     
     ### convert to c++ code
     def __create_intermediate_waypoint_location_constraints(self, intermediate_locations, num_cont_pts, num_intermediate_waypoints):
