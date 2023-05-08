@@ -15,6 +15,8 @@ from trajectory_generation.safe_flight_corridor import SFC_Data, SFC
 from trajectory_generation.obstacle import Obstacle
 from trajectory_generation.waypoint_data import Waypoint, WaypointData
 from trajectory_generation.dynamic_bounds import DerivativeBounds, TurningBound
+from trajectory_generation.objective_variables import create_initial_objective_variables, \
+    get_objective_variables, get_intermediate_waypoint_scale_times, create_objective_variable_bounds
 import time
 
 class TrajectoryGenerator:
@@ -47,15 +49,16 @@ class TrajectoryGenerator:
         num_cont_pts = self.__get_num_control_points(num_intervals)
         constraints = self.__get_constraints(num_cont_pts, waypoint_data, derivative_bounds, turning_bound, sfc_data, obstacles, num_intermediate_waypoints)
         objectiveFunction = self.__get_objective_function(objective_function_type)
-        objective_variable_bounds = self.__create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints)
+        objective_variable_bounds = create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
         waypoint_sequence = waypoint_data.get_waypoint_locations()
-        optimization_variables = self.__create_initial_objective_variables(num_cont_pts, point_sequence, num_intermediate_waypoints, waypoint_sequence)
+        optimization_variables = create_initial_objective_variables(num_cont_pts, point_sequence, 
+            num_intermediate_waypoints, waypoint_sequence, self._dimension, self._order)
         minimize_options = {'disp': False} #, 'maxiter': self.maxiter, 'ftol': tol}
         # perform optimization
         result = minimize(
             objectiveFunction,
             x0=optimization_variables,
-            args=(num_cont_pts,),
+            args=(num_cont_pts, self._dimension),
             method='SLSQP', 
             bounds=objective_variable_bounds,
             constraints=constraints, 
@@ -73,15 +76,6 @@ class TrajectoryGenerator:
             return self.__minimize_jerk_control_points_objective_function
         else:
             raise Exception("Error, Invalid objective function type")
-        
-    def __create_objective_variable_bounds(self, num_cont_pts, num_intermediate_waypoints):
-        lower_bounds = np.zeros(num_cont_pts*self._dimension + 1 + num_intermediate_waypoints) - np.inf
-        upper_bounds = np.zeros(num_cont_pts*self._dimension + 1 + num_intermediate_waypoints) + np.inf
-        lower_bounds[num_cont_pts*self._dimension] = 0.000001
-        if num_intermediate_waypoints > 0:
-            num_intervals = num_cont_pts - self._order
-            upper_bounds[-num_intermediate_waypoints:] = num_intervals
-        return Bounds(lb=lower_bounds, ub=upper_bounds)
 
     def __get_num_intervals(self, sfc_data: SFC_Data):
         num_intervals = self._num_intervals_free_space
@@ -95,25 +89,6 @@ class TrajectoryGenerator:
             return point_sequence
         else:
             return sfc_data.get_point_sequence()
-    
-    def __create_initial_objective_variables(self, num_cont_pts, point_sequence, num_intermediate_waypoints,  waypoint_sequence):
-        control_points = self.__create_initial_control_points(num_cont_pts, point_sequence)
-        scale_factor = 1
-        variables = np.concatenate((control_points.flatten(),[scale_factor]))
-        if (num_intermediate_waypoints > 0):
-            intermediate_waypoint_time_scales = self.__create_initial_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts)
-            variables = np.concatenate((variables, intermediate_waypoint_time_scales))
-        return variables
-        
-    def __get_objective_variables(self, variables, num_cont_pts):
-        control_points = np.reshape(variables[0:num_cont_pts*self._dimension], \
-                    (self._dimension,num_cont_pts))
-        scale_factor = variables[num_cont_pts*self._dimension]
-        return control_points, scale_factor
-    
-    def __get_intermediate_waypoint_scale_times(self, variables, num_middle_waypoints):
-        intermediate_waypoint_times = variables[-num_middle_waypoints:]
-        return intermediate_waypoint_times
 
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
             derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
@@ -126,19 +101,19 @@ class TrajectoryGenerator:
             start_waypoint_derivatives_constraint = self.__create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
             constraints.append(start_waypoint_derivatives_constraint)
         if waypoint_data.end_waypoint.checkIfDerivativesActive():
-            end_waypoint_derivatives_constraint = self.__create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
+            end_waypoint_derivatives_constraint = self.__create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts, self._dimension)
             constraints.append(end_waypoint_derivatives_constraint)
         if waypoint_data.intermediate_locations is not None:
-            intermediate_waypoint_location_constraints = self.__create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints)
+            intermediate_waypoint_location_constraints = self.__create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints, self._dimension)
             constraints.append(intermediate_waypoint_location_constraints)
             if(num_intermediate_waypoints > 1):
                 intermediate_waypoint_time_constraints = self.__create_intermediate_waypoint_time_scale_constraint(num_cont_pts, num_intermediate_waypoints)
                 constraints.append(intermediate_waypoint_time_constraints)
         if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive() is not None:
-            derivatives_constraint = self.__create_derivatives_constraint(derivative_bounds, num_cont_pts)
+            derivatives_constraint = self.__create_derivatives_constraint(derivative_bounds, num_cont_pts, self._dimension)
             constraints.append(derivatives_constraint)
         if turning_bound is not None and turning_bound.checkIfTurningBoundActive():
-            turning_constraint = self.__create_turning_constraint(turning_bound, num_cont_pts)
+            turning_constraint = self.__create_turning_constraint(turning_bound, num_cont_pts, self._dimension)
             constraints.append(turning_constraint)
         if sfc_data is not None:
             sfc_constraint = self.__create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints)
@@ -148,25 +123,25 @@ class TrajectoryGenerator:
             constraints.append(obstacle_constraint)
         return tuple(constraints)
 
-    def __minimize_jerk_control_points_objective_function(self, variables, num_cont_pts):
+    def __minimize_jerk_control_points_objective_function(self, variables, num_cont_pts, dimension):
         # for third order splines only
-        control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+        control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
         jerk_cps = control_points[:,3:] - 3*control_points[:,2:-1] + 3*control_points[:,1:-2] - control_points[:,0:-3]
         square_jerk_control_points = np.sum(jerk_cps**2,0)
         objective = np.sum(square_jerk_control_points) + scale_factor
         return objective
     
-    def __minimize_velocity_control_points_objective_function(self, variables, num_cont_pts):
+    def __minimize_velocity_control_points_objective_function(self, variables, num_cont_pts, dimension):
         # for third order splines only
-        control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+        control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
         velocity_cps =  control_points[:,0:-1] - control_points[:,1:]
         velocity_control_points_squared_sum = np.sum(velocity_cps**2,0)
         objective = np.sum(velocity_control_points_squared_sum) + scale_factor
         return objective
     
-    def __minimize_acceleration_control_points_objective_function(self, variables, num_cont_pts):
+    def __minimize_acceleration_control_points_objective_function(self, variables, num_cont_pts, dimension):
         # for third order splines only
-        control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+        control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
         acceleration_cps =  control_points[:,2:] - 2*control_points[:,1:-1] + control_points[:,0:-2]
         accel_control_points_squared_sum = np.sum(acceleration_cps**2,0)
         objective = np.sum(accel_control_points_squared_sum) + scale_factor
@@ -196,33 +171,13 @@ class TrajectoryGenerator:
         constraint = LinearConstraint(constraint_matrix, lb=waypoint.location.flatten(), ub=waypoint.location.flatten())
         return constraint
     
-    # def __create_terminal_waypoint_location_constraint(self, waypoints, num_cont_pts, num_intermediate_waypoints):
-    #     num_end_waypoints = 2
-    #     num_extra_spaces = 1 + num_intermediate_waypoints
-    #     m = num_end_waypoints
-    #     n = num_cont_pts
-    #     k = self._order
-    #     d = self._dimension
-    #     constraint_matrix = np.zeros((1,n*d+num_extra_spaces))
-    #     Gamma_0 = np.zeros((self._order+1,1))
-    #     Gamma_0[self._order,0] = 1
-    #     Gamma_f = np.ones((self._order+1,1))
-    #     M_Gamma_0_T = np.dot(self._M,Gamma_0).T
-    #     M_Gamma_f_T = np.dot(self._M,Gamma_f).T
-    #     for i in range(self._dimension):
-    #         constraint_matrix[i*m   ,  i*n        : i*n+k+1] = M_Gamma_0_T
-    #         constraint_matrix[i*m+1 , (i+1)*n-k-1 : (i+1)*n] = M_Gamma_f_T
-    #     # constraint_matrix = np.concatenate((constraint_matrix,np.zeros((m*d,num_extra_spaces))),1)
-    #     constraint = LinearConstraint(constraint_matrix, lb=waypoints.flatten(), ub=waypoints.flatten())
-    #     return constraint
-    
     ### convert to c++ code
-    def __create_intermediate_waypoint_location_constraints(self, intermediate_locations, num_cont_pts, num_intermediate_waypoints):
+    def __create_intermediate_waypoint_location_constraints(self, intermediate_locations, num_cont_pts, num_intermediate_waypoints, dimension):
         lower_bound = 0
         upper_bound = 0
         def intermediate_waypoint_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            intermediate_waypoint_scale_times = self.__get_intermediate_waypoint_scale_times(variables, num_intermediate_waypoints)
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+            intermediate_waypoint_scale_times = get_intermediate_waypoint_scale_times(variables, num_intermediate_waypoints)
             constraints = np.zeros((self._dimension, num_intermediate_waypoints))
             for i in range(num_intermediate_waypoints):
                 desired_location = intermediate_locations[:,i]
@@ -247,7 +202,7 @@ class TrajectoryGenerator:
         constraint = LinearConstraint(constraint_matrix, lb=-np.inf, ub=0)
         return constraint
     
-    def __create_terminal_waypoint_derivative_constraints(self, waypoint: Waypoint, num_cont_pts: int):
+    def __create_terminal_waypoint_derivative_constraints(self, waypoint: Waypoint, num_cont_pts: int, dimension: int):
         lower_bound = 0
         upper_bound = 0
         if waypoint.checkIfVelocityActive():
@@ -259,7 +214,7 @@ class TrajectoryGenerator:
         constraints = self.__initialize_derivative_constraints(waypoint)
         side = waypoint.side
         def waypoint_derivative_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             marker = 0
             if velocityIsActive:
                 velocity = self.__get_terminal_velocity(side, control_points, scale_factor)
@@ -294,12 +249,12 @@ class TrajectoryGenerator:
             acceleration = (control_points[:,-3] - 2*control_points[:,-2] + control_points[:,-1])/(scale_factor*scale_factor)
         return acceleration
 
-    def __create_derivatives_constraint(self, derivative_bounds: DerivativeBounds, num_cont_pts):
+    def __create_derivatives_constraint(self, derivative_bounds: DerivativeBounds, num_cont_pts, dimension):
         num_vel_cont_pts = num_cont_pts - 1
         M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, self._order-1)
         constraints = self.__initialize_derivative_constraint_array(derivative_bounds)
         def derivatives_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
             count = 0
             if derivative_bounds.max_velocity is not None:
@@ -358,16 +313,16 @@ class TrajectoryGenerator:
         constraint = acceleration_bound - derivative_bounds.max_acceleration
         return constraint
 
-    def __create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts):
+    def __create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts, dimension):
         def centripetal_acceleration_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             const = self._turning_const_obj.get_spline_centripetal_acceleration_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
             return const
         def angular_rate_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             return self._turning_const_obj.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
         def curvature_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             return self._turning_const_obj.get_spline_curvature_constraint(control_points,turning_bound.max_turning_bound)
         if turning_bound.bound_type == "curvature":
             constraint_function = curvature_constraint_function
@@ -419,8 +374,8 @@ class TrajectoryGenerator:
         return safe_corridor_constraints
     
     def __create_obstacle_constraints(self, obstacles, num_cont_pts):
-        def obstacle_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+        def obstacle_constraint_function(variables, num_cont_pts, dimension):
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             # return self._obstacle_cons_obj.getObstacleConstraintsForIntervals(control_points, obstacle.radius, obstacle.center)
             radii = np.zeros(len(obstacles))
             centers = np.zeros((self._dimension,len(obstacles)))
@@ -461,50 +416,6 @@ class TrajectoryGenerator:
                         M_rot[index, index + 2*dim_step] = rotation[0,2]
                 interval_count += 1
         return M_rot
-
-    def __create_initial_control_points(self, total_num_cont_pts, point_sequence):
-        num_segments = np.shape(point_sequence)[1] - 1
-        if num_segments < 2:
-            start_point = point_sequence[:,0]
-            end_point = point_sequence[:,1]
-            control_points = np.linspace(start_point,end_point,total_num_cont_pts).T
-        else:
-            control_points = np.empty(shape=(self._dimension,total_num_cont_pts))
-            distances = np.linalg.norm(point_sequence[:,1:] - point_sequence[:,0:-1],2,0)
-            for i in range(num_segments-1):
-                distances[i+1] = distances[i+1] + distances[i]
-            distance_between_cont_pts = distances[num_segments-1] / (total_num_cont_pts-1)
-            segment_num = 0
-            current_distance = 0
-            prev_point_location = point_sequence[:,0]
-            step_distance = 0
-            for i in range(total_num_cont_pts-1):
-                interval_start_point = point_sequence[:,segment_num]
-                interval_end_point = point_sequence[:,segment_num+1]
-                vector_to_point = interval_end_point - interval_start_point
-                unit_vector_to_point = vector_to_point / (np.linalg.norm(vector_to_point))
-                control_points[:,i] = prev_point_location + unit_vector_to_point*step_distance
-                prev_point_location = control_points[:,i]
-                step_distance = distance_between_cont_pts
-                current_distance = current_distance + step_distance
-                if distances[segment_num] < current_distance:
-                    step_distance = current_distance - distances[segment_num]
-                    segment_num += 1
-                    prev_point_location = point_sequence[:,segment_num]
-            control_points[:,-1] = point_sequence[:,-1]
-        return control_points
-    
-    def __create_initial_intermediate_waypoint_time_scales(self , point_sequence, num_cont_pts):
-        num_intervals = num_cont_pts - self._order
-        num_segments = np.shape(point_sequence)[1] - 1
-        intermediate_waypoint_times = np.array([0.5])
-        if num_segments > 2:
-            distances = np.linalg.norm(point_sequence[:,1:] - point_sequence[:,0:-1],2,0)
-            for i in range(num_segments-1):
-                distances[i+1] = distances[i+1] + distances[i]
-            norm_distances = distances/distances[num_segments-1]
-            intermediate_waypoint_times = norm_distances[0:-1]*num_intervals
-        return intermediate_waypoint_times
 
     def __get_num_control_points(self, num_intervals):
         num_control_points = num_intervals + self._order
