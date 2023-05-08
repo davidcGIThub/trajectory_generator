@@ -101,7 +101,7 @@ class TrajectoryGenerator:
         scale_factor = 1
         variables = np.concatenate((control_points.flatten(),[scale_factor]))
         if (num_intermediate_waypoints > 0):
-            intermediate_waypoint_time_scales = self.__create_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts)
+            intermediate_waypoint_time_scales = self.__create_initial_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts)
             variables = np.concatenate((variables, intermediate_waypoint_time_scales))
         return variables
         
@@ -122,17 +122,16 @@ class TrajectoryGenerator:
         waypoint_constraint = self.__create_waypoint_constraint(waypoints, num_cont_pts, num_intermediate_waypoints)
         constraints = [waypoint_constraint]
         if waypoint_data.start_waypoint.checkIfDerivativesActive():
-            print("start derivative active")
-            start_waypoint_derivatives_constraint = self.__create_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
+            start_waypoint_derivatives_constraint = self.__create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
             constraints.append(start_waypoint_derivatives_constraint)
         if waypoint_data.end_waypoint.checkIfDerivativesActive():
-            end_waypoint_derivatives_constraint = self.__create_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
+            end_waypoint_derivatives_constraint = self.__create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
             constraints.append(end_waypoint_derivatives_constraint)
         if waypoint_data.intermediate_locations is not None:
-            intermediate_waypoint_constraints = self.__create_intermediate_waypoint_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints)
-            constraints.append(intermediate_waypoint_constraints)
+            intermediate_waypoint_location_constraints = self.__create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints)
+            constraints.append(intermediate_waypoint_location_constraints)
             if(num_intermediate_waypoints > 1):
-                intermediate_waypoint_time_constraints = self.__create_intermediate_waypoint_time_scales_constraint(num_cont_pts, num_intermediate_waypoints)
+                intermediate_waypoint_time_constraints = self.__create_intermediate_waypoint_time_scale_constraint(num_cont_pts, num_intermediate_waypoints)
                 constraints.append(intermediate_waypoint_time_constraints)
         if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive() is not None:
             derivatives_constraint = self.__create_derivatives_constraint(derivative_bounds, num_cont_pts)
@@ -193,7 +192,7 @@ class TrajectoryGenerator:
         return constraint
     
     ### convert to c++ code
-    def __create_intermediate_waypoint_constraints(self, intermediate_locations, num_cont_pts, num_intermediate_waypoints):
+    def __create_intermediate_waypoint_location_constraints(self, intermediate_locations, num_cont_pts, num_intermediate_waypoints):
         lower_bound = 0
         upper_bound = 0
         def intermediate_waypoint_constraint_function(variables):
@@ -211,7 +210,7 @@ class TrajectoryGenerator:
         intermediate_waypoint_constraint = NonlinearConstraint(intermediate_waypoint_constraint_function, lb= lower_bound, ub=upper_bound)
         return intermediate_waypoint_constraint
     
-    def __create_intermediate_waypoint_time_scales_constraint(self, num_cont_pts, num_intermediate_waypoints):
+    def __create_intermediate_waypoint_time_scale_constraint(self, num_cont_pts, num_intermediate_waypoints):
         num_extra_spaces = 2 + num_intermediate_waypoints
         m = num_intermediate_waypoints
         n = num_cont_pts
@@ -223,7 +222,7 @@ class TrajectoryGenerator:
         constraint = LinearConstraint(constraint_matrix, lb=-np.inf, ub=0)
         return constraint
     
-    def __create_waypoint_derivative_constraints(self, waypoint: Waypoint, num_cont_pts: int):
+    def __create_terminal_waypoint_derivative_constraints(self, waypoint: Waypoint, num_cont_pts: int):
         lower_bound = 0
         upper_bound = 0
         if waypoint.checkIfVelocityActive():
@@ -470,7 +469,7 @@ class TrajectoryGenerator:
             control_points[:,-1] = point_sequence[:,-1]
         return control_points
     
-    def __create_intermediate_waypoint_time_scales(self , point_sequence, num_cont_pts):
+    def __create_initial_intermediate_waypoint_time_scales(self , point_sequence, num_cont_pts):
         num_intervals = num_cont_pts - self._order
         num_segments = np.shape(point_sequence)[1] - 1
         intermediate_waypoint_times = np.array([0.5])
