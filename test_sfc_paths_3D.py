@@ -49,14 +49,17 @@ max_acceleration = .8
 gravity = 0.1
 # gravity = None
 max_upward_velocity = 1
-derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity, max_upward_velocity)
+max_horizontal_velocity = 1.75
+derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity, max_upward_velocity, max_horizontal_velocity)
 # derivative_bounds = None
 
 ### 1st path
 waypoint_1_location = point_1
 waypoint_4_location = point_4
-waypoint_1 = Waypoint(location=waypoint_1_location, velocity=np.array([[1],[1],[0]]), acceleration=np.array([[1],[1],[0]]))
-waypoint_4 = Waypoint(location=waypoint_4_location, velocity=np.array([[0.3],[1.4],[0.7]]), acceleration=np.array([[-0.25],[-0.96],[-0.5]]))
+# waypoint_1 = Waypoint(location=waypoint_1_location, velocity=np.array([[1],[1],[0]]), acceleration=np.array([[1],[1],[0]]))
+# waypoint_4 = Waypoint(location=waypoint_4_location, velocity=np.array([[0.3],[1.4],[0.7]]), acceleration=np.array([[-0.25],[-0.96],[-0.5]]))
+waypoint_1 = Waypoint(location=waypoint_1_location)
+waypoint_4 = Waypoint(location=waypoint_4_location)
 waypoint_data = WaypointData(start_waypoint=waypoint_1,end_waypoint=waypoint_4)
 traj_gen = TrajectoryGenerator(dimension)
 start_time_1 = time.time()
@@ -77,6 +80,7 @@ acceleration_data, time_data = bspline.get_derivative_magnitude_data(number_data
 acceleration_spline_data, time_data = bspline.get_spline_derivative_data(number_data_points, 2)
 angular_rate_data, time_data = bspline.get_angular_rate_data(number_data_points)
 centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_data(number_data_points)
+velocity_spline_data, time_data = bspline.get_spline_derivative_data(number_data_points,1)
 # path_length = bspline.get_arc_length(number_data_points)
 end_time_spline = bspline.get_end_time()
 start_velocity = bspline.get_derivative_at_time_t(0,1)
@@ -125,6 +129,23 @@ if gravity is not None:
     plt.plot(time_data, max_acceleration + gravity + acceleration_data*0)
     plt.plot(time_data, -max_acceleration + gravity + acceleration_data*0)
     plt.title("acceleration z dir ")
+    plt.show()
+
+if max_upward_velocity is not None:
+    plt.figure()
+    plt.plot(time_data, velocity_spline_data[2,:],color = "b")
+    plt.plot(time_data, -max_upward_velocity + velocity_data*0)
+    plt.plot(time_data, max_velocity + velocity_data*0)
+    # plt.plot(time_data, velocity_data*0)
+    plt.title("velocity z dir ")
+    plt.show()
+
+if max_horizontal_velocity is not None:
+    plt.figure()
+    plt.plot(time_data, np.linalg.norm(velocity_spline_data[0:2,:],2,0),color = "b")
+    plt.plot(time_data, max_horizontal_velocity + velocity_data*0)
+    # plt.plot(time_data, velocity_data*0)
+    plt.title("horizontal velocity ")
     plt.show()
 
 

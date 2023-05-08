@@ -222,56 +222,8 @@ class TrajectoryGenerator:
             constraint_matrix[i,-i-2] = 1
         constraint = LinearConstraint(constraint_matrix, lb=-np.inf, ub=0)
         return constraint
-
-    def __create_start_waypoint_derivative_constraints(self, start_waypoint: Waypoint, num_cont_pts):
-        lower_bound = 0
-        upper_bound = 0
-        if start_waypoint.checkIfVelocityActive():
-            start_velocity_desired = start_waypoint.velocity.flatten()
-        if start_waypoint.checkIfAccelerationActive():
-            start_acceleration_desired = start_waypoint.acceleration.flatten()
-        startVelocityIsActive = start_waypoint.checkIfVelocityActive()
-        startAccelerationIsActive = start_waypoint.checkIfAccelerationActive()
-        def start_waypoint_derivative_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            constraints = np.array([])
-            if startVelocityIsActive:
-                start_velocity_direction = (control_points[:,2] - control_points[:,0])/(2*scale_factor)
-                constraints = start_velocity_direction - start_velocity_desired
-            if startAccelerationIsActive:
-                start_acceleration_direction = (control_points[:,0] - 2*control_points[:,1] + control_points[:,2])/(scale_factor*scale_factor)
-                constraints_2 = start_acceleration_direction - start_acceleration_desired
-                constraints = np.concatenate((constraints, constraints_2))
-            return constraints.flatten()
-        start_waypoint_derivative_constraint = NonlinearConstraint(start_waypoint_derivative_constraint_function, lb= lower_bound, ub=upper_bound)
-        return start_waypoint_derivative_constraint
-    
-    ### make start and end constraint into a function can use for both
-    def __create_end_waypoint_derivative_constraints(self, end_waypoint: Waypoint, num_cont_pts):
-        lower_bound = 0
-        upper_bound = 0
-        if end_waypoint.checkIfVelocityActive():
-            end_velocity_desired = end_waypoint.velocity.flatten()
-        if end_waypoint.checkIfAccelerationActive():
-            end_acceleration_desired = end_waypoint.acceleration.flatten()
-        endVelocityIsActive = end_waypoint.checkIfVelocityActive()
-        endAccelerationIsActive = end_waypoint.checkIfAccelerationActive()
-        def end_waypoint_derivative_constraint_function(variables):
-            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
-            constraints = np.array([])
-            if endVelocityIsActive:
-                end_velocity_direction = (control_points[:,-1] - control_points[:,-3])/(2*scale_factor)
-                constraints = end_velocity_direction - end_velocity_desired
-            if endAccelerationIsActive:
-                end_acceleration_direction = (control_points[:,-3] - 2*control_points[:,-2] + control_points[:,-1])/(scale_factor*scale_factor)
-                constraints_2 = end_acceleration_direction - end_acceleration_desired
-                constraints = np.concatenate((constraints, constraints_2))
-            return constraints.flatten()
-        end_waypoint_derivative_constraint = NonlinearConstraint(end_waypoint_derivative_constraint_function, lb= lower_bound, ub=upper_bound)
-        return end_waypoint_derivative_constraint
     
     def __create_waypoint_derivative_constraints(self, waypoint: Waypoint, num_cont_pts: int):
-        print("waypoint: " , waypoint.side)
         lower_bound = 0
         upper_bound = 0
         if waypoint.checkIfVelocityActive():
@@ -333,6 +285,9 @@ class TrajectoryGenerator:
                 if derivative_bounds.max_upward_velocity is not None and self._dimension == 3:
                     constraints[count] = self.__calculate_upward_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
                     count += 1
+                if derivative_bounds.max_horizontal_velocity is not None and self._dimension == 3:
+                    constraints[count] = self.__calculate_horizontal_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
+                    count += 1
             if derivative_bounds.max_acceleration is not None:
                 acceleration_constraint = self.__calculate_acceleration_constraint(derivative_bounds, velocity_control_points, scale_factor)
                 constraints[count] = acceleration_constraint
@@ -349,9 +304,16 @@ class TrajectoryGenerator:
             length += 1
             if derivative_bounds.max_upward_velocity is not None:
                 length += 1
+            if derivative_bounds.max_horizontal_velocity is not None:
+                length += 1
         if derivative_bounds.max_acceleration is not None:
             length += 1
         return np.zeros(length)
+    
+    def __calculate_horizontal_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds):
+        velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points[0:2,:],2,0))
+        constraint = velocity_bound - derivative_bounds.max_horizontal_velocity
+        return constraint
     
     def __calculate_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds):
         velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points,2,0))
@@ -359,8 +321,8 @@ class TrajectoryGenerator:
         return constraint
     
     def __calculate_upward_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds):
-        min_z_vel = np.max(bezier_velocity_control_points[2,:])
-        constraint = min_z_vel - derivative_bounds.max_upward_velocity
+        min_z_vel = np.min(bezier_velocity_control_points[2,:])
+        constraint = -min_z_vel - derivative_bounds.max_upward_velocity
         return constraint
     
     def __calculate_acceleration_constraint(self, derivative_bounds, velocity_control_points, scale_factor):
