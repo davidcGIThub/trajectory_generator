@@ -55,8 +55,8 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity, ma
 ### 1st path
 waypoint_1_location = point_1
 waypoint_4_location = point_4
-waypoint_1 = Waypoint(location=waypoint_1_location)
-waypoint_4 = Waypoint(location=waypoint_4_location)
+waypoint_1 = Waypoint(location=waypoint_1_location, velocity=np.array([[1],[1],[0]]), acceleration=np.array([[1],[1],[0]]))
+waypoint_4 = Waypoint(location=waypoint_4_location, velocity=np.array([[0.3],[1.4],[0.7]]), acceleration=np.array([[-0.25],[-0.96],[-0.5]]))
 waypoint_data = WaypointData(start_waypoint=waypoint_1,end_waypoint=waypoint_4)
 traj_gen = TrajectoryGenerator(dimension)
 start_time_1 = time.time()
@@ -77,12 +77,18 @@ acceleration_data, time_data = bspline.get_derivative_magnitude_data(number_data
 acceleration_spline_data, time_data = bspline.get_spline_derivative_data(number_data_points, 2)
 angular_rate_data, time_data = bspline.get_angular_rate_data(number_data_points)
 centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_data(number_data_points)
-path_length = bspline.get_arc_length(number_data_points)
+# path_length = bspline.get_arc_length(number_data_points)
+end_time_spline = bspline.get_end_time()
 start_velocity = bspline.get_derivative_at_time_t(0,1)
 start_acceleration = bspline.get_derivative_at_time_t(0,2)
+end_velocity = bspline.get_derivative_at_time_t(end_time_spline,1)
+end_acceleration = bspline.get_derivative_at_time_t(end_time_spline,2)
 print("start_velocity: " , start_velocity)
 print("start_acceleraiton: " , start_acceleration)
-print("path_length: " , path_length)
+print("end_velocity: " , end_velocity)
+print("end_acceleraiton: " , end_acceleration)
+
+# print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
 
 

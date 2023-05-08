@@ -10,7 +10,7 @@ from trajectory_generation.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.obstacle import Obstacle, plot_2D_obstacles
 import time
 
-#note incline constraints work much better when have a start and an end direction
+#note incline constraints work much better when have a start and an end direction.
 
 dimension = 2
 # max_curvature = 1

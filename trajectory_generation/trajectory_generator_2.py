@@ -9,7 +9,7 @@ from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstrai
 from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval
 from TrajectoryConstraintsCCode.python_wrappers.obstacle_constraints import ObstacleConstraints
 from TrajectoryConstraintsCCode.python_wrappers.turning_constraints import TurningConstraints
-from bsplinegenerator.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
+from trajectory_generation.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
 from trajectory_generation.bspline_to_bezier import get_composite_bspline_to_bezier_conversion_matrix
 from trajectory_generation.safe_flight_corridor import SFC_Data, SFC
 from trajectory_generation.obstacle import Obstacle
@@ -116,15 +116,17 @@ class TrajectoryGenerator:
         return intermediate_waypoint_times
 
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
-        derivative_bounds: DerivativeBounds, turning_bound: TurningBound, sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
+            derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
+            sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
         waypoints = np.concatenate((waypoint_data.start_waypoint.location, waypoint_data.end_waypoint.location),1)
         waypoint_constraint = self.__create_waypoint_constraint(waypoints, num_cont_pts, num_intermediate_waypoints)
         constraints = [waypoint_constraint]
         if waypoint_data.start_waypoint.checkIfDerivativesActive():
-            start_waypoint_derivatives_constraint = self.__create_start_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
+            print("start derivative active")
+            start_waypoint_derivatives_constraint = self.__create_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
             constraints.append(start_waypoint_derivatives_constraint)
         if waypoint_data.end_waypoint.checkIfDerivativesActive():
-            end_waypoint_derivatives_constraint = self.__create_end_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
+            end_waypoint_derivatives_constraint = self.__create_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
             constraints.append(end_waypoint_derivatives_constraint)
         if waypoint_data.intermediate_locations is not None:
             intermediate_waypoint_constraints = self.__create_intermediate_waypoint_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints)
@@ -268,6 +270,54 @@ class TrajectoryGenerator:
         end_waypoint_derivative_constraint = NonlinearConstraint(end_waypoint_derivative_constraint_function, lb= lower_bound, ub=upper_bound)
         return end_waypoint_derivative_constraint
     
+    def __create_waypoint_derivative_constraints(self, waypoint: Waypoint, num_cont_pts: int):
+        print("waypoint: " , waypoint.side)
+        lower_bound = 0
+        upper_bound = 0
+        if waypoint.checkIfVelocityActive():
+            velocity_desired = waypoint.velocity.flatten()
+        if waypoint.checkIfAccelerationActive():
+            acceleration_desired = waypoint.acceleration.flatten()
+        velocityIsActive = waypoint.checkIfVelocityActive()
+        accelerationIsActive = waypoint.checkIfAccelerationActive()
+        constraints = self.__initialize_derivative_constraints(waypoint)
+        side = waypoint.side
+        def waypoint_derivative_constraint_function(variables):
+            control_points, scale_factor = self.__get_objective_variables(variables, num_cont_pts)
+            marker = 0
+            if velocityIsActive:
+                velocity = self.__get_terminal_velocity(side, control_points, scale_factor)
+                constraints[marker:self._dimension] = (velocity - velocity_desired).flatten()
+                marker += self._dimension
+            if accelerationIsActive:
+                acceleration = self.__get_terminal_acceleration(side, control_points, scale_factor)
+                constraints[marker:marker+self._dimension] = (acceleration - acceleration_desired).flatten()
+            return constraints
+        waypoint_derivative_constraint = NonlinearConstraint(waypoint_derivative_constraint_function, lb= lower_bound, ub=upper_bound)
+        return waypoint_derivative_constraint
+    
+    def __initialize_derivative_constraints(self, waypoint: Waypoint):
+        length = 0
+        if waypoint.checkIfVelocityActive():
+            length += self._dimension
+        if waypoint.checkIfAccelerationActive():
+            length += self._dimension
+        return np.zeros(length)
+    
+    def __get_terminal_velocity(self, side, control_points, scale_factor):
+        if side == "start":
+            velocity = (control_points[:,2] - control_points[:,0])/(2*scale_factor)
+        if side == "end":
+            velocity = (control_points[:,-1] - control_points[:,-3])/(2*scale_factor)
+        return velocity
+
+    def __get_terminal_acceleration(self, side, control_points, scale_factor):
+        if side == "start":
+            acceleration = (control_points[:,0] - 2*control_points[:,1] + control_points[:,2])/(scale_factor*scale_factor)
+        if side == "end":
+            acceleration = (control_points[:,-3] - 2*control_points[:,-2] + control_points[:,-1])/(scale_factor*scale_factor)
+        return acceleration
+
     def __create_derivatives_constraint(self, derivative_bounds: DerivativeBounds, num_cont_pts):
         num_vel_cont_pts = num_cont_pts - 1
         M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, self._order-1)

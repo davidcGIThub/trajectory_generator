@@ -19,8 +19,8 @@ class DerivativeBounds:
     max_velocity: float = None
     max_acceleration: float = None
     gravity: float = None
-    max_upward_velocity = None
-    max_downward_velocity = None
+    max_upward_velocity: float = None
+    max_downward_velocity: float = None
 
     def __post_init__(self):
         if self.max_upward_velocity is not None:

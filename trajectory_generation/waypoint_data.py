@@ -8,6 +8,7 @@ class Waypoint:
     velocity: np.ndarray = None
     acceleration: np.ndarray = None
     jerk: np.ndarray = None
+    side: str = None
 
     def checkIfDerivativesActive(self):
         return (self.checkIfVelocityActive() or self.checkIfAccelerationActive())
@@ -24,6 +25,10 @@ class WaypointData:
     start_waypoint: Waypoint = Waypoint(location=np.array([]))
     end_waypoint: Waypoint = Waypoint(location=np.array([]))
     intermediate_locations: np.ndarray = None
+
+    def __post_init__(self):
+        self.start_waypoint.side = "start"
+        self.end_waypoint.side = "end"
 
     def get_waypoint_locations(self):
         point_sequence = self.start_waypoint.location
