@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from bsplinegenerator.bsplines import BsplineEvaluation
 from trajectory_generation.trajectory_generator import TrajectoryGenerator
-from trajectory_generation.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
+from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
 from trajectory_generation.path_plotter import set_axes_equal
-from trajectory_generation.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
-from trajectory_generation.dynamic_bounds import DerivativeBounds, TurningBound
-from trajectory_generation.obstacle import Obstacle, plot_2D_obstacles
+from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
+from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
+from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
 import time
 
 #note incline constraints work much better when have a start and an end direction
@@ -39,7 +39,8 @@ waypoint_1 = Waypoint(location=np.array([[3],[4]]))
 waypoint_2 = Waypoint(location=np.array([[7],[10]]))
 waypoint_1.velocity = np.array([[1],[0]])
 waypoint_2.velocity = np.array([[1],[1]])
-waypoint_data = WaypointData(start_waypoint=waypoint_1,end_waypoint=waypoint_2)
+waypoint_sequence = (waypoint_1, waypoint_2)
+waypoint_data = WaypointData(waypoint_sequence)
 traj_gen = TrajectoryGenerator(dimension)
 start_time_1 = time.time()
 

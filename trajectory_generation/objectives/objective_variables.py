@@ -8,6 +8,7 @@ def create_initial_objective_variables(num_cont_pts, point_sequence, num_interme
     if (num_intermediate_waypoints > 0):
         intermediate_waypoint_time_scales = create_initial_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts, order)
         variables = np.concatenate((variables, intermediate_waypoint_time_scales))
+    print("len objective variables: " , len(variables))
     return variables
 
 def get_objective_variables(variables, num_cont_pts, dimension):
@@ -27,6 +28,7 @@ def create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints, d
     if num_intermediate_waypoints > 0:
         num_intervals = num_cont_pts - order
         upper_bounds[-num_intermediate_waypoints:] = num_intervals
+        lower_bounds[-num_intermediate_waypoints:] = 0
     return Bounds(lb=lower_bounds, ub=upper_bounds)
 
 def create_initial_control_points(total_num_cont_pts, point_sequence, dimension):

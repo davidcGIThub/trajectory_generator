@@ -2,11 +2,13 @@ import ctypes
 import pathlib 
 import os 
 import numpy as np
+from scipy.optimize import NonlinearConstraint
+from trajectory_generation.objectives.objective_variables import get_objective_variables
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
 libname_str = os.path.join(script_dir)
 libname = pathlib.Path(libname_str)
-lib = ctypes.CDLL(libname / "../build/src/libTrajectoryConstraints.so")
+lib = ctypes.CDLL(libname / "TrajectoryConstraintsCCode/build/src/libTrajectoryConstraints.so")
 
 class ObstacleConstraints(object):
 
@@ -86,6 +88,24 @@ class ObstacleConstraints(object):
             distance = lib.getObstacleConstraintForSpline_3(self.obj, cont_pts_array, 
                 num_cont_pts, obstacle_radius, obstacle_center_array)
         return distance
+    
+    def create_obstacle_constraints(self, obstacles, num_cont_pts, dimension):
+        def obstacle_constraint_function(variables):
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+            # return self._obstacle_cons_obj.getObstacleConstraintsForIntervals(control_points, obstacle.radius, obstacle.center)
+            radii = np.zeros(len(obstacles))
+            centers = np.zeros((self._dimension,len(obstacles)))
+            for i in range(len(obstacles)):
+                radii[i] = obstacles[i].radius
+                centers[0,i] = obstacles[i].center[0,0]
+                centers[1,i] = obstacles[i].center[1,0]
+                if self._dimension == 3:
+                    centers[2,i] = obstacles[i].center[2,0]
+            return self.getObstaclesConstraintsForSpline(control_points, radii, centers)
+        lower_bound = 0
+        upper_bound = np.inf
+        obstacle_constraint = NonlinearConstraint(obstacle_constraint_function , lb = lower_bound, ub = upper_bound)
+        return obstacle_constraint
 
 # control_points = np.array([[7.91705873, 9.88263331, 0.27303466, 7.50604049, 4.61073475, 5.98801717, 1.52432928, 3.8850049, 1.61195392, 8.22471529],
 #                            [5.22947263, 1.33282499, 3.51583204, 8.62435967, 3.03096953, 0.84672315, 0.54028843, 7.24686189, 4.79897482, 5.00498365]])

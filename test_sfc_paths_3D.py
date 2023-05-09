@@ -2,13 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from bsplinegenerator.bsplines import BsplineEvaluation
-# from trajectory_generation.trajectory_generator import TrajectoryGenerator
-from trajectory_generation.trajectory_generator_2 import TrajectoryGenerator
-from trajectory_generation.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
+from trajectory_generation.trajectory_generator import TrajectoryGenerator
+from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
 from trajectory_generation.path_plotter import set_axes_equal
-from trajectory_generation.waypoint_data import Waypoint, WaypointData, plot3D_waypoints
-from trajectory_generation.dynamic_bounds import DerivativeBounds, TurningBound
-from trajectory_generation.safe_flight_corridor import SFC, plot_sfcs
+from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot3D_waypoints
+from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
+from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC, plot_sfcs
 import time
 
 #note incline constraints work much better when have a start and an end direction
@@ -17,8 +16,8 @@ dimension = 3
 # max_curvature = 1
 order = 3
 # traj_objective_type = "minimal_acceleration_path"
-# traj_objective_type = "minimal_velocity_path"
-traj_objective_type = "minimal_distance_path"
+traj_objective_type = "minimal_velocity_path"
+# traj_objective_type = "minimal_distance_path"
 
 
 point_1 = np.array([[3],[4],[0]])
@@ -34,34 +33,39 @@ sfc_1 = SFC(np.array([[min_len_1+3],[2],[3]]), T1, R1)
 sfc_2 = SFC(np.array([[min_len_2 + 2],[3],[4]]), T2, R2)
 sfc_3 = SFC(np.array([[min_len_3+3],[2],[2]]), T3, R3)
 sfcs = (sfc_1, sfc_2, sfc_3)
-sfc_data = SFC_Data(sfcs, point_sequence)
+min_intervals_per_corridor = 1
+sfc_data = SFC_Data(sfcs, point_sequence,min_intervals_per_corridor)
 # sfc_data = None
-obstacles = None
-max_turning_bound = .5
-turning_bound = TurningBound(max_turning_bound,"angular_rate")
-# turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
-# turning_bound = TurningBound(max_turning_bound,"curvature")
-turning_bound = None
 
-max_velocity = 2
+obstacles = None
+max_turning_bound = 0.05
+# turning_bound = TurningBound(max_turning_bound,"angular_rate")
+# turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
+turning_bound = TurningBound(max_turning_bound,"curvature")
+# turning_bound = None
+
+max_velocity = 5
 # max_velocity = None
-max_acceleration = .8
+max_acceleration = 5
 gravity = 0.1
-# gravity = None
+gravity = None
 max_upward_velocity = 1
+max_upward_velocity = None
 max_horizontal_velocity = 1.75
+max_horizontal_velocity = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity, max_upward_velocity, max_horizontal_velocity)
 # derivative_bounds = None
 
 ### 1st path
 waypoint_1_location = point_1
 waypoint_4_location = point_4
-# waypoint_1 = Waypoint(location=waypoint_1_location, velocity=np.array([[1],[1],[0]]), acceleration=np.array([[1],[1],[0]]))
-# waypoint_4 = Waypoint(location=waypoint_4_location, velocity=np.array([[0.3],[1.4],[0.7]]), acceleration=np.array([[-0.25],[-0.96],[-0.5]]))
-waypoint_1 = Waypoint(location=waypoint_1_location)
-waypoint_4 = Waypoint(location=waypoint_4_location)
-waypoint_data = WaypointData(start_waypoint=waypoint_1,end_waypoint=waypoint_4)
-traj_gen = TrajectoryGenerator(dimension)
+waypoint_1 = Waypoint(location=waypoint_1_location, velocity=np.array([[1],[1],[0]]))
+waypoint_4 = Waypoint(location=waypoint_4_location, velocity=np.array([[1],[0],[0]]))
+# waypoint_1 = Waypoint(location=waypoint_1_location)
+# waypoint_4 = Waypoint(location=waypoint_4_location)
+waypoint_sequence = (waypoint_1, waypoint_4)
+waypoint_data = WaypointData(waypoint_sequence)
+traj_gen = TrajectoryGenerator(dimension, 5)
 start_time_1 = time.time()
 
 control_points, scale_factor = traj_gen.generate_trajectory(waypoint_data, derivative_bounds, 
@@ -87,10 +91,10 @@ start_velocity = bspline.get_derivative_at_time_t(0,1)
 start_acceleration = bspline.get_derivative_at_time_t(0,2)
 end_velocity = bspline.get_derivative_at_time_t(end_time_spline,1)
 end_acceleration = bspline.get_derivative_at_time_t(end_time_spline,2)
-print("start_velocity: " , start_velocity)
-print("start_acceleraiton: " , start_acceleration)
-print("end_velocity: " , end_velocity)
-print("end_acceleraiton: " , end_acceleration)
+# print("start_velocity: " , start_velocity)
+# print("start_acceleraiton: " , start_acceleration)
+# print("end_velocity: " , end_velocity)
+# print("end_acceleraiton: " , end_acceleration)
 
 # print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
@@ -104,49 +108,50 @@ ax = plt.axes(projection='3d')
 # ax.scatter(control_points[0,:], control_points[1,:], color="tab:orange")
 ax.plot(spline_data[0,:], spline_data[1,:], spline_data[2,:], color = "tab:blue")
 plot3D_waypoints(waypoint_data, ax)
-plot_sfcs(sfc_data._sfc_list, ax)
+if sfc_data is not None:
+    plot_sfcs(sfc_data._sfc_list, ax)
 set_axes_equal(ax,dimension)
 plt.title("Optimized Path")
 plt.show()
 
-if max_velocity is not None:
-    plt.figure()
-    plt.plot(time_data, velocity_data,color = "b")
-    plt.plot(time_data, max_velocity + velocity_data*0)
-    plt.title("velocity")
-    plt.show()
+# if max_velocity is not None:
+#     plt.figure()
+#     plt.plot(time_data, velocity_data,color = "b")
+#     plt.plot(time_data, max_velocity + velocity_data*0)
+#     plt.title("velocity")
+#     plt.show()
 
-if max_acceleration is not None:
-    plt.figure()
-    plt.plot(time_data, acceleration_data,color = "b")
-    plt.plot(time_data, max_acceleration + acceleration_data*0)
-    plt.title("acceleration")
-    plt.show()
+# if max_acceleration is not None:
+#     plt.figure()
+#     plt.plot(time_data, acceleration_data,color = "b")
+#     plt.plot(time_data, max_acceleration + acceleration_data*0)
+#     plt.title("acceleration")
+#     plt.show()
 
-if gravity is not None:
-    plt.figure()
-    plt.plot(time_data, acceleration_spline_data[2,:],color = "b")
-    plt.plot(time_data, max_acceleration + gravity + acceleration_data*0)
-    plt.plot(time_data, -max_acceleration + gravity + acceleration_data*0)
-    plt.title("acceleration z dir ")
-    plt.show()
+# if gravity is not None:
+#     plt.figure()
+#     plt.plot(time_data, acceleration_spline_data[2,:],color = "b")
+#     plt.plot(time_data, max_acceleration + gravity + acceleration_data*0)
+#     plt.plot(time_data, -max_acceleration + gravity + acceleration_data*0)
+#     plt.title("acceleration z dir ")
+#     plt.show()
 
-if max_upward_velocity is not None:
-    plt.figure()
-    plt.plot(time_data, velocity_spline_data[2,:],color = "b")
-    plt.plot(time_data, -max_upward_velocity + velocity_data*0)
-    plt.plot(time_data, max_velocity + velocity_data*0)
-    # plt.plot(time_data, velocity_data*0)
-    plt.title("velocity z dir ")
-    plt.show()
+# if max_upward_velocity is not None:
+#     plt.figure()
+#     plt.plot(time_data, velocity_spline_data[2,:],color = "b")
+#     plt.plot(time_data, -max_upward_velocity + velocity_data*0)
+#     plt.plot(time_data, max_velocity + velocity_data*0)
+#     # plt.plot(time_data, velocity_data*0)
+#     plt.title("velocity z dir ")
+#     plt.show()
 
-if max_horizontal_velocity is not None:
-    plt.figure()
-    plt.plot(time_data, np.linalg.norm(velocity_spline_data[0:2,:],2,0),color = "b")
-    plt.plot(time_data, max_horizontal_velocity + velocity_data*0)
-    # plt.plot(time_data, velocity_data*0)
-    plt.title("horizontal velocity ")
-    plt.show()
+# if max_horizontal_velocity is not None:
+#     plt.figure()
+#     plt.plot(time_data, np.linalg.norm(velocity_spline_data[0:2,:],2,0),color = "b")
+#     plt.plot(time_data, max_horizontal_velocity + velocity_data*0)
+#     # plt.plot(time_data, velocity_data*0)
+#     plt.title("horizontal velocity ")
+#     plt.show()
 
 
 

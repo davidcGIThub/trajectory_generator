@@ -2,11 +2,14 @@ import ctypes
 import pathlib 
 import os 
 import numpy as np
+from scipy.optimize import NonlinearConstraint
+from trajectory_generation.objectives.objective_variables import get_objective_variables
+from trajectory_generation.constraint_data_structures.dynamic_bounds import TurningBound
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
 libname_str = os.path.join(script_dir)
 libname = pathlib.Path(libname_str)
-lib = ctypes.CDLL(libname / "../build/src/libTrajectoryConstraints.so")
+lib = ctypes.CDLL(libname / "TrajectoryConstraintsCCode/build/src/libTrajectoryConstraints.so")
 
 class TurningConstraints(object):
 
@@ -70,6 +73,30 @@ class TurningConstraints(object):
             bound = lib.get_spline_centripetal_acceleration_bound_3(self.obj, cont_pts_array, num_cont_pts, scale_factor)
         constraint = bound - max_centripetal_acceleration
         return constraint
+    
+    def create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts, dimension):
+        def centripetal_acceleration_constraint_function(variables):
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+            const = self.get_spline_centripetal_acceleration_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+            return const
+        def angular_rate_constraint_function(variables):
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+            return self.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+        def curvature_constraint_function(variables):
+            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+            return self.get_spline_curvature_constraint(control_points,turning_bound.max_turning_bound)
+        if turning_bound.bound_type == "curvature":
+            constraint_function = curvature_constraint_function
+        elif turning_bound.bound_type == "centripetal_acceleration":
+            constraint_function = centripetal_acceleration_constraint_function
+        elif turning_bound.bound_type == "angular_rate":
+            constraint_function = angular_rate_constraint_function
+        else:
+            raise Exception("Not valid turning bound type")
+        lower_bound = - np.inf
+        upper_bound = 0
+        turning_constraint = NonlinearConstraint(constraint_function , lb = lower_bound, ub = upper_bound)
+        return turning_constraint
     
 # control_points = np.array([[4, 1, 4, 5, 6, 5],
 #                            [2, 2, 0, 4, 3, 2],

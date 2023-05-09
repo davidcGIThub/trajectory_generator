@@ -5,19 +5,9 @@ safe flight corridors.
 """
 import os
 import numpy as np
-from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, Bounds
-from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval
-from TrajectoryConstraintsCCode.python_wrappers.obstacle_constraints import ObstacleConstraints
-from TrajectoryConstraintsCCode.python_wrappers.turning_constraints import TurningConstraints
-from bsplinegenerator.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
-from trajectory_generation.bspline_to_bezier import get_composite_bspline_to_bezier_conversion_matrix
-from trajectory_generation.safe_flight_corridor import SFC_Data, SFC
-from trajectory_generation.obstacle import Obstacle
-from trajectory_generation.waypoint_data import Waypoint, WaypointData
-from trajectory_generation.dynamic_bounds import DerivativeBounds, TurningBound
+from scipy.optimize import minimize, NonlinearConstraint
 from trajectory_generation.matrix_evaluation import matrix_bspline_evaluation_for_dataset, \
     matrix_bspline_derivative_evaluation_for_dataset, count_number_of_control_points
-import time
 
 class SmoothingSpline:
     """

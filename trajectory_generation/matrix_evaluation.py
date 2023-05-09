@@ -94,6 +94,8 @@ def get_M_matrix(order):
         M = __get_4_order_matrix()
     elif order == 5:
         M = __get_5_order_matrix()
+    else:
+        raise Exception("Cannot return M matrix for spline of order " , order)
     return M
 
 def get_T_derivative_vector(order,t,tj,rth_derivative,scale_factor):
