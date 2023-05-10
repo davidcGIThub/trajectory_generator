@@ -4,6 +4,7 @@ from trajectory_generation.constraint_data_structures.waypoint_data import Waypo
 from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval
 from trajectory_generation.objectives.objective_variables import get_objective_variables, \
     get_intermediate_waypoint_scale_times
+from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
 def create_terminal_waypoint_location_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints, order):
     num_extra_spaces = 1 + num_intermediate_waypoints

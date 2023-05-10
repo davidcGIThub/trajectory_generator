@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import LinearConstraint
 from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data, SFC
 from trajectory_generation.control_point_conversions.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
-
+from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
 def create_safe_flight_corridor_constraint(sfc_data: SFC_Data, num_cont_pts, num_intermediate_waypoints, dimension, order):
     # create the rotation matrix.
@@ -27,6 +27,7 @@ def create_safe_flight_corridor_constraint(sfc_data: SFC_Data, num_cont_pts, num
     #create bounds
     lower_bounds = np.zeros((dimension, num_minvo_cont_pts))
     upper_bounds = np.zeros((dimension, num_minvo_cont_pts))
+    constraints_key = np.empty((dimension, num_minvo_cont_pts))
     index = 0
     for corridor_index in range(num_corridors):
         num_intervals = intervals_per_corridor[corridor_index]
@@ -35,9 +36,15 @@ def create_safe_flight_corridor_constraint(sfc_data: SFC_Data, num_cont_pts, num
         num_points = num_intervals*(order+1)
         lower_bounds[:,index:index+num_points] = lower_bound
         upper_bounds[:,index:index+num_points] = upper_bound
+        constraints_key[:,index:index+num_points] = "sfc " + str(corridor_index)
         index = index+num_points
+    def sfc_constraint_function(variables):
+        constraints = np.dot(conversion_matrix, variables)
+        return constraints
+    constraints_key = constraints_key.flatten()
     safe_corridor_constraints = LinearConstraint(conversion_matrix, lb=lower_bounds.flatten(), ub=upper_bounds.flatten())
-    return safe_corridor_constraints
+    sfc_constraint_function_data = ConstraintFunctionData(sfc_constraint_function, lower_bound, upper_bound, constraints_key)
+    return safe_corridor_constraints, sfc_constraint_function_data
 
 def get_composite_sfc_rotation_matrix(intervals_per_corridor, sfcs, num_minvo_cont_pts, dimension, order):
     num_corridors = len(intervals_per_corridor)

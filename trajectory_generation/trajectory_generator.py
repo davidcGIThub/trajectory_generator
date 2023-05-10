@@ -43,7 +43,19 @@ class TrajectoryGenerator:
         self._turning_const_obj = TurningConstraints(self._dimension)
         self._obstacle_cons_obj = ObstacleConstraints(self._dimension)
         self._num_intervals_free_space = num_intervals_free_space
-        
+
+# SLSQP options:
+# ftol : float
+# Precision goal for the value of f in the stopping criterion.
+# eps : float
+# Step size used for numerical approximation of the jacobian.
+# maxiter : int
+# Maximum number of iterations.
+# maxiter : int
+# Maximum number of iterations to perform.
+# disp : bool
+# Set to True to print convergence messages.
+
     def generate_trajectory(self, waypoint_data: WaypointData, derivative_bounds: DerivativeBounds = None, turning_bound: TurningBound = None,
                 sfc_data: SFC_Data = None, obstacles: list = None, objective_function_type: str = "minimal_velocity_path"):
         num_intervals = self.__get_num_intervals(sfc_data)
@@ -84,7 +96,7 @@ class TrajectoryGenerator:
     def __display_violated_constraints(self, constraint_functions: 'list[ConstraintFunctionData]',  success: bool, optimized_result):
         # if not success:
         num_constraint_functions = len(constraint_functions)
-        constraint_tolerance = 10e-4
+        constraint_tolerance = 10e-5
         # control_points, scale_factor = self.__get_optimized_results(optimized_result, num_cont_pts) 
         for i in range(num_constraint_functions):
             constraint_data = constraint_functions[i]
@@ -99,7 +111,8 @@ class TrajectoryGenerator:
             # print("upper bound: " , upper_bound, " " , type(upper_bound))
             # print("lower bound: " , lower_bound, " " , type(lower_bound))
             # print("const tol: " , constraint_tolerance)
-            violations = np.logical_or(output>(upper_bound + constraint_tolerance),output < (lower_bound - constraint_tolerance))
+            violations = np.logical_or(output>(upper_bound + constraint_tolerance),
+                                       output < (lower_bound - constraint_tolerance))
             if any(violations):
                 if constraint_name == "derivatives_constraint_function":
                     print("Derivative Constraints Violated: " , constraints_key[violations])
@@ -109,19 +122,14 @@ class TrajectoryGenerator:
                     print("Turning Constraint Violated: " , constraints_key[violations])
                 elif constraint_name == "obstacle_constraint_function":
                     print("Obstacle Constraints Violated: " , constraints_key[violations])
-    
-# SLSQP options:
-# ftol : float
-# Precision goal for the value of f in the stopping criterion.
-# eps : float
-# Step size used for numerical approximation of the jacobian.
-# maxiter : int
-# Maximum number of iterations.
-# maxiter : int
-# Maximum number of iterations to perform.
-# disp : bool
-# Set to True to print convergence messages.
-    
+                elif constraint_name == "sfc_constraint_function":
+                    print("SFC Constraints Violated: [", end ="")
+                    sfc = "sfc"
+                    for i in range(len(violations)):
+                        if violations[i] and constraints_key[i] != sfc:
+                            print(constraints_key[i] , ", ", end ="")
+                    print("]")
+
     def __get_objective_function(self, objective_function_type):
         if objective_function_type == "minimal_distance_path":
             return minimize_velocity_control_points_objective_function
@@ -179,8 +187,9 @@ class TrajectoryGenerator:
             constraints.append(turning_constraint)
             constraint_functions_data.append(turning_constraint_function_data)
         if sfc_data is not None:
-            sfc_constraint = create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
+            sfc_constraint, sfc_constraint_function_data = create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
             constraints.append(sfc_constraint)
+            constraint_functions_data.append(sfc_constraint_function_data)
         if (obstacles != None):
             obstacle_constraint, obstacle_constraint_function_data = self._obstacle_cons_obj.create_obstacle_constraints(obstacles,num_cont_pts, self._dimension)
             constraints.append(obstacle_constraint)
