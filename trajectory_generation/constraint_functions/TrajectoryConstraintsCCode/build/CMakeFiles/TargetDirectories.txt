@@ -1,8 +1,0 @@
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/rebuild_cache.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/edit_cache.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/src/CMakeFiles/rebuild_cache.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/src/CMakeFiles/edit_cache.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/src/CMakeFiles/TrajectoryConstraints.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/tests/CMakeFiles/rebuild_cache.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/tests/CMakeFiles/edit_cache.dir
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir
