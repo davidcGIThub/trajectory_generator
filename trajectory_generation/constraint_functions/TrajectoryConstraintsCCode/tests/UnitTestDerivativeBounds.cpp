@@ -3,7 +3,7 @@
 
 // Create test for max velocity, also check if these work for variable scale factors
 
-TEST(DerivativeBoundsTest, MinVelocity)
+TEST(DerivativeBoundsTest, MinVelocityA)
 {
     DerivativeBounds<2> d_bounds{};
     double scale_factor = 1;
@@ -11,6 +11,21 @@ TEST(DerivativeBoundsTest, MinVelocity)
     Eigen::Matrix<double, 2,4> control_points;
     control_points << 0.1,  3.2,  2.01, 1.1,
                       0.01, 2.98, 2.1,  0.99; 
+    std::array<double,2> min_velocity_and_time = d_bounds.find_min_velocity_and_time(control_points,scale_factor);
+    double min_velocity = min_velocity_and_time[0];
+    double tolerance = 0.00001;
+    EXPECT_NEAR(true_min_velocity, min_velocity,tolerance);
+}
+
+TEST(DerivativeBoundsTest, MinVelocityB)
+{
+    DerivativeBounds<3> d_bounds{};
+    double scale_factor = 2.1;
+    double true_min_velocity = 0.6835428648391865;
+    Eigen::Matrix<double, 3,4> control_points;
+    control_points << 1.69984, 3.13518, 3.75944, 3.64158,
+                      4.23739,  3.8813, 4.23739, 5.36086,
+                      3,    5,  1,  2; 
     std::array<double,2> min_velocity_and_time = d_bounds.find_min_velocity_and_time(control_points,scale_factor);
     double min_velocity = min_velocity_and_time[0];
     double tolerance = 0.00001;

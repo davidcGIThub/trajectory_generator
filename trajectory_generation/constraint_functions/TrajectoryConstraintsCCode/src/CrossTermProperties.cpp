@@ -12,7 +12,6 @@ CrossTermProperties<D>::CrossTermProperties()
 template <int D>
 Eigen::Vector4d CrossTermProperties<D>::get_2D_cross_coefficients(Eigen::Matrix<double,D,4> &control_points)
 {
-    // std::cout << "control_points: " << control_points << std::endl;
     double p0x = control_points(0,0);
     double p0y = control_points(1,0);
     double p1x = control_points(0,1);
@@ -21,10 +20,9 @@ Eigen::Vector4d CrossTermProperties<D>::get_2D_cross_coefficients(Eigen::Matrix<
     double p2y = control_points(1,2);
     double p3x = control_points(0,3);
     double p3y = control_points(1,3);
-    // std::cout << "p0x: " << p0x << " p0y: " << p0y << std::endl;
-    // std::cout << "p1x: " << p1x << " p1y: " << p1y << std::endl;
-    // std::cout << "p2x: " << p2x << " p2y: " << p2y << std::endl;
-    // std::cout << "p3x: " << p3x << " p3y: " << p3y << std::endl;
+    double c_3_a = ((p0y - 2*p1y + p2y)*(p0x - 3*p1x + 3*p2x - p3x) - (p0x - 2*p1x + p2x)*(p0y - 3*p1y + 3*p2y - p3y));
+    double c_3_b = (p0x*p1y)/2 - (p1x*p0y)/2 - p0x*p2y + p2x*p0y + (p0x*p3y)/2 + (3*p1x*p2y)/2 - (3*p2x*p1y)/2 - \
+                (p3x*p0y)/2 - p1x*p3y + p3x*p1y + (p2x*p3y)/2 - (p3x*p2y)/2;
     double c_3 = ((p0y - 2*p1y + p2y)*(p0x - 3*p1x + 3*p2x - p3x) - (p0x - 2*p1x + p2x)*(p0y - 3*p1y + 3*p2y - p3y)) 
         *((p0x*p1y)/2 - (p1x*p0y)/2 - p0x*p2y + p2x*p0y + (p0x*p3y)/2 + (3*p1x*p2y)/2 - (3*p2x*p1y)/2 - 
         (p3x*p0y)/2 - p1x*p3y + p3x*p1y + (p2x*p3y)/2 - (p3x*p2y)/2);
@@ -39,8 +37,7 @@ Eigen::Vector4d CrossTermProperties<D>::get_2D_cross_coefficients(Eigen::Matrix<
     double c_0 = -((p0y/2 - p2y/2)*(p0x - 2*p1x + p2x) - (p0x/2 - p2x/2)*(p0y - 2*p1y + p2y))*((p0y/2 - p2y/2)* 
         (p0x - 3*p1x + 3*p2x - p3x) - (p0x/2 - p2x/2)*(p0y - 3*p1y + 3*p2y - p3y));
     Eigen::Vector4d coeficients;
-    coeficients << c_0, c_1, c_2, c_3;
-    // std::cout << "coeficients: " << c_0 << " " << c_1 << " " << c_2 << " " << c_3 << std::endl;
+    coeficients << c_3, c_2, c_1, c_0;
     return coeficients;
 }
 
@@ -99,7 +96,7 @@ Eigen::Vector4d CrossTermProperties<D>::get_3D_cross_coefficients(Eigen::Matrix<
         ((p0z/2 - p2z/2)*(p0y - 2*p1y + p2y) - (p0y/2 - p2y/2)*(p0z - 2*p1z + p2z))*((p0z/2 - p2z/2)* 
         (p0y - 3*p1y + 3*p2y - p3y) - (p0y/2 - p2y/2)*(p0z - 3*p1z + 3*p2z - p3z));
     Eigen::Vector4d coeficients;
-    coeficients << c_0, c_1, c_2, c_3;
+    coeficients << c_3, c_2, c_1, c_0;
     return coeficients;
 }
 

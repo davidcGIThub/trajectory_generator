@@ -37,8 +37,9 @@ class CrossTermBounds
         CrossTermEvaluator<D> c_eval{};
         DerivativeBoundsData get_derivative_bound_data(Eigen::Matrix<double,D,4> &control_points, double &scale_factor);
         double find_maximum_cross_term(Eigen::Matrix<double,D,4> &control_points, double &scale_factor);
-    FRIEND_TEST(CrossTermTest, MaxCrossTerm);
-    FRIEND_TEST(CrossTermTest, MaxCrossTerm2);
+    FRIEND_TEST(CrossTermTest, MaxCrossTermA);
+    FRIEND_TEST(CrossTermTest, MaxCrossTermB);
+    FRIEND_TEST(CrossTermTest, MaxCrossTerm3D);
 };
 
 extern "C"
