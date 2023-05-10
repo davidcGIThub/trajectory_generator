@@ -15,25 +15,26 @@ import time
 dimension = 2
 # max_curvature = 1
 order = 3
-traj_objective_type = "minimal_acceleration_path"
-# traj_objective_type = "minimal_velocity_path"
+# traj_objective_type = "minimal_acceleration_path"
+traj_objective_type = "minimal_velocity_path"
 # traj_objective_type = "minimal_distance_path"
 sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 
-max_turning_bound = 0.4 #angular rate
+max_turning_bound = 0.25 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
 
-# max_turning_bound = 0.2 #cent accel
-# turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
+max_turning_bound = 1 #cent accel
+turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 
 # max_turning_bound = 0.6 #curv
 # turning_bound = TurningBound(max_turning_bound,"curvature")
-turning_bound = None
 
-max_velocity = 0.1
-# max_velocity = None
+# turning_bound = None
+
+max_velocity = 3
+max_velocity = None
 # max_acceleration = 5
 max_acceleration = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
@@ -67,8 +68,8 @@ centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_
 path_length = bspline.get_arc_length(number_data_points)
 start_velocity = bspline.get_derivative_at_time_t(0,1)
 start_acceleration = bspline.get_derivative_at_time_t(0,2)
-print("start_velocity: " , start_velocity)
-print("start_acceleraiton: " , start_acceleration)
+# print("start_velocity: " , start_velocity)
+# print("start_acceleraiton: " , start_acceleration)
 print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
 
@@ -84,19 +85,19 @@ set_axes_equal(ax,dimension)
 plt.title("Optimized Path")
 plt.show()
 
-if max_velocity is not None:
-    plt.figure()
-    plt.plot(time_data, velocity_data,color = "b")
-    plt.plot(time_data, max_velocity + velocity_data*0)
-    plt.title("velocity")
-    plt.show()
+# if max_velocity is not None:
+#     plt.figure()
+#     plt.plot(time_data, velocity_data,color = "b")
+#     plt.plot(time_data, max_velocity + velocity_data*0)
+#     plt.title("velocity")
+#     plt.show()
 
-if max_acceleration is not None:
-    plt.figure()
-    plt.plot(time_data, acceleration_data,color = "b")
-    plt.plot(time_data, max_acceleration + acceleration_data*0)
-    plt.title("acceleration")
-    plt.show()
+# if max_acceleration is not None:
+#     plt.figure()
+#     plt.plot(time_data, acceleration_data,color = "b")
+#     plt.plot(time_data, max_acceleration + acceleration_data*0)
+#     plt.title("acceleration")
+#     plt.show()
 
 if turning_bound is not None:
     turn_data = []

@@ -68,10 +68,10 @@ class TrajectoryGenerator:
             constraints=constraints, 
             options = minimize_options)
         optimized_control_points, optimized_scale_factor = self.__get_optimized_results(result, num_cont_pts)
-        print("succes: " , result.success)
-        print("status: " , result.status)
-        print("message: " , result.message)
-        print("num iterations: " , result.nit)
+        # print("succes: " , result.success)
+        # print("status: " , result.status)
+        # print("message: " , result.message)
+        # print("num iterations: " , result.nit)
         # print("result: " , result)
         self.__display_violated_constraints(constraint_functions, result.success, result.x)
         return optimized_control_points, optimized_scale_factor
@@ -93,43 +93,21 @@ class TrajectoryGenerator:
             upper_bound = constraint_data.upper_bound
             constraint_name = constraint_function.__name__
             constraints_key = constraint_data.key
-            if constraint_name == "derivatives_constraint_function":
-                output = constraint_function(optimized_result)
-                print("output: " , output)
-                violations = output > upper_bound + constraint_tolerance or output < lower_bound - constraint_tolerance
-                if any(output > upper_bound + constraint_tolerance) or any(output < lower_bound - constraint_tolerance):
+            output = constraint_function(optimized_result)
+            violations = output > upper_bound + constraint_tolerance or output < lower_bound - constraint_tolerance
+            if (constraint_name == "angular_rate_constraint_function"):
+                pass
+                # print("output: " , output)
+                # print("upper_bound: " , upper_bound)
+                # print("lower_bound: " , lower_bound)
+                # print("violations: " , violations)
+            if any(violations):
+                if constraint_name == "derivatives_constraint_function":
                     print("Derivative Constraints Violated: " , constraints_key[violations])
-
-# def create_derivatives_constraint(derivative_bounds: DerivativeBounds, num_cont_pts, dimension, order):
-#     num_vel_cont_pts = num_cont_pts - 1
-#     M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, order-1)
-#     constraints = initialize_derivative_constraint_array(derivative_bounds)
-#     def derivatives_constraint_function(variables):
-#         control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
-#         velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
-#         count = 0
-#         if derivative_bounds.max_velocity is not None:
-#             bezier_velocity_control_points = np.transpose(np.dot(M_v, np.transpose(velocity_control_points)))
-#             constraints[count] = calculate_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
-#             count += 1
-#             if derivative_bounds.max_upward_velocity is not None and dimension == 3:
-#                 constraints[count] = calculate_upward_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
-#                 count += 1
-#             if derivative_bounds.max_horizontal_velocity is not None and dimension == 3:
-#                 constraints[count] = calculate_horizontal_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
-#                 count += 1
-#         if derivative_bounds.max_acceleration is not None:
-#             acceleration_constraint = calculate_acceleration_constraint(derivative_bounds, velocity_control_points, scale_factor)
-#             constraints[count] = acceleration_constraint
-#             count += 1
-#         return constraints
-#     lower_bound = - np.inf
-#     upper_bound = 0
-#     derivatives_constraint = NonlinearConstraint(derivatives_constraint_function , lb = lower_bound, ub = upper_bound)
-#     constraint_function = derivatives_constraint_function
-#     return derivatives_constraint, constraint_function
-
-    
+                elif constraint_name == "centripetal_acceleration_constraint_function" or \
+                    constraint_name == "angular_rate_constraint_function" or \
+                    constraint_name == "curvature_constraint_function":
+                    print("Turning Constraint Violated: " , constraints_key[violations])
     
 # SLSQP options:
 # ftol : float
@@ -176,7 +154,7 @@ class TrajectoryGenerator:
         start_waypoint_location_constraint = create_terminal_waypoint_location_constraint(waypoint_data.start_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
         end_waypoint_location_constraint = create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
         constraints = [start_waypoint_location_constraint, end_waypoint_location_constraint]
-        constraint_functions = []
+        constraint_functions_data = []
         if waypoint_data.start_waypoint.checkIfDerivativesActive():
             start_waypoint_derivatives_constraint = create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
             constraints.append(start_waypoint_derivatives_constraint)
@@ -189,19 +167,21 @@ class TrajectoryGenerator:
             if(num_intermediate_waypoints > 1):
                 intermediate_waypoint_time_constraints = create_intermediate_waypoint_time_scale_constraint(num_cont_pts, num_intermediate_waypoints, self._dimension)
                 constraints.append(intermediate_waypoint_time_constraints)
-        if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive() is not None:
+        if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive():
             derivatives_constraint, derivatives_constraint_function = create_derivatives_constraint( \
                 derivative_bounds, num_cont_pts, self._dimension, self._order)
             constraints.append(derivatives_constraint)
-            constraint_functions.append(derivatives_constraint_function)
+            constraint_functions_data.append(derivatives_constraint_function)
         if turning_bound is not None and turning_bound.checkIfTurningBoundActive():
-            turning_constraint = self._turning_const_obj.create_turning_constraint(turning_bound, num_cont_pts, self._dimension)
+            turning_constraint, turning_constraint_function_data = self._turning_const_obj.create_turning_constraint(\
+                turning_bound, num_cont_pts, self._dimension)
             constraints.append(turning_constraint)
+            constraint_functions_data.append(turning_constraint_function_data)
         if sfc_data is not None:
             sfc_constraint = create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
             constraints.append(sfc_constraint)
         if (obstacles != None):
             obstacle_constraint = self._obstacle_cons_obj.create_obstacle_constraints(obstacles,num_cont_pts, self._dimension)
             constraints.append(obstacle_constraint)
-        return tuple(constraints), constraint_functions
+        return tuple(constraints), constraint_functions_data
         
