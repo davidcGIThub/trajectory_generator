@@ -1,21 +1,21 @@
 Performing C++ SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp
+Change Dir: /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_26315/fast && /usr/bin/make -f CMakeFiles/cmTC_26315.dir/build.make CMakeFiles/cmTC_26315.dir/build
-make[1]: Entering directory '/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_26315.dir/src.cxx.o
-/usr/bin/c++    -DCMAKE_HAVE_LIBC_PTHREAD   -std=gnu++11 -o CMakeFiles/cmTC_26315.dir/src.cxx.o -c /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp/src.cxx
-Linking CXX executable cmTC_26315
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_26315.dir/link.txt --verbose=1
-/usr/bin/c++   -DCMAKE_HAVE_LIBC_PTHREAD    CMakeFiles/cmTC_26315.dir/src.cxx.o  -o cmTC_26315 
-/usr/bin/ld: CMakeFiles/cmTC_26315.dir/src.cxx.o: in function `main':
+Run Build Command(s):/usr/bin/make cmTC_eafd0/fast && /usr/bin/make -f CMakeFiles/cmTC_eafd0.dir/build.make CMakeFiles/cmTC_eafd0.dir/build
+make[1]: Entering directory '/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_eafd0.dir/src.cxx.o
+/usr/bin/c++    -DCMAKE_HAVE_LIBC_PTHREAD   -std=gnu++11 -o CMakeFiles/cmTC_eafd0.dir/src.cxx.o -c /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_eafd0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eafd0.dir/link.txt --verbose=1
+/usr/bin/c++   -DCMAKE_HAVE_LIBC_PTHREAD    CMakeFiles/cmTC_eafd0.dir/src.cxx.o  -o cmTC_eafd0 
+/usr/bin/ld: CMakeFiles/cmTC_eafd0.dir/src.cxx.o: in function `main':
 src.cxx:(.text+0x46): undefined reference to `pthread_create'
 /usr/bin/ld: src.cxx:(.text+0x52): undefined reference to `pthread_detach'
 /usr/bin/ld: src.cxx:(.text+0x63): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_26315.dir/build.make:87: cmTC_26315] Error 1
-make[1]: Leaving directory '/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_26315/fast] Error 2
+make[1]: *** [CMakeFiles/cmTC_eafd0.dir/build.make:87: cmTC_eafd0] Error 1
+make[1]: Leaving directory '/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_eafd0/fast] Error 2
 
 
 Source file was:
@@ -39,20 +39,20 @@ int main(void)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp
+Change Dir: /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_a235c/fast && /usr/bin/make -f CMakeFiles/cmTC_a235c.dir/build.make CMakeFiles/cmTC_a235c.dir/build
-make[1]: Entering directory '/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_a235c.dir/CheckFunctionExists.cxx.o
-/usr/bin/c++    -DCHECK_FUNCTION_EXISTS=pthread_create   -std=gnu++11 -o CMakeFiles/cmTC_a235c.dir/CheckFunctionExists.cxx.o -c /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx
-Linking CXX executable cmTC_a235c
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a235c.dir/link.txt --verbose=1
-/usr/bin/c++   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_a235c.dir/CheckFunctionExists.cxx.o  -o cmTC_a235c  -lpthreads 
+Run Build Command(s):/usr/bin/make cmTC_f6e19/fast && /usr/bin/make -f CMakeFiles/cmTC_f6e19.dir/build.make CMakeFiles/cmTC_f6e19.dir/build
+make[1]: Entering directory '/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f6e19.dir/CheckFunctionExists.cxx.o
+/usr/bin/c++    -DCHECK_FUNCTION_EXISTS=pthread_create   -std=gnu++11 -o CMakeFiles/cmTC_f6e19.dir/CheckFunctionExists.cxx.o -c /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx
+Linking CXX executable cmTC_f6e19
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f6e19.dir/link.txt --verbose=1
+/usr/bin/c++   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_f6e19.dir/CheckFunctionExists.cxx.o  -o cmTC_f6e19  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_a235c.dir/build.make:87: cmTC_a235c] Error 1
-make[1]: Leaving directory '/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_a235c/fast] Error 2
+make[1]: *** [CMakeFiles/cmTC_f6e19.dir/build.make:87: cmTC_f6e19] Error 1
+make[1]: Leaving directory '/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_f6e19/fast] Error 2
 
 
 

@@ -6,5 +6,5 @@ CXX_FLAGS = -fPIC   -std=gnu++11
 
 CXX_DEFINES = -DTrajectoryConstraints_EXPORTS
 
-CXX_INCLUDES = -I/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/src -I/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/src -I/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/src/src 
+CXX_INCLUDES = -I/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/src -I/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/src -I/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/src/src 
 

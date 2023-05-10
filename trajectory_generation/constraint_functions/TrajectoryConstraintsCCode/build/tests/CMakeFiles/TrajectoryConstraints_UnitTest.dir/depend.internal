@@ -3,7 +3,7 @@
 
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.o
  ../src/BsplineToMinvo.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestBsplineToMinvo.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestBsplineToMinvo.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.o
  ../src/CBindHelperFunctions.hpp
  ../src/CrossTermBounds.hpp
@@ -12,14 +12,14 @@ tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.
  ../src/CubicEquationSolver.hpp
  ../src/DerivativeBounds.hpp
  ../src/DerivativeEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestCrossTermBounds.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestCrossTermBounds.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.o
  ../src/CBindHelperFunctions.hpp
  ../src/CrossTermEvaluator.hpp
  ../src/CubicEquationSolver.hpp
  ../src/DerivativeBounds.hpp
  ../src/DerivativeEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestCrossTermEvaluator.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestCrossTermEvaluator.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.o
  ../src/CBindHelperFunctions.hpp
  ../src/CrossTermEvaluator.hpp
@@ -27,34 +27,34 @@ tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.
  ../src/CubicEquationSolver.hpp
  ../src/DerivativeBounds.hpp
  ../src/DerivativeEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestCrossTermProperties.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestCrossTermProperties.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.o
  ../src/CubicEquationSolver.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestCubicEquationSolver.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestCubicEquationSolver.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.o
  ../src/CBindHelperFunctions.hpp
  ../src/CubicEquationSolver.hpp
  ../src/DerivativeBounds.hpp
  ../src/DerivativeEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestDerivativeBounds.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestDerivativeBounds.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.o
  ../src/CBindHelperFunctions.hpp
  ../src/CubicEquationSolver.hpp
  ../src/DerivativeEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestDerivativeEvaluator.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestDerivativeEvaluator.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.o
  ../src/MDMAlgorithmClass.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestMDMAlgorithmClass.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestMDMAlgorithmClass.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.o
  ../src/BsplineToMinvo.hpp
  ../src/CBindHelperFunctions.hpp
  ../src/ObstacleConstraints.hpp
  ../src/RotationHelperFunctions.hpp
  ../src/SphereCollisionEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestObstacleConstraints.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestObstacleConstraints.cpp
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.o
  ../src/BsplineToMinvo.hpp
  ../src/CBindHelperFunctions.hpp
  ../src/RotationHelperFunctions.hpp
  ../src/SphereCollisionEvaluator.hpp
- /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestSphereCollisionEvaluator.cpp
+ /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestSphereCollisionEvaluator.cpp

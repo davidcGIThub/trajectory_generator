@@ -177,7 +177,7 @@ double CrossTermBounds<D>::find_maximum_cross_term(Eigen::Matrix<double,D,4> &co
     std::array<double,3> roots = CubicEquationSolver::solve_equation(a_term,
         b_term, c_term, d_term);
     double t0 = 0;
-    double tf = 1.0;
+    double tf = scale_factor;
     double max_cross_term = c_eval.calculate_cross_term_magnitude(t0,control_points,scale_factor);
     double cross_term_at_tf = c_eval.calculate_cross_term_magnitude(tf,control_points,scale_factor);
     if (cross_term_at_tf > max_cross_term)
@@ -187,7 +187,7 @@ double CrossTermBounds<D>::find_maximum_cross_term(Eigen::Matrix<double,D,4> &co
     for(int index = 0; index < 3; index++)
     {
         double root = roots[index];
-        if(root > 0 && root < 1.0)
+        if(root > 0 && root < scale_factor)
         {
             double cross_term =  c_eval.calculate_cross_term_magnitude(root, control_points,scale_factor);
             if (cross_term > max_cross_term)

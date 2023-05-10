@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode
+CMAKE_SOURCE_DIR = /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build
+CMAKE_BINARY_DIR = /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/src/CMakeFiles/progress.marks
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles 0
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/src/CMakeFiles/progress.marks
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/clean
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 src/CMakeFiles/TrajectoryConstraints.dir/rule:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/TrajectoryConstraints.dir/rule
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/TrajectoryConstraints.dir/rule
 .PHONY : src/CMakeFiles/TrajectoryConstraints.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ TrajectoryConstraints: src/CMakeFiles/TrajectoryConstraints.dir/rule
 
 # fast build rule for target.
 TrajectoryConstraints/fast:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/build
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/build
 .PHONY : TrajectoryConstraints/fast
 
 BsplineToMinvo.o: BsplineToMinvo.cpp.o
@@ -131,7 +131,7 @@ BsplineToMinvo.o: BsplineToMinvo.cpp.o
 
 # target to build an object file
 BsplineToMinvo.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/BsplineToMinvo.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/BsplineToMinvo.cpp.o
 .PHONY : BsplineToMinvo.cpp.o
 
 BsplineToMinvo.i: BsplineToMinvo.cpp.i
@@ -140,7 +140,7 @@ BsplineToMinvo.i: BsplineToMinvo.cpp.i
 
 # target to preprocess a source file
 BsplineToMinvo.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/BsplineToMinvo.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/BsplineToMinvo.cpp.i
 .PHONY : BsplineToMinvo.cpp.i
 
 BsplineToMinvo.s: BsplineToMinvo.cpp.s
@@ -149,7 +149,7 @@ BsplineToMinvo.s: BsplineToMinvo.cpp.s
 
 # target to generate assembly for a file
 BsplineToMinvo.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/BsplineToMinvo.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/BsplineToMinvo.cpp.s
 .PHONY : BsplineToMinvo.cpp.s
 
 CBindHelperFunctions.o: CBindHelperFunctions.cpp.o
@@ -158,7 +158,7 @@ CBindHelperFunctions.o: CBindHelperFunctions.cpp.o
 
 # target to build an object file
 CBindHelperFunctions.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CBindHelperFunctions.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CBindHelperFunctions.cpp.o
 .PHONY : CBindHelperFunctions.cpp.o
 
 CBindHelperFunctions.i: CBindHelperFunctions.cpp.i
@@ -167,7 +167,7 @@ CBindHelperFunctions.i: CBindHelperFunctions.cpp.i
 
 # target to preprocess a source file
 CBindHelperFunctions.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CBindHelperFunctions.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CBindHelperFunctions.cpp.i
 .PHONY : CBindHelperFunctions.cpp.i
 
 CBindHelperFunctions.s: CBindHelperFunctions.cpp.s
@@ -176,7 +176,7 @@ CBindHelperFunctions.s: CBindHelperFunctions.cpp.s
 
 # target to generate assembly for a file
 CBindHelperFunctions.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CBindHelperFunctions.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CBindHelperFunctions.cpp.s
 .PHONY : CBindHelperFunctions.cpp.s
 
 CrossTermBounds.o: CrossTermBounds.cpp.o
@@ -185,7 +185,7 @@ CrossTermBounds.o: CrossTermBounds.cpp.o
 
 # target to build an object file
 CrossTermBounds.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermBounds.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermBounds.cpp.o
 .PHONY : CrossTermBounds.cpp.o
 
 CrossTermBounds.i: CrossTermBounds.cpp.i
@@ -194,7 +194,7 @@ CrossTermBounds.i: CrossTermBounds.cpp.i
 
 # target to preprocess a source file
 CrossTermBounds.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermBounds.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermBounds.cpp.i
 .PHONY : CrossTermBounds.cpp.i
 
 CrossTermBounds.s: CrossTermBounds.cpp.s
@@ -203,7 +203,7 @@ CrossTermBounds.s: CrossTermBounds.cpp.s
 
 # target to generate assembly for a file
 CrossTermBounds.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermBounds.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermBounds.cpp.s
 .PHONY : CrossTermBounds.cpp.s
 
 CrossTermEvaluator.o: CrossTermEvaluator.cpp.o
@@ -212,7 +212,7 @@ CrossTermEvaluator.o: CrossTermEvaluator.cpp.o
 
 # target to build an object file
 CrossTermEvaluator.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermEvaluator.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermEvaluator.cpp.o
 .PHONY : CrossTermEvaluator.cpp.o
 
 CrossTermEvaluator.i: CrossTermEvaluator.cpp.i
@@ -221,7 +221,7 @@ CrossTermEvaluator.i: CrossTermEvaluator.cpp.i
 
 # target to preprocess a source file
 CrossTermEvaluator.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermEvaluator.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermEvaluator.cpp.i
 .PHONY : CrossTermEvaluator.cpp.i
 
 CrossTermEvaluator.s: CrossTermEvaluator.cpp.s
@@ -230,7 +230,7 @@ CrossTermEvaluator.s: CrossTermEvaluator.cpp.s
 
 # target to generate assembly for a file
 CrossTermEvaluator.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermEvaluator.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermEvaluator.cpp.s
 .PHONY : CrossTermEvaluator.cpp.s
 
 CrossTermProperties.o: CrossTermProperties.cpp.o
@@ -239,7 +239,7 @@ CrossTermProperties.o: CrossTermProperties.cpp.o
 
 # target to build an object file
 CrossTermProperties.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermProperties.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermProperties.cpp.o
 .PHONY : CrossTermProperties.cpp.o
 
 CrossTermProperties.i: CrossTermProperties.cpp.i
@@ -248,7 +248,7 @@ CrossTermProperties.i: CrossTermProperties.cpp.i
 
 # target to preprocess a source file
 CrossTermProperties.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermProperties.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermProperties.cpp.i
 .PHONY : CrossTermProperties.cpp.i
 
 CrossTermProperties.s: CrossTermProperties.cpp.s
@@ -257,7 +257,7 @@ CrossTermProperties.s: CrossTermProperties.cpp.s
 
 # target to generate assembly for a file
 CrossTermProperties.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermProperties.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CrossTermProperties.cpp.s
 .PHONY : CrossTermProperties.cpp.s
 
 CubicEquationSolver.o: CubicEquationSolver.cpp.o
@@ -266,7 +266,7 @@ CubicEquationSolver.o: CubicEquationSolver.cpp.o
 
 # target to build an object file
 CubicEquationSolver.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CubicEquationSolver.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CubicEquationSolver.cpp.o
 .PHONY : CubicEquationSolver.cpp.o
 
 CubicEquationSolver.i: CubicEquationSolver.cpp.i
@@ -275,7 +275,7 @@ CubicEquationSolver.i: CubicEquationSolver.cpp.i
 
 # target to preprocess a source file
 CubicEquationSolver.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CubicEquationSolver.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CubicEquationSolver.cpp.i
 .PHONY : CubicEquationSolver.cpp.i
 
 CubicEquationSolver.s: CubicEquationSolver.cpp.s
@@ -284,7 +284,7 @@ CubicEquationSolver.s: CubicEquationSolver.cpp.s
 
 # target to generate assembly for a file
 CubicEquationSolver.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CubicEquationSolver.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/CubicEquationSolver.cpp.s
 .PHONY : CubicEquationSolver.cpp.s
 
 DerivativeBounds.o: DerivativeBounds.cpp.o
@@ -293,7 +293,7 @@ DerivativeBounds.o: DerivativeBounds.cpp.o
 
 # target to build an object file
 DerivativeBounds.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeBounds.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeBounds.cpp.o
 .PHONY : DerivativeBounds.cpp.o
 
 DerivativeBounds.i: DerivativeBounds.cpp.i
@@ -302,7 +302,7 @@ DerivativeBounds.i: DerivativeBounds.cpp.i
 
 # target to preprocess a source file
 DerivativeBounds.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeBounds.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeBounds.cpp.i
 .PHONY : DerivativeBounds.cpp.i
 
 DerivativeBounds.s: DerivativeBounds.cpp.s
@@ -311,7 +311,7 @@ DerivativeBounds.s: DerivativeBounds.cpp.s
 
 # target to generate assembly for a file
 DerivativeBounds.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeBounds.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeBounds.cpp.s
 .PHONY : DerivativeBounds.cpp.s
 
 DerivativeEvaluator.o: DerivativeEvaluator.cpp.o
@@ -320,7 +320,7 @@ DerivativeEvaluator.o: DerivativeEvaluator.cpp.o
 
 # target to build an object file
 DerivativeEvaluator.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeEvaluator.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeEvaluator.cpp.o
 .PHONY : DerivativeEvaluator.cpp.o
 
 DerivativeEvaluator.i: DerivativeEvaluator.cpp.i
@@ -329,7 +329,7 @@ DerivativeEvaluator.i: DerivativeEvaluator.cpp.i
 
 # target to preprocess a source file
 DerivativeEvaluator.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeEvaluator.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeEvaluator.cpp.i
 .PHONY : DerivativeEvaluator.cpp.i
 
 DerivativeEvaluator.s: DerivativeEvaluator.cpp.s
@@ -338,7 +338,7 @@ DerivativeEvaluator.s: DerivativeEvaluator.cpp.s
 
 # target to generate assembly for a file
 DerivativeEvaluator.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeEvaluator.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/DerivativeEvaluator.cpp.s
 .PHONY : DerivativeEvaluator.cpp.s
 
 MDMAlgorithmClass.o: MDMAlgorithmClass.cpp.o
@@ -347,7 +347,7 @@ MDMAlgorithmClass.o: MDMAlgorithmClass.cpp.o
 
 # target to build an object file
 MDMAlgorithmClass.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/MDMAlgorithmClass.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/MDMAlgorithmClass.cpp.o
 .PHONY : MDMAlgorithmClass.cpp.o
 
 MDMAlgorithmClass.i: MDMAlgorithmClass.cpp.i
@@ -356,7 +356,7 @@ MDMAlgorithmClass.i: MDMAlgorithmClass.cpp.i
 
 # target to preprocess a source file
 MDMAlgorithmClass.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/MDMAlgorithmClass.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/MDMAlgorithmClass.cpp.i
 .PHONY : MDMAlgorithmClass.cpp.i
 
 MDMAlgorithmClass.s: MDMAlgorithmClass.cpp.s
@@ -365,7 +365,7 @@ MDMAlgorithmClass.s: MDMAlgorithmClass.cpp.s
 
 # target to generate assembly for a file
 MDMAlgorithmClass.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/MDMAlgorithmClass.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/MDMAlgorithmClass.cpp.s
 .PHONY : MDMAlgorithmClass.cpp.s
 
 ObstacleConstraints.o: ObstacleConstraints.cpp.o
@@ -374,7 +374,7 @@ ObstacleConstraints.o: ObstacleConstraints.cpp.o
 
 # target to build an object file
 ObstacleConstraints.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/ObstacleConstraints.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/ObstacleConstraints.cpp.o
 .PHONY : ObstacleConstraints.cpp.o
 
 ObstacleConstraints.i: ObstacleConstraints.cpp.i
@@ -383,7 +383,7 @@ ObstacleConstraints.i: ObstacleConstraints.cpp.i
 
 # target to preprocess a source file
 ObstacleConstraints.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/ObstacleConstraints.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/ObstacleConstraints.cpp.i
 .PHONY : ObstacleConstraints.cpp.i
 
 ObstacleConstraints.s: ObstacleConstraints.cpp.s
@@ -392,7 +392,7 @@ ObstacleConstraints.s: ObstacleConstraints.cpp.s
 
 # target to generate assembly for a file
 ObstacleConstraints.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/ObstacleConstraints.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/ObstacleConstraints.cpp.s
 .PHONY : ObstacleConstraints.cpp.s
 
 RotationHelperFunctions.o: RotationHelperFunctions.cpp.o
@@ -401,7 +401,7 @@ RotationHelperFunctions.o: RotationHelperFunctions.cpp.o
 
 # target to build an object file
 RotationHelperFunctions.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/RotationHelperFunctions.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/RotationHelperFunctions.cpp.o
 .PHONY : RotationHelperFunctions.cpp.o
 
 RotationHelperFunctions.i: RotationHelperFunctions.cpp.i
@@ -410,7 +410,7 @@ RotationHelperFunctions.i: RotationHelperFunctions.cpp.i
 
 # target to preprocess a source file
 RotationHelperFunctions.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/RotationHelperFunctions.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/RotationHelperFunctions.cpp.i
 .PHONY : RotationHelperFunctions.cpp.i
 
 RotationHelperFunctions.s: RotationHelperFunctions.cpp.s
@@ -419,7 +419,7 @@ RotationHelperFunctions.s: RotationHelperFunctions.cpp.s
 
 # target to generate assembly for a file
 RotationHelperFunctions.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/RotationHelperFunctions.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/RotationHelperFunctions.cpp.s
 .PHONY : RotationHelperFunctions.cpp.s
 
 SphereCollisionEvaluator.o: SphereCollisionEvaluator.cpp.o
@@ -428,7 +428,7 @@ SphereCollisionEvaluator.o: SphereCollisionEvaluator.cpp.o
 
 # target to build an object file
 SphereCollisionEvaluator.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/SphereCollisionEvaluator.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/SphereCollisionEvaluator.cpp.o
 .PHONY : SphereCollisionEvaluator.cpp.o
 
 SphereCollisionEvaluator.i: SphereCollisionEvaluator.cpp.i
@@ -437,7 +437,7 @@ SphereCollisionEvaluator.i: SphereCollisionEvaluator.cpp.i
 
 # target to preprocess a source file
 SphereCollisionEvaluator.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/SphereCollisionEvaluator.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/SphereCollisionEvaluator.cpp.i
 .PHONY : SphereCollisionEvaluator.cpp.i
 
 SphereCollisionEvaluator.s: SphereCollisionEvaluator.cpp.s
@@ -446,7 +446,7 @@ SphereCollisionEvaluator.s: SphereCollisionEvaluator.cpp.s
 
 # target to generate assembly for a file
 SphereCollisionEvaluator.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/SphereCollisionEvaluator.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f src/CMakeFiles/TrajectoryConstraints.dir/build.make src/CMakeFiles/TrajectoryConstraints.dir/SphereCollisionEvaluator.cpp.s
 .PHONY : SphereCollisionEvaluator.cpp.s
 
 # Help Target
@@ -505,6 +505,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

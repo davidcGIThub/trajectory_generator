@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode
+CMAKE_SOURCE_DIR = /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build
+CMAKE_BINARY_DIR = /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/tests/CMakeFiles/progress.marks
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build/CMakeFiles 0
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/tests/CMakeFiles/progress.marks
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/clean
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/preinstall
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/preinstall
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/rule:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/rule
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f CMakeFiles/Makefile2 tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/rule
 .PHONY : tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/rule
 
 # Convenience name for target.
@@ -122,7 +122,7 @@ TrajectoryConstraints_UnitTest: tests/CMakeFiles/TrajectoryConstraints_UnitTest.
 
 # fast build rule for target.
 TrajectoryConstraints_UnitTest/fast:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build
 .PHONY : TrajectoryConstraints_UnitTest/fast
 
 UnitTestBsplineToMinvo.o: UnitTestBsplineToMinvo.cpp.o
@@ -131,7 +131,7 @@ UnitTestBsplineToMinvo.o: UnitTestBsplineToMinvo.cpp.o
 
 # target to build an object file
 UnitTestBsplineToMinvo.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.o
 .PHONY : UnitTestBsplineToMinvo.cpp.o
 
 UnitTestBsplineToMinvo.i: UnitTestBsplineToMinvo.cpp.i
@@ -140,7 +140,7 @@ UnitTestBsplineToMinvo.i: UnitTestBsplineToMinvo.cpp.i
 
 # target to preprocess a source file
 UnitTestBsplineToMinvo.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.i
 .PHONY : UnitTestBsplineToMinvo.cpp.i
 
 UnitTestBsplineToMinvo.s: UnitTestBsplineToMinvo.cpp.s
@@ -149,7 +149,7 @@ UnitTestBsplineToMinvo.s: UnitTestBsplineToMinvo.cpp.s
 
 # target to generate assembly for a file
 UnitTestBsplineToMinvo.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestBsplineToMinvo.cpp.s
 .PHONY : UnitTestBsplineToMinvo.cpp.s
 
 UnitTestCrossTermBounds.o: UnitTestCrossTermBounds.cpp.o
@@ -158,7 +158,7 @@ UnitTestCrossTermBounds.o: UnitTestCrossTermBounds.cpp.o
 
 # target to build an object file
 UnitTestCrossTermBounds.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.o
 .PHONY : UnitTestCrossTermBounds.cpp.o
 
 UnitTestCrossTermBounds.i: UnitTestCrossTermBounds.cpp.i
@@ -167,7 +167,7 @@ UnitTestCrossTermBounds.i: UnitTestCrossTermBounds.cpp.i
 
 # target to preprocess a source file
 UnitTestCrossTermBounds.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.i
 .PHONY : UnitTestCrossTermBounds.cpp.i
 
 UnitTestCrossTermBounds.s: UnitTestCrossTermBounds.cpp.s
@@ -176,7 +176,7 @@ UnitTestCrossTermBounds.s: UnitTestCrossTermBounds.cpp.s
 
 # target to generate assembly for a file
 UnitTestCrossTermBounds.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermBounds.cpp.s
 .PHONY : UnitTestCrossTermBounds.cpp.s
 
 UnitTestCrossTermEvaluator.o: UnitTestCrossTermEvaluator.cpp.o
@@ -185,7 +185,7 @@ UnitTestCrossTermEvaluator.o: UnitTestCrossTermEvaluator.cpp.o
 
 # target to build an object file
 UnitTestCrossTermEvaluator.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.o
 .PHONY : UnitTestCrossTermEvaluator.cpp.o
 
 UnitTestCrossTermEvaluator.i: UnitTestCrossTermEvaluator.cpp.i
@@ -194,7 +194,7 @@ UnitTestCrossTermEvaluator.i: UnitTestCrossTermEvaluator.cpp.i
 
 # target to preprocess a source file
 UnitTestCrossTermEvaluator.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.i
 .PHONY : UnitTestCrossTermEvaluator.cpp.i
 
 UnitTestCrossTermEvaluator.s: UnitTestCrossTermEvaluator.cpp.s
@@ -203,7 +203,7 @@ UnitTestCrossTermEvaluator.s: UnitTestCrossTermEvaluator.cpp.s
 
 # target to generate assembly for a file
 UnitTestCrossTermEvaluator.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermEvaluator.cpp.s
 .PHONY : UnitTestCrossTermEvaluator.cpp.s
 
 UnitTestCrossTermProperties.o: UnitTestCrossTermProperties.cpp.o
@@ -212,7 +212,7 @@ UnitTestCrossTermProperties.o: UnitTestCrossTermProperties.cpp.o
 
 # target to build an object file
 UnitTestCrossTermProperties.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.o
 .PHONY : UnitTestCrossTermProperties.cpp.o
 
 UnitTestCrossTermProperties.i: UnitTestCrossTermProperties.cpp.i
@@ -221,7 +221,7 @@ UnitTestCrossTermProperties.i: UnitTestCrossTermProperties.cpp.i
 
 # target to preprocess a source file
 UnitTestCrossTermProperties.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.i
 .PHONY : UnitTestCrossTermProperties.cpp.i
 
 UnitTestCrossTermProperties.s: UnitTestCrossTermProperties.cpp.s
@@ -230,7 +230,7 @@ UnitTestCrossTermProperties.s: UnitTestCrossTermProperties.cpp.s
 
 # target to generate assembly for a file
 UnitTestCrossTermProperties.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCrossTermProperties.cpp.s
 .PHONY : UnitTestCrossTermProperties.cpp.s
 
 UnitTestCubicEquationSolver.o: UnitTestCubicEquationSolver.cpp.o
@@ -239,7 +239,7 @@ UnitTestCubicEquationSolver.o: UnitTestCubicEquationSolver.cpp.o
 
 # target to build an object file
 UnitTestCubicEquationSolver.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.o
 .PHONY : UnitTestCubicEquationSolver.cpp.o
 
 UnitTestCubicEquationSolver.i: UnitTestCubicEquationSolver.cpp.i
@@ -248,7 +248,7 @@ UnitTestCubicEquationSolver.i: UnitTestCubicEquationSolver.cpp.i
 
 # target to preprocess a source file
 UnitTestCubicEquationSolver.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.i
 .PHONY : UnitTestCubicEquationSolver.cpp.i
 
 UnitTestCubicEquationSolver.s: UnitTestCubicEquationSolver.cpp.s
@@ -257,7 +257,7 @@ UnitTestCubicEquationSolver.s: UnitTestCubicEquationSolver.cpp.s
 
 # target to generate assembly for a file
 UnitTestCubicEquationSolver.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestCubicEquationSolver.cpp.s
 .PHONY : UnitTestCubicEquationSolver.cpp.s
 
 UnitTestDerivativeBounds.o: UnitTestDerivativeBounds.cpp.o
@@ -266,7 +266,7 @@ UnitTestDerivativeBounds.o: UnitTestDerivativeBounds.cpp.o
 
 # target to build an object file
 UnitTestDerivativeBounds.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.o
 .PHONY : UnitTestDerivativeBounds.cpp.o
 
 UnitTestDerivativeBounds.i: UnitTestDerivativeBounds.cpp.i
@@ -275,7 +275,7 @@ UnitTestDerivativeBounds.i: UnitTestDerivativeBounds.cpp.i
 
 # target to preprocess a source file
 UnitTestDerivativeBounds.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.i
 .PHONY : UnitTestDerivativeBounds.cpp.i
 
 UnitTestDerivativeBounds.s: UnitTestDerivativeBounds.cpp.s
@@ -284,7 +284,7 @@ UnitTestDerivativeBounds.s: UnitTestDerivativeBounds.cpp.s
 
 # target to generate assembly for a file
 UnitTestDerivativeBounds.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeBounds.cpp.s
 .PHONY : UnitTestDerivativeBounds.cpp.s
 
 UnitTestDerivativeEvaluator.o: UnitTestDerivativeEvaluator.cpp.o
@@ -293,7 +293,7 @@ UnitTestDerivativeEvaluator.o: UnitTestDerivativeEvaluator.cpp.o
 
 # target to build an object file
 UnitTestDerivativeEvaluator.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.o
 .PHONY : UnitTestDerivativeEvaluator.cpp.o
 
 UnitTestDerivativeEvaluator.i: UnitTestDerivativeEvaluator.cpp.i
@@ -302,7 +302,7 @@ UnitTestDerivativeEvaluator.i: UnitTestDerivativeEvaluator.cpp.i
 
 # target to preprocess a source file
 UnitTestDerivativeEvaluator.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.i
 .PHONY : UnitTestDerivativeEvaluator.cpp.i
 
 UnitTestDerivativeEvaluator.s: UnitTestDerivativeEvaluator.cpp.s
@@ -311,7 +311,7 @@ UnitTestDerivativeEvaluator.s: UnitTestDerivativeEvaluator.cpp.s
 
 # target to generate assembly for a file
 UnitTestDerivativeEvaluator.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestDerivativeEvaluator.cpp.s
 .PHONY : UnitTestDerivativeEvaluator.cpp.s
 
 UnitTestMDMAlgorithmClass.o: UnitTestMDMAlgorithmClass.cpp.o
@@ -320,7 +320,7 @@ UnitTestMDMAlgorithmClass.o: UnitTestMDMAlgorithmClass.cpp.o
 
 # target to build an object file
 UnitTestMDMAlgorithmClass.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.o
 .PHONY : UnitTestMDMAlgorithmClass.cpp.o
 
 UnitTestMDMAlgorithmClass.i: UnitTestMDMAlgorithmClass.cpp.i
@@ -329,7 +329,7 @@ UnitTestMDMAlgorithmClass.i: UnitTestMDMAlgorithmClass.cpp.i
 
 # target to preprocess a source file
 UnitTestMDMAlgorithmClass.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.i
 .PHONY : UnitTestMDMAlgorithmClass.cpp.i
 
 UnitTestMDMAlgorithmClass.s: UnitTestMDMAlgorithmClass.cpp.s
@@ -338,7 +338,7 @@ UnitTestMDMAlgorithmClass.s: UnitTestMDMAlgorithmClass.cpp.s
 
 # target to generate assembly for a file
 UnitTestMDMAlgorithmClass.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestMDMAlgorithmClass.cpp.s
 .PHONY : UnitTestMDMAlgorithmClass.cpp.s
 
 UnitTestObstacleConstraints.o: UnitTestObstacleConstraints.cpp.o
@@ -347,7 +347,7 @@ UnitTestObstacleConstraints.o: UnitTestObstacleConstraints.cpp.o
 
 # target to build an object file
 UnitTestObstacleConstraints.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.o
 .PHONY : UnitTestObstacleConstraints.cpp.o
 
 UnitTestObstacleConstraints.i: UnitTestObstacleConstraints.cpp.i
@@ -356,7 +356,7 @@ UnitTestObstacleConstraints.i: UnitTestObstacleConstraints.cpp.i
 
 # target to preprocess a source file
 UnitTestObstacleConstraints.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.i
 .PHONY : UnitTestObstacleConstraints.cpp.i
 
 UnitTestObstacleConstraints.s: UnitTestObstacleConstraints.cpp.s
@@ -365,7 +365,7 @@ UnitTestObstacleConstraints.s: UnitTestObstacleConstraints.cpp.s
 
 # target to generate assembly for a file
 UnitTestObstacleConstraints.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestObstacleConstraints.cpp.s
 .PHONY : UnitTestObstacleConstraints.cpp.s
 
 UnitTestSphereCollisionEvaluator.o: UnitTestSphereCollisionEvaluator.cpp.o
@@ -374,7 +374,7 @@ UnitTestSphereCollisionEvaluator.o: UnitTestSphereCollisionEvaluator.cpp.o
 
 # target to build an object file
 UnitTestSphereCollisionEvaluator.cpp.o:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.o
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.o
 .PHONY : UnitTestSphereCollisionEvaluator.cpp.o
 
 UnitTestSphereCollisionEvaluator.i: UnitTestSphereCollisionEvaluator.cpp.i
@@ -383,7 +383,7 @@ UnitTestSphereCollisionEvaluator.i: UnitTestSphereCollisionEvaluator.cpp.i
 
 # target to preprocess a source file
 UnitTestSphereCollisionEvaluator.cpp.i:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.i
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.i
 .PHONY : UnitTestSphereCollisionEvaluator.cpp.i
 
 UnitTestSphereCollisionEvaluator.s: UnitTestSphereCollisionEvaluator.cpp.s
@@ -392,7 +392,7 @@ UnitTestSphereCollisionEvaluator.s: UnitTestSphereCollisionEvaluator.cpp.s
 
 # target to generate assembly for a file
 UnitTestSphereCollisionEvaluator.cpp.s:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.s
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(MAKE) -f tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/build.make tests/CMakeFiles/TrajectoryConstraints_UnitTest.dir/UnitTestSphereCollisionEvaluator.cpp.s
 .PHONY : UnitTestSphereCollisionEvaluator.cpp.s
 
 # Help Target
@@ -445,6 +445,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

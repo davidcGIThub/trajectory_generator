@@ -100,9 +100,9 @@ gtest/gtest_prod.h
 CBindHelperFunctions.hpp
 ../src/CBindHelperFunctions.hpp
 
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/UnitTestCrossTermBounds.cpp
+/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/UnitTestCrossTermBounds.cpp
 gtest/gtest.h
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/gtest/gtest.h
+/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/gtest/gtest.h
 CrossTermBounds.hpp
-/home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/tests/CrossTermBounds.hpp
+/home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/tests/CrossTermBounds.hpp
 

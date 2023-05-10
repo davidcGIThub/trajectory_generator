@@ -1,4 +1,4 @@
-# Install script for directory: /home/david/Code/trajectory_generator/TrajectoryConstraintsCCode/src
+# Install script for directory: /home/david/Code/trajectory_generator/trajectory_generation/constraint_functions/TrajectoryConstraintsCCode/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
