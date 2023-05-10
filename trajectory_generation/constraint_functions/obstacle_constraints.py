@@ -4,6 +4,7 @@ import os
 import numpy as np
 from scipy.optimize import NonlinearConstraint
 from trajectory_generation.objectives.objective_variables import get_objective_variables
+from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
 libname_str = os.path.join(script_dir)
@@ -90,9 +91,10 @@ class ObstacleConstraints(object):
         return distance
     
     def create_obstacle_constraints(self, obstacles, num_cont_pts, dimension):
+        num_obstacles = len(obstacles)
+        constraints_key = initialize_constraints_key(num_obstacles)
         def obstacle_constraint_function(variables):
             control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
-            # return self._obstacle_cons_obj.getObstacleConstraintsForIntervals(control_points, obstacle.radius, obstacle.center)
             radii = np.zeros(len(obstacles))
             centers = np.zeros((self._dimension,len(obstacles)))
             for i in range(len(obstacles)):
@@ -102,10 +104,17 @@ class ObstacleConstraints(object):
                 if self._dimension == 3:
                     centers[2,i] = obstacles[i].center[2,0]
             return self.getObstaclesConstraintsForSpline(control_points, radii, centers)
-        lower_bound = 0
-        upper_bound = np.inf
+        lower_bound = np.zeros(num_obstacles)
+        upper_bound = np.zeros(num_obstacles) + np.inf
         obstacle_constraint = NonlinearConstraint(obstacle_constraint_function , lb = lower_bound, ub = upper_bound)
-        return obstacle_constraint
+        constraint_function_data = ConstraintFunctionData(obstacle_constraint_function, lower_bound, upper_bound, constraints_key)
+        return obstacle_constraint, constraint_function_data
+    
+def initialize_constraints_key(num_obstacles):
+    constraints_key = np.array([])
+    for i in range(num_obstacles):
+        constraints_key = np.concatenate((constraints_key,["obstacle " + str(i+1)]))
+    return constraints_key
 
 # control_points = np.array([[7.91705873, 9.88263331, 0.27303466, 7.50604049, 4.61073475, 5.98801717, 1.52432928, 3.8850049, 1.61195392, 8.22471529],
 #                            [5.22947263, 1.33282499, 3.51583204, 8.62435967, 3.03096953, 0.84672315, 0.54028843, 7.24686189, 4.79897482, 5.00498365]])

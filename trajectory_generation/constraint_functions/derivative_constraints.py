@@ -8,7 +8,7 @@ from trajectory_generation.constraint_data_structures.constraint_function_data i
 def create_derivatives_constraint(derivative_bounds: DerivativeBounds, num_cont_pts, dimension, order):
     num_vel_cont_pts = num_cont_pts - 1
     M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, order-1)
-    constraints, constraint_key = initialize_derivative_constraint_array(derivative_bounds)
+    constraints, constraint_key, length = initialize_derivative_constraint_array(derivative_bounds)
     def derivatives_constraint_function(variables):
         control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
         velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
@@ -28,11 +28,11 @@ def create_derivatives_constraint(derivative_bounds: DerivativeBounds, num_cont_
             constraints[count] = acceleration_constraint
             count += 1
         return constraints
-    lower_bound = - np.inf
-    upper_bound = 0
+    lower_bound = np.zeros(length) - np.inf
+    upper_bound = np.zeros(length)
     derivatives_constraint = NonlinearConstraint(derivatives_constraint_function , lb = lower_bound, ub = upper_bound)
-    constraint_function = ConstraintFunctionData(derivatives_constraint_function, lower_bound, upper_bound, constraint_key)
-    return derivatives_constraint, constraint_function
+    constraint_function_data = ConstraintFunctionData(derivatives_constraint_function, lower_bound, upper_bound, constraint_key)
+    return derivatives_constraint, constraint_function_data
 
 def initialize_derivative_constraint_array(derivative_bounds: DerivativeBounds):
     length = 0
@@ -50,7 +50,7 @@ def initialize_derivative_constraint_array(derivative_bounds: DerivativeBounds):
         length += 1
         constraint_key = np.concatenate((constraint_key,["max_acceleration"]))
     constraint_array = np.zeros(length)
-    return constraint_array, constraint_key
+    return constraint_array, constraint_key, length
 
 def calculate_horizontal_velocity_constraint(bezier_velocity_control_points, derivative_bounds):
     velocity_bound = np.max(np.linalg.norm(bezier_velocity_control_points[0:2,:],2,0))

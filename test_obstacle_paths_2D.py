@@ -19,7 +19,11 @@ traj_objective_type = "minimal_acceleration_path"
 # traj_objective_type = "minimal_velocity_path"
 # traj_objective_type = "minimal_distance_path"
 sfc_data = None
-obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
+# obstacle_1 = Obstacle(center=np.array([[3],[4]]), radius=1)
+# obstacle_2 = Obstacle(center=np.array([[7],[10]]), radius=1)
+obstacle_1 = Obstacle(center=np.array([[5.5],[7]]), radius=1)
+obstacles = [obstacle_1]
+
 # obstacles = None
 max_turning_bound = 1.8
 turning_bound = TurningBound(max_turning_bound,"angular_rate")

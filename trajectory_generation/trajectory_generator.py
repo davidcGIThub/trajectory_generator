@@ -94,13 +94,12 @@ class TrajectoryGenerator:
             constraint_name = constraint_function.__name__
             constraints_key = constraint_data.key
             output = constraint_function(optimized_result)
-            violations = output > upper_bound + constraint_tolerance or output < lower_bound - constraint_tolerance
-            if (constraint_name == "angular_rate_constraint_function"):
-                pass
-                # print("output: " , output)
-                # print("upper_bound: " , upper_bound)
-                # print("lower_bound: " , lower_bound)
-                # print("violations: " , violations)
+            # print("constraint_name: " , constraint_name)
+            # print("output: " , output, " " , type(output))
+            # print("upper bound: " , upper_bound, " " , type(upper_bound))
+            # print("lower bound: " , lower_bound, " " , type(lower_bound))
+            # print("const tol: " , constraint_tolerance)
+            violations = np.logical_or(output>(upper_bound + constraint_tolerance),output < (lower_bound - constraint_tolerance))
             if any(violations):
                 if constraint_name == "derivatives_constraint_function":
                     print("Derivative Constraints Violated: " , constraints_key[violations])
@@ -108,6 +107,8 @@ class TrajectoryGenerator:
                     constraint_name == "angular_rate_constraint_function" or \
                     constraint_name == "curvature_constraint_function":
                     print("Turning Constraint Violated: " , constraints_key[violations])
+                elif constraint_name == "obstacle_constraint_function":
+                    print("Obstacle Constraints Violated: " , constraints_key[violations])
     
 # SLSQP options:
 # ftol : float
@@ -181,7 +182,8 @@ class TrajectoryGenerator:
             sfc_constraint = create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
             constraints.append(sfc_constraint)
         if (obstacles != None):
-            obstacle_constraint = self._obstacle_cons_obj.create_obstacle_constraints(obstacles,num_cont_pts, self._dimension)
+            obstacle_constraint, obstacle_constraint_function_data = self._obstacle_cons_obj.create_obstacle_constraints(obstacles,num_cont_pts, self._dimension)
             constraints.append(obstacle_constraint)
+            constraint_functions_data.append(obstacle_constraint_function_data)
         return tuple(constraints), constraint_functions_data
         
