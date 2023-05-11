@@ -30,8 +30,9 @@ def create_derivatives_constraint(derivative_bounds: DerivativeBounds, num_cont_
         return constraints
     lower_bound = np.zeros(length) - np.inf
     upper_bound = np.zeros(length)
+    constraint_class = "Derivative"
     derivatives_constraint = NonlinearConstraint(derivatives_constraint_function , lb = lower_bound, ub = upper_bound)
-    constraint_function_data = ConstraintFunctionData(derivatives_constraint_function, lower_bound, upper_bound, constraint_key)
+    constraint_function_data = ConstraintFunctionData(derivatives_constraint_function, lower_bound, upper_bound, constraint_key, constraint_class)
     return derivatives_constraint, constraint_function_data
 
 def initialize_derivative_constraint_array(derivative_bounds: DerivativeBounds):

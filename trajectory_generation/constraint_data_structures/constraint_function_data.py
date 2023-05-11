@@ -8,3 +8,33 @@ class ConstraintFunctionData:
     lower_bound: np.ndarray
     upper_bound: np.ndarray
     key: np.ndarray = None
+    constraint_class: str = None
+    constraint_tolerance: float = 10e-6
+
+    def __post_init__(self):
+        if self.constraint_class == "Derivative" or \
+           self.constraint_class == "Obstacle" or \
+           self.constraint_class == "Safe_Flight_Corridor" or \
+           self.constraint_class == "Turning":
+            pass
+        else:
+            raise Exception("Constraint class [", self.constraint_class ,"] invalid")
+        
+    def get_output(self, optimized_result):
+        return self.constraint_function(optimized_result)
+        
+    def get_violations(self, output):
+        violations = np.logical_or(output>(self.upper_bound + self.constraint_tolerance),
+                                       output < (self.lower_bound - self.constraint_tolerance))
+        return violations
+    
+    def get_error(self, output):
+        if self.constraint_class == "Derivative":
+            return output
+        if self.constraint_class == "Turning":
+            return output
+        if self.constraint_class == "Obstacle":
+            return -output
+        if self.constraint_class == "Safe_Flight_Corridor":
+            return np.max((self.lower_bound - output, output - self.upper_bound),0)
+

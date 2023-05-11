@@ -31,11 +31,11 @@ turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 # max_turning_bound = 0.6 #curv
 # turning_bound = TurningBound(max_turning_bound,"curvature")
 
-# turning_bound = None
+turning_bound = None
 
-max_velocity = 3
+# max_velocity = 0.1
 max_velocity = None
-# max_acceleration = 5
+# max_acceleration = 0.1
 max_acceleration = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 # derivative_bounds = None
@@ -85,19 +85,19 @@ set_axes_equal(ax,dimension)
 plt.title("Optimized Path")
 plt.show()
 
-# if max_velocity is not None:
-#     plt.figure()
-#     plt.plot(time_data, velocity_data,color = "b")
-#     plt.plot(time_data, max_velocity + velocity_data*0)
-#     plt.title("velocity")
-#     plt.show()
+if max_velocity is not None:
+    plt.figure()
+    plt.plot(time_data, velocity_data,color = "b")
+    plt.plot(time_data, max_velocity + velocity_data*0)
+    plt.title("velocity")
+    plt.show()
 
-# if max_acceleration is not None:
-#     plt.figure()
-#     plt.plot(time_data, acceleration_data,color = "b")
-#     plt.plot(time_data, max_acceleration + acceleration_data*0)
-#     plt.title("acceleration")
-#     plt.show()
+if max_acceleration is not None:
+    plt.figure()
+    plt.plot(time_data, acceleration_data,color = "b")
+    plt.plot(time_data, max_acceleration + acceleration_data*0)
+    plt.title("acceleration")
+    plt.show()
 
 if turning_bound is not None:
     turn_data = []

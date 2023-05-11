@@ -5,7 +5,7 @@ safe flight corridors.
 """
 import os
 import numpy as np
-from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, Bounds
+from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, Bounds, OptimizeResult
 from trajectory_generation.constraint_functions.obstacle_constraints import ObstacleConstraints
 from trajectory_generation.constraint_functions.turning_constraints import TurningConstraints
 from trajectory_generation.control_point_conversions.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
@@ -27,7 +27,7 @@ import time
 
 class TrajectoryGenerator:
     """
-    This class generates a 3rd order B-spline path between two waypoints,
+    This class generates a 3rd order B-spline trajectory between two waypoints,
     waypoint directions, curvature constraint, and adjoining 
     safe flight corridors.
     """
@@ -62,7 +62,7 @@ class TrajectoryGenerator:
         num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
         point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
         num_cont_pts = self.__get_num_control_points(num_intervals)
-        constraints, constraint_functions = self.__get_constraints(num_cont_pts, waypoint_data, \
+        constraints, constraint_data_list = self.__get_constraints(num_cont_pts, waypoint_data, \
             derivative_bounds, turning_bound, sfc_data, obstacles, num_intermediate_waypoints)
         objectiveFunction = self.__get_objective_function(objective_function_type)
         objective_variable_bounds = create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
@@ -85,7 +85,7 @@ class TrajectoryGenerator:
         # print("message: " , result.message)
         # print("num iterations: " , result.nit)
         # print("result: " , result)
-        self.__display_violated_constraints(constraint_functions, result.success, result.x)
+        self.__display_violated_constraints(constraint_data_list, result)
         return optimized_control_points, optimized_scale_factor
     
     def __get_optimized_results(self, result, num_cont_pts):
@@ -93,42 +93,30 @@ class TrajectoryGenerator:
         scale_factor = result.x[num_cont_pts*self._dimension]
         return control_points, scale_factor
     
-    def __display_violated_constraints(self, constraint_functions: 'list[ConstraintFunctionData]',  success: bool, optimized_result):
-        # if not success:
-        num_constraint_functions = len(constraint_functions)
-        constraint_tolerance = 10e-5
-        # control_points, scale_factor = self.__get_optimized_results(optimized_result, num_cont_pts) 
-        for i in range(num_constraint_functions):
-            constraint_data = constraint_functions[i]
-            constraint_function = constraint_data.constraint_function
-            lower_bound = constraint_data.lower_bound
-            upper_bound = constraint_data.upper_bound
-            constraint_name = constraint_function.__name__
-            constraints_key = constraint_data.key
-            output = constraint_function(optimized_result)
-            # print("constraint_name: " , constraint_name)
-            # print("output: " , output, " " , type(output))
-            # print("upper bound: " , upper_bound, " " , type(upper_bound))
-            # print("lower bound: " , lower_bound, " " , type(lower_bound))
-            # print("const tol: " , constraint_tolerance)
-            violations = np.logical_or(output>(upper_bound + constraint_tolerance),
-                                       output < (lower_bound - constraint_tolerance))
-            if any(violations):
-                if constraint_name == "derivatives_constraint_function":
-                    print("Derivative Constraints Violated: " , constraints_key[violations])
-                elif constraint_name == "centripetal_acceleration_constraint_function" or \
-                    constraint_name == "angular_rate_constraint_function" or \
-                    constraint_name == "curvature_constraint_function":
-                    print("Turning Constraint Violated: " , constraints_key[violations])
-                elif constraint_name == "obstacle_constraint_function":
-                    print("Obstacle Constraints Violated: " , constraints_key[violations])
-                elif constraint_name == "sfc_constraint_function":
-                    print("SFC Constraints Violated: [", end ="")
-                    sfc = "sfc"
-                    for i in range(len(violations)):
-                        if violations[i] and constraints_key[i] != sfc:
-                            print(constraints_key[i] , ", ", end ="")
-                    print("]")
+    def __display_violated_constraints(self, constraint_data_list: 'list[ConstraintFunctionData]',  result: OptimizeResult):
+        if not result.success:
+            num_constraint_functions = len(constraint_data_list)
+            for i in range(num_constraint_functions):
+                self.__print_violation(constraint_data_list[i], result.x)
+
+
+    def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: np.ndarray):
+        output = constraint_function_data.constraint_function(optimized_result)
+        violations = constraint_function_data.get_violations(output)
+        num_violations = len(violations)
+        if any(violations):
+            error = constraint_function_data.get_error(output)
+            violation_dict = {}
+            for i in range(num_violations):
+                if violations[i]:
+                    violation_name = constraint_function_data.key[i]
+                    if violation_name in violation_dict:
+                                if error[i] > violation_dict[violation_name]:
+                                    violation_dict[violation_name] = error[i]
+                    else:
+                        violation_dict[violation_name] = error[i]
+            print(constraint_function_data.constraint_class, "Constraint Violations: " , violation_dict)
+
 
     def __get_objective_function(self, objective_function_type):
         if objective_function_type == "minimal_distance_path":

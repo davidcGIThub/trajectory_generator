@@ -49,10 +49,10 @@ max_velocity = 5
 max_acceleration = 5
 gravity = 0.1
 gravity = None
-max_upward_velocity = 1
-max_upward_velocity = None
+max_upward_velocity = 0.2
+# max_upward_velocity = None
 max_horizontal_velocity = 1.75
-max_horizontal_velocity = None
+# max_horizontal_velocity = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration, gravity, max_upward_velocity, max_horizontal_velocity)
 # derivative_bounds = None
 
@@ -136,22 +136,22 @@ plt.show()
 #     plt.title("acceleration z dir ")
 #     plt.show()
 
-# if max_upward_velocity is not None:
-#     plt.figure()
-#     plt.plot(time_data, velocity_spline_data[2,:],color = "b")
-#     plt.plot(time_data, -max_upward_velocity + velocity_data*0)
-#     plt.plot(time_data, max_velocity + velocity_data*0)
-#     # plt.plot(time_data, velocity_data*0)
-#     plt.title("velocity z dir ")
-#     plt.show()
+if max_upward_velocity is not None:
+    plt.figure()
+    plt.plot(time_data, velocity_spline_data[2,:],color = "b")
+    plt.plot(time_data, -max_upward_velocity + velocity_data*0)
+    plt.plot(time_data, max_velocity + velocity_data*0)
+    # plt.plot(time_data, velocity_data*0)
+    plt.title("velocity z dir ")
+    plt.show()
 
-# if max_horizontal_velocity is not None:
-#     plt.figure()
-#     plt.plot(time_data, np.linalg.norm(velocity_spline_data[0:2,:],2,0),color = "b")
-#     plt.plot(time_data, max_horizontal_velocity + velocity_data*0)
-#     # plt.plot(time_data, velocity_data*0)
-#     plt.title("horizontal velocity ")
-#     plt.show()
+if max_horizontal_velocity is not None:
+    plt.figure()
+    plt.plot(time_data, np.linalg.norm(velocity_spline_data[0:2,:],2,0),color = "b")
+    plt.plot(time_data, max_horizontal_velocity + velocity_data*0)
+    # plt.plot(time_data, velocity_data*0)
+    plt.title("horizontal velocity ")
+    plt.show()
 
 
 

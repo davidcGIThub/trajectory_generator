@@ -106,8 +106,9 @@ class ObstacleConstraints(object):
             return self.getObstaclesConstraintsForSpline(control_points, radii, centers)
         lower_bound = np.zeros(num_obstacles)
         upper_bound = np.zeros(num_obstacles) + np.inf
+        constraint_class = "Obstacle"
         obstacle_constraint = NonlinearConstraint(obstacle_constraint_function , lb = lower_bound, ub = upper_bound)
-        constraint_function_data = ConstraintFunctionData(obstacle_constraint_function, lower_bound, upper_bound, constraints_key)
+        constraint_function_data = ConstraintFunctionData(obstacle_constraint_function, lower_bound, upper_bound, constraints_key, constraint_class)
         return obstacle_constraint, constraint_function_data
     
 def initialize_constraints_key(num_obstacles):

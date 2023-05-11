@@ -97,7 +97,8 @@ class TurningConstraints(object):
         lower_bound = np.array([-np.inf])
         upper_bound = np.array([0])
         constraint_key = np.array([turning_bound.bound_type])
-        constraint_function_data = ConstraintFunctionData(constraint_function, lower_bound, upper_bound, constraint_key)
+        constraint_class = "Turning"
+        constraint_function_data = ConstraintFunctionData(constraint_function, lower_bound, upper_bound, constraint_key, constraint_class)
         turning_constraint = NonlinearConstraint(constraint_function , lb = lower_bound, ub = upper_bound)
         return turning_constraint, constraint_function_data
     

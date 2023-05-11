@@ -12,6 +12,14 @@ class TurningBound:
             return True
         else:
             return False
+    
+    def __post_init__(self):
+        if self.bound_type == "centripetal_acceleration" or \
+            self.bound_type == "curvature" or \
+            self.bound_type == "angular_rate":
+            pass
+        else:
+            raise Exception("Bound type must be either [angular_rate, curvature, centripetal_acceleration]")
         
 
 @dataclass
