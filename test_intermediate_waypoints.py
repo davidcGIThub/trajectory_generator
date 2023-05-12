@@ -22,9 +22,9 @@ sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 
-max_turning_bound = 0.4 #angular rate
+max_turning_bound = 0.2 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
-turning_bound = None
+# turning_bound = None
 
 max_velocity = 1.2
 # max_velocity = None

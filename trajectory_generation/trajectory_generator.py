@@ -5,7 +5,7 @@ safe flight corridors.
 """
 import os
 import numpy as np
-from scipy.optimize import minimize, Bounds, LinearConstraint, NonlinearConstraint, Bounds, OptimizeResult
+from scipy.optimize import minimize, OptimizeResult
 from trajectory_generation.constraint_functions.obstacle_constraints import ObstacleConstraints
 from trajectory_generation.constraint_functions.turning_constraints import TurningConstraints
 from trajectory_generation.control_point_conversions.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
@@ -18,8 +18,7 @@ from trajectory_generation.objectives.objective_variables import create_initial_
 from trajectory_generation.objectives.objective_functions import minimize_acceleration_control_points_objective_function, \
     minimize_velocity_control_points_objective_function, minimize_jerk_control_points_objective_function
 from trajectory_generation.constraint_functions.waypoint_constraints import create_terminal_waypoint_location_constraint, \
-    create_intermediate_waypoint_location_constraints, create_intermediate_waypoint_time_scale_constraint, \
-    create_terminal_waypoint_derivative_constraints
+    create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints # create_intermediate_waypoint_time_scale_constraint
 from trajectory_generation.constraint_functions.derivative_constraints import create_derivatives_constraint
 from trajectory_generation.constraint_functions.sfc_constraints import create_safe_flight_corridor_constraint
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
@@ -96,9 +95,10 @@ class TrajectoryGenerator:
     def __display_violated_constraints(self, constraint_data_list: 'list[ConstraintFunctionData]',  result: OptimizeResult):
         if not result.success:
             num_constraint_functions = len(constraint_data_list)
+            print("\n CONSTRAINT VIOLATIONS")
             for i in range(num_constraint_functions):
                 self.__print_violation(constraint_data_list[i], result.x)
-
+            print("")
 
     def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: np.ndarray):
         output = constraint_function_data.constraint_function(optimized_result)
@@ -148,22 +148,30 @@ class TrajectoryGenerator:
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
             derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
             sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
-        start_waypoint_location_constraint = create_terminal_waypoint_location_constraint(waypoint_data.start_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
-        end_waypoint_location_constraint = create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
+        start_waypoint_location_constraint, start_waypoint_constraint_function_data = \
+            create_terminal_waypoint_location_constraint(waypoint_data.start_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
+        end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
+            create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
         constraints = [start_waypoint_location_constraint, end_waypoint_location_constraint]
-        constraint_functions_data = []
+        constraint_functions_data = [start_waypoint_constraint_function_data, end_waypoint_constraint_function_data]
         if waypoint_data.start_waypoint.checkIfDerivativesActive():
-            start_waypoint_derivatives_constraint = create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
+            start_waypoint_derivatives_constraint, start_waypoint_derivatives_constraint_function_data = \
+                create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
             constraints.append(start_waypoint_derivatives_constraint)
+            constraint_functions_data.append(start_waypoint_derivatives_constraint_function_data)
         if waypoint_data.end_waypoint.checkIfDerivativesActive():
-            end_waypoint_derivatives_constraint = create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
+            end_waypoint_derivatives_constraint, end_waypoint_derivatives_constraint_function_data = \
+                create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
             constraints.append(end_waypoint_derivatives_constraint)
+            constraint_functions_data.append(end_waypoint_derivatives_constraint_function_data)
         if waypoint_data.intermediate_locations is not None:
-            intermediate_waypoint_location_constraints = create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints, self._order)
+            intermediate_waypoint_location_constraints, intermediate_waypoint_location_constraint_function_data  = \
+                create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints, self._order)
             constraints.append(intermediate_waypoint_location_constraints)
-            if(num_intermediate_waypoints > 1):
-                intermediate_waypoint_time_constraints = create_intermediate_waypoint_time_scale_constraint(num_cont_pts, num_intermediate_waypoints, self._dimension)
-                constraints.append(intermediate_waypoint_time_constraints)
+            constraint_functions_data.append(intermediate_waypoint_location_constraint_function_data)
+            # if(num_intermediate_waypoints > 1):
+            #     intermediate_waypoint_time_constraints = create_intermediate_waypoint_time_scale_constraint(num_cont_pts, num_intermediate_waypoints, self._dimension)
+            #     constraints.append(intermediate_waypoint_time_constraints)
         if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive():
             derivatives_constraint, derivatives_constraint_function = create_derivatives_constraint( \
                 derivative_bounds, num_cont_pts, self._dimension, self._order)

@@ -82,7 +82,8 @@ class TurningConstraints(object):
             return const
         def angular_rate_constraint_function(variables):
             control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
-            return self.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+            constraint = self.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
+            return constraint
         def curvature_constraint_function(variables):
             control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
             return self.get_spline_curvature_constraint(control_points,turning_bound.max_turning_bound)

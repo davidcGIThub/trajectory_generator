@@ -25,13 +25,13 @@ obstacles = None
 max_turning_bound = 0.2 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
 
-max_turning_bound = 0.5 #cent accel
-turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
+# max_turning_bound = 0.5 #cent accel
+# turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 
 # max_turning_bound = 0.6 #curv
 # turning_bound = TurningBound(max_turning_bound,"curvature")
 
-turning_bound = None
+# turning_bound = None
 
 # max_velocity = 0.1
 max_velocity = None

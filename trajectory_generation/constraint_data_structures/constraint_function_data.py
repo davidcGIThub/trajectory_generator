@@ -15,7 +15,12 @@ class ConstraintFunctionData:
         if self.constraint_class == "Derivative" or \
            self.constraint_class == "Obstacle" or \
            self.constraint_class == "Safe_Flight_Corridor" or \
-           self.constraint_class == "Turning":
+           self.constraint_class == "Turning" or \
+           self.constraint_class == "Start_Waypoint_Location" or \
+           self.constraint_class == "End_Waypoint_Location" or \
+           self.constraint_class == "Start_Waypoint_Derivatives" or \
+           self.constraint_class == "End_Waypoint_Derivatives" or \
+           self.constraint_class == "Intermediate_Waypoint_Locations":
             pass
         else:
             raise Exception("Constraint class [", self.constraint_class ,"] invalid")
@@ -37,4 +42,12 @@ class ConstraintFunctionData:
             return -output
         if self.constraint_class == "Safe_Flight_Corridor":
             return np.max((self.lower_bound - output, output - self.upper_bound),0)
+        if self.constraint_class == "Start_Waypoint_Location" or \
+           self.constraint_class == "End_Waypoint_Location":
+            return np.abs(output - self.lower_bound)
+        if self.constraint_class == "Start_Waypoint_Derivatives" or \
+           self.constraint_class == "End_Waypoint_Derivatives":
+            return np.abs(output - self.lower_bound)
+        if self.constraint_class == "Intermediate_Waypoint_Locations":
+            return np.abs(output - self.lower_bound)
 
