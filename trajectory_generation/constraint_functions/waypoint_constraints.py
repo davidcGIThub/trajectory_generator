@@ -2,12 +2,12 @@ import numpy as np
 from scipy.optimize import LinearConstraint, NonlinearConstraint
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint
 from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval
-from trajectory_generation.objectives.objective_variables import get_objective_variables, \
-    get_intermediate_waypoint_scale_times
+from trajectory_generation.objectives.objective_variables import get_control_points, get_scale_factor, \
+    get_waypoint_scalars, get_intermediate_waypoint_scale_times
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
-def create_terminal_waypoint_location_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints, order):
-    num_extra_spaces = 1 + num_intermediate_waypoints
+def create_terminal_waypoint_location_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints, num_waypoint_scalars, order):
+    num_extra_spaces = 1 + num_intermediate_waypoints + num_waypoint_scalars
     n = num_cont_pts
     k = order
     d = waypoint.dimension
@@ -39,20 +39,32 @@ def create_terminal_waypoint_location_constraint(waypoint: Waypoint, num_cont_pt
     constraint = LinearConstraint(constraint_matrix, lb=lower_bound, ub=upper_bound)
     return constraint, constraint_function_data
 
-def create_terminal_waypoint_derivative_constraints(waypoint: Waypoint, num_cont_pts: int):
+def create_terminal_waypoint_derivative_constraints(waypoint: Waypoint, num_cont_pts: int, num_waypoint_scalars: int):
     lower_bound = 0
     upper_bound = 0
-    if waypoint.checkIfVelocityActive():
-        velocity_desired = waypoint.velocity.flatten()
-    if waypoint.checkIfAccelerationActive():
-        acceleration_desired = waypoint.acceleration.flatten()
+    directionIsActive = waypoint.checkIfDirectionActive()
     velocityIsActive = waypoint.checkIfVelocityActive()
     accelerationIsActive = waypoint.checkIfAccelerationActive()
-    constraints, constraints_key = initialize_derivative_constraints(waypoint)
     side = waypoint.side
+    if directionIsActive:
+        direction_desired = waypoint.direction.flatten()
+        if side == "start": scalar_ind = 0
+        else: scalar_ind = -1
+    if velocityIsActive:
+        velocity_desired = waypoint.velocity.flatten()
+    if accelerationIsActive:
+        acceleration_desired = waypoint.acceleration.flatten()
+    constraints, constraints_key = initialize_derivative_constraints(waypoint)
     def waypoint_derivative_constraint_function(variables):
-        control_points, scale_factor = get_objective_variables(variables, num_cont_pts, waypoint.dimension)
+        control_points = get_control_points(variables, num_cont_pts, waypoint.dimension)
+        scale_factor = get_scale_factor(variables, num_cont_pts, waypoint.dimension)
         marker = 0
+        if directionIsActive:
+            waypoint_scalars = get_waypoint_scalars(variables, num_waypoint_scalars, num_cont_pts, waypoint.dimension)
+            waypoint_scalar = waypoint_scalars[scalar_ind]
+            direction = get_terminal_direction(side, control_points, waypoint_scalar)
+            constraints[marker:waypoint.dimension] = (direction - direction_desired).flatten()
+            marker += waypoint.dimension
         if velocityIsActive:
             velocity = get_terminal_velocity(side, control_points, scale_factor)
             constraints[marker:waypoint.dimension] = (velocity - velocity_desired).flatten()
@@ -70,6 +82,11 @@ def create_terminal_waypoint_derivative_constraints(waypoint: Waypoint, num_cont
 def initialize_derivative_constraints(waypoint: Waypoint):
     length = 0
     constraints_key = np.array([])
+    if waypoint.checkIfDirectionActive():
+        length += waypoint.dimension
+        constraints_key = np.concatenate( (constraints_key, np.array(["x dir"])) )
+        constraints_key = np.concatenate( (constraints_key, np.array(["y dir"])) )
+        if waypoint.dimension == 3: constraints_key = np.concatenate( (constraints_key, np.array(["z dir"])) )
     if waypoint.checkIfVelocityActive():
         length += waypoint.dimension
         constraints_key = np.concatenate( (constraints_key, np.array(["x vel"])) )
@@ -83,6 +100,13 @@ def initialize_derivative_constraints(waypoint: Waypoint):
         if waypoint.dimension == 3: constraints_key = np.concatenate( (constraints_key, np.array(["z accel"])) )
     constraints = np.zeros(length)
     return constraints, constraints_key
+
+def get_terminal_direction(side, control_points, waypoint_scalar):
+    if side == "start":
+        direction = waypoint_scalar*(control_points[:,2] - control_points[:,0])
+    if side == "end":
+        direction = waypoint_scalar*(control_points[:,-1] - control_points[:,-3])
+    return direction
 
 def get_terminal_velocity(side, control_points, scale_factor):
     if side == "start":
@@ -106,7 +130,8 @@ def create_intermediate_waypoint_location_constraints(intermediate_locations, nu
     constraints = np.zeros((dimension, num_intermediate_waypoints))
     constraints_key = create_intermediate_waypoint_constraints_key(dimension, num_intermediate_waypoints)
     def intermediate_waypoint_constraint_function(variables):
-        control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+        control_points = get_control_points(variables, num_cont_pts, dimension)
+        scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
         intermediate_waypoint_scale_times = get_intermediate_waypoint_scale_times(variables, num_intermediate_waypoints)
         for i in range(num_intermediate_waypoints):
             desired_location = intermediate_locations[:,i]

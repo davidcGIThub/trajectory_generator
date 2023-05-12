@@ -1,30 +1,48 @@
 import numpy as np
 from scipy.optimize import Bounds
+from trajectory_generation.constraint_data_structures.waypoint_data import WaypointData
 
-def create_initial_objective_variables(num_cont_pts, point_sequence, num_intermediate_waypoints,  waypoint_sequence, dimension, order):
-    control_points = create_initial_control_points(num_cont_pts, point_sequence, dimension)
-    scale_factor = 1
-    variables = np.concatenate((control_points.flatten(),[scale_factor]))
-    if (num_intermediate_waypoints > 0):
-        intermediate_waypoint_time_scales = create_initial_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts, order)
-        variables = np.concatenate((variables, intermediate_waypoint_time_scales))
-    print("len objective variables: " , len(variables))
-    return variables
-
-def get_objective_variables(variables, num_cont_pts, dimension):
+def get_control_points(variables, num_cont_pts, dimension):
     control_points = np.reshape(variables[0:num_cont_pts*dimension], \
                 (dimension,num_cont_pts))
+    return control_points
+
+def get_scale_factor(variables, num_cont_pts, dimension):
     scale_factor = variables[num_cont_pts*dimension]
-    return control_points, scale_factor
+    return scale_factor
     
 def get_intermediate_waypoint_scale_times(variables, num_middle_waypoints):
     intermediate_waypoint_times = variables[-num_middle_waypoints:]
     return intermediate_waypoint_times
 
-def create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints, dimension, order):
-    lower_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints) - np.inf
-    upper_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints) + np.inf
-    lower_bounds[num_cont_pts*dimension] = 0.000001
+def get_waypoint_scalars(variables, num_waypoint_scalars, num_cont_pts, dimension):
+    start_index = num_cont_pts*dimension+1
+    waypoint_scalars = variables[start_index:start_index+num_waypoint_scalars]
+    return waypoint_scalars
+
+def create_initial_objective_variables(num_cont_pts: int, point_sequence, waypoint_data: WaypointData, dimension: int, order: int):
+    waypoint_sequence = waypoint_data.get_waypoint_locations()
+    num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
+    control_points = create_initial_control_points(num_cont_pts, point_sequence, dimension)
+    scale_factor = 1
+    waypoint_scalar = 1
+    variables = np.concatenate((control_points.flatten(),[scale_factor]))
+    if waypoint_data.start_waypoint.direction is not None:
+        variables = np.concatenate((variables,[waypoint_scalar]))
+    if waypoint_data.end_waypoint.direction is not None:
+        variables = np.concatenate((variables,[waypoint_scalar]))
+    if (num_intermediate_waypoints > 0):
+        intermediate_waypoint_time_scales = create_initial_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts, order)
+        variables = np.concatenate((variables, intermediate_waypoint_time_scales))
+    return variables
+
+def create_objective_variable_bounds(num_cont_pts, waypoint_data: WaypointData, dimension, order):
+    num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
+    num_waypoint_scalars = waypoint_data.get_num_waypoint_scalars()
+    lower_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints + num_waypoint_scalars) - np.inf
+    upper_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints + num_waypoint_scalars) + np.inf
+    start_index = num_cont_pts*dimension
+    lower_bounds[start_index:start_index+num_waypoint_scalars] = 10e-8
     if num_intermediate_waypoints > 0:
         num_intervals = num_cont_pts - order
         upper_bounds[-num_intermediate_waypoints:] = num_intervals

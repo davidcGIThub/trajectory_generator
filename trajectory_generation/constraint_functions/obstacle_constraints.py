@@ -3,7 +3,7 @@ import pathlib
 import os 
 import numpy as np
 from scipy.optimize import NonlinearConstraint
-from trajectory_generation.objectives.objective_variables import get_objective_variables
+from trajectory_generation.objectives.objective_variables import get_control_points, get_scale_factor
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
@@ -94,7 +94,8 @@ class ObstacleConstraints(object):
         num_obstacles = len(obstacles)
         constraints_key = initialize_constraints_key(num_obstacles)
         def obstacle_constraint_function(variables):
-            control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+            control_points = get_control_points(variables, num_cont_pts, dimension)
+            scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
             radii = np.zeros(len(obstacles))
             centers = np.zeros((self._dimension,len(obstacles)))
             for i in range(len(obstacles)):

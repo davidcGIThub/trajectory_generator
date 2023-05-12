@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 @dataclass
 class Waypoint:
     location: np.ndarray
+    direction: np.ndarray = None
     velocity: np.ndarray = None
     acceleration: np.ndarray = None
     jerk: np.ndarray = None
@@ -12,7 +13,11 @@ class Waypoint:
     side: str = None
 
     def checkIfDerivativesActive(self):
-        return (self.checkIfVelocityActive() or self.checkIfAccelerationActive())
+        return (self.checkIfVelocityActive() or self.checkIfAccelerationActive() \
+                or self.checkIfDirectionActive())
+    
+    def checkIfDirectionActive(self):
+        return (self.direction is not None)
         
     def checkIfVelocityActive(self):
         return (self.velocity is not None)
@@ -28,6 +33,12 @@ class Waypoint:
             raise Exception("Error: Acceleration is not the same dimension as location")
         if self.jerk is not None and len(self.jerk.flatten()) != self.dimension:
             raise Exception("Error: Jerk is not the same dimension as location")
+        if self.direction is not None:
+            if self.velocity is not None:
+                self.direction = None
+                print("Using velocity constraint - cannot use both velocity and direction constraint")
+            else:
+                self.direction = self.direction
 
 class WaypointData:
 
@@ -72,6 +83,14 @@ class WaypointData:
             return np.shape(self.intermediate_locations)[1]
         else:
             return 0
+        
+    def get_num_waypoint_scalars(self):
+        num_waypoint_scalars = 0
+        if self.start_waypoint.direction is not None:
+            num_waypoint_scalars += 1
+        if self.end_waypoint.direction is not None:
+            num_waypoint_scalars += 1
+        return num_waypoint_scalars
         
 def plot2D_waypoints(waypoint_data: WaypointData, ax):
     locations = waypoint_data.get_waypoint_locations()

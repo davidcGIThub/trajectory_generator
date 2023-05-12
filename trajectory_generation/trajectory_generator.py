@@ -14,7 +14,7 @@ from trajectory_generation.constraint_data_structures.obstacle import Obstacle
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.objectives.objective_variables import create_initial_objective_variables, \
-    get_objective_variables, create_objective_variable_bounds
+    create_objective_variable_bounds
 from trajectory_generation.objectives.objective_functions import minimize_acceleration_control_points_objective_function, \
     minimize_velocity_control_points_objective_function, minimize_jerk_control_points_objective_function
 from trajectory_generation.constraint_functions.waypoint_constraints import create_terminal_waypoint_location_constraint, \
@@ -58,16 +58,14 @@ class TrajectoryGenerator:
     def generate_trajectory(self, waypoint_data: WaypointData, derivative_bounds: DerivativeBounds = None, turning_bound: TurningBound = None,
                 sfc_data: SFC_Data = None, obstacles: list = None, objective_function_type: str = "minimal_velocity_path"):
         num_intervals = self.__get_num_intervals(sfc_data)
-        num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
-        point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
         num_cont_pts = self.__get_num_control_points(num_intervals)
+        point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
         constraints, constraint_data_list = self.__get_constraints(num_cont_pts, waypoint_data, \
-            derivative_bounds, turning_bound, sfc_data, obstacles, num_intermediate_waypoints)
+            derivative_bounds, turning_bound, sfc_data, obstacles)
         objectiveFunction = self.__get_objective_function(objective_function_type)
-        objective_variable_bounds = create_objective_variable_bounds(num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
-        waypoint_sequence = waypoint_data.get_waypoint_locations()
+        objective_variable_bounds = create_objective_variable_bounds(num_cont_pts, waypoint_data, self._dimension, self._order)
         optimization_variables = create_initial_objective_variables(num_cont_pts, point_sequence, 
-            num_intermediate_waypoints, waypoint_sequence, self._dimension, self._order)
+            waypoint_data, self._dimension, self._order)
         minimize_options = {'disp': False} #, 'maxiter': self.maxiter, 'ftol': tol}
         # perform optimization
         result = minimize(
@@ -147,26 +145,31 @@ class TrajectoryGenerator:
 
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
             derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
-            sfc_data: SFC_Data, obstacles: list, num_intermediate_waypoints):
+            sfc_data: SFC_Data, obstacles: list):
+        num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
+        num_waypoint_scalars = waypoint_data.get_num_waypoint_scalars()
         start_waypoint_location_constraint, start_waypoint_constraint_function_data = \
-            create_terminal_waypoint_location_constraint(waypoint_data.start_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
+            create_terminal_waypoint_location_constraint(waypoint_data.start_waypoint, num_cont_pts, \
+                num_intermediate_waypoints, num_waypoint_scalars, self._order)
         end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
-            create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, self._order)
+            create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, \
+                num_intermediate_waypoints, num_waypoint_scalars, self._order)
         constraints = [start_waypoint_location_constraint, end_waypoint_location_constraint]
         constraint_functions_data = [start_waypoint_constraint_function_data, end_waypoint_constraint_function_data]
         if waypoint_data.start_waypoint.checkIfDerivativesActive():
             start_waypoint_derivatives_constraint, start_waypoint_derivatives_constraint_function_data = \
-                create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts)
+                create_terminal_waypoint_derivative_constraints(waypoint_data.start_waypoint, num_cont_pts, num_waypoint_scalars)
             constraints.append(start_waypoint_derivatives_constraint)
             constraint_functions_data.append(start_waypoint_derivatives_constraint_function_data)
         if waypoint_data.end_waypoint.checkIfDerivativesActive():
             end_waypoint_derivatives_constraint, end_waypoint_derivatives_constraint_function_data = \
-                create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts)
+                create_terminal_waypoint_derivative_constraints(waypoint_data.end_waypoint, num_cont_pts, num_waypoint_scalars)
             constraints.append(end_waypoint_derivatives_constraint)
             constraint_functions_data.append(end_waypoint_derivatives_constraint_function_data)
         if waypoint_data.intermediate_locations is not None:
             intermediate_waypoint_location_constraints, intermediate_waypoint_location_constraint_function_data  = \
-                create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, num_cont_pts, num_intermediate_waypoints, self._order)
+                create_intermediate_waypoint_location_constraints(waypoint_data.intermediate_locations, \
+                    num_cont_pts, num_intermediate_waypoints, self._order)
             constraints.append(intermediate_waypoint_location_constraints)
             constraint_functions_data.append(intermediate_waypoint_location_constraint_function_data)
             # if(num_intermediate_waypoints > 1):
@@ -183,7 +186,8 @@ class TrajectoryGenerator:
             constraints.append(turning_constraint)
             constraint_functions_data.append(turning_constraint_function_data)
         if sfc_data is not None:
-            sfc_constraint, sfc_constraint_function_data = create_safe_flight_corridor_constraint(sfc_data, num_cont_pts, num_intermediate_waypoints, self._dimension, self._order)
+            sfc_constraint, sfc_constraint_function_data = create_safe_flight_corridor_constraint(sfc_data, \
+                num_cont_pts, num_intermediate_waypoints, num_waypoint_scalars, self._dimension, self._order)
             constraints.append(sfc_constraint)
             constraint_functions_data.append(sfc_constraint_function_data)
         if (obstacles != None):

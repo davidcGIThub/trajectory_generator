@@ -35,10 +35,10 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 
 ### 1st path
 
-waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity = np.array([[1],[0]]))
+waypoint_1 = Waypoint(location=np.array([[3  ],[4]]),velocity = np.array([[1],[0]]))
 waypoint_2 = Waypoint(location=np.array([[1.5],[6]]))
 waypoint_3 = Waypoint(location=np.array([[3.4],[8]]))
-waypoint_4 = Waypoint(location=np.array([[2],[10]]),velocity = np.array([[0],[1]]))
+waypoint_4 = Waypoint(location=np.array([[2  ],[10]]),velocity = np.array([[0],[1]]))
 
 waypoint_sequence = (waypoint_1, waypoint_2, waypoint_3, waypoint_4)
 waypoint_data = WaypointData(waypoint_sequence)

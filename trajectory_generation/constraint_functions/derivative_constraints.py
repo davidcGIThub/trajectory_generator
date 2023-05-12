@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import NonlinearConstraint
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds
 from trajectory_generation.control_point_conversions.bspline_to_bezier import get_composite_bspline_to_bezier_conversion_matrix
-from trajectory_generation.objectives.objective_variables import get_objective_variables
+from trajectory_generation.objectives.objective_variables import get_control_points, get_scale_factor
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
 def create_derivatives_constraint(derivative_bounds: DerivativeBounds, num_cont_pts, dimension, order):
@@ -10,7 +10,8 @@ def create_derivatives_constraint(derivative_bounds: DerivativeBounds, num_cont_
     M_v = get_composite_bspline_to_bezier_conversion_matrix(num_vel_cont_pts, order-1)
     constraints, constraint_key, length = initialize_derivative_constraint_array(derivative_bounds)
     def derivatives_constraint_function(variables):
-        control_points, scale_factor = get_objective_variables(variables, num_cont_pts, dimension)
+        control_points = get_control_points(variables, num_cont_pts, dimension)
+        scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
         velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
         count = 0
         if derivative_bounds.max_velocity is not None:

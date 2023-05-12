@@ -4,9 +4,10 @@ from trajectory_generation.constraint_data_structures.safe_flight_corridor impor
 from trajectory_generation.control_point_conversions.bspline_to_minvo import get_composite_bspline_to_minvo_conversion_matrix
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
-def create_safe_flight_corridor_constraint(sfc_data: SFC_Data, num_cont_pts, num_intermediate_waypoints, dimension, order):
+def create_safe_flight_corridor_constraint(sfc_data: SFC_Data, num_cont_pts, \
+        num_intermediate_waypoints,num_waypoint_scalars, dimension, order):
     # create the rotation matrix.
-    num_extra_spaces = 1 + num_intermediate_waypoints
+    num_extra_spaces = 1 + num_intermediate_waypoints + num_waypoint_scalars
     num_corridors = get_num_corridors(sfc_data)
     num_minvo_cont_pts = (num_cont_pts - order)*(order+1)
     intervals_per_corridor = sfc_data.get_intervals_per_corridor()

@@ -22,29 +22,30 @@ sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 
-max_turning_bound = 0.2 #angular rate
+max_turning_bound = 1 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
 
 # max_turning_bound = 0.5 #cent accel
 # turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 
-# max_turning_bound = 0.6 #curv
+# max_turning_bound = 1 #curv
 # turning_bound = TurningBound(max_turning_bound,"curvature")
 
 # turning_bound = None
 
-# max_velocity = 0.1
-max_velocity = None
+max_velocity = 5
+# max_velocity = None
 # max_acceleration = 0.1
 max_acceleration = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 # derivative_bounds = None
 
 ### 1st path
-waypoint_1 = Waypoint(location=np.array([[3],[4]]))
-waypoint_2 = Waypoint(location=np.array([[2],[10]]))
-waypoint_1.velocity = np.array([[1],[0]])
-waypoint_2.velocity = np.array([[0],[1]])
+# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
+# waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[1]]))
+waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
+waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
+
 waypoint_sequence = (waypoint_1, waypoint_2)
 waypoint_data = WaypointData(waypoint_sequence)
 traj_gen = TrajectoryGenerator(dimension)
