@@ -55,9 +55,11 @@ class TrajectoryGenerator:
 # disp : bool
 # Set to True to print convergence messages.
 
-    def generate_trajectory(self, waypoint_data: WaypointData, derivative_bounds: DerivativeBounds = None, turning_bound: TurningBound = None,
-                sfc_data: SFC_Data = None, obstacles: list = None, objective_function_type: str = "minimal_velocity_path"):
-        num_intervals = self.__get_num_intervals(sfc_data)
+    def generate_trajectory(self, waypoint_data: WaypointData, derivative_bounds: DerivativeBounds = None, \
+            turning_bound: TurningBound = None, sfc_data: SFC_Data = None, obstacles: list = None, \
+            objective_function_type: str = "minimal_velocity_path", initial_control_points: np.ndarray = None, \
+            initial_scale_factor: float = None):
+        num_intervals = self.__get_num_intervals(sfc_data, initial_control_points)
         num_cont_pts = self.__get_num_control_points(num_intervals)
         point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
         constraints, constraint_data_list = self.__get_constraints(num_cont_pts, waypoint_data, \
@@ -65,7 +67,7 @@ class TrajectoryGenerator:
         objectiveFunction = self.__get_objective_function(objective_function_type)
         objective_variable_bounds = create_objective_variable_bounds(num_cont_pts, waypoint_data, self._dimension, self._order)
         optimization_variables = create_initial_objective_variables(num_cont_pts, point_sequence, 
-            waypoint_data, self._dimension, self._order)
+            waypoint_data, self._dimension, self._order, initial_control_points, initial_scale_factor)
         minimize_options = {'disp': False} #, 'maxiter': self.maxiter, 'ftol': tol}
         # perform optimization
         result = minimize(
@@ -77,11 +79,6 @@ class TrajectoryGenerator:
             constraints=constraints, 
             options = minimize_options)
         optimized_control_points, optimized_scale_factor = self.__get_optimized_results(result, num_cont_pts)
-        # print("succes: " , result.success)
-        # print("status: " , result.status)
-        # print("message: " , result.message)
-        # print("num iterations: " , result.nit)
-        # print("result: " , result)
         self.__display_violated_constraints(constraint_data_list, result)
         return optimized_control_points, optimized_scale_factor
     
@@ -90,32 +87,6 @@ class TrajectoryGenerator:
         scale_factor = result.x[num_cont_pts*self._dimension]
         return control_points, scale_factor
     
-    def __display_violated_constraints(self, constraint_data_list: 'list[ConstraintFunctionData]',  result: OptimizeResult):
-        if not result.success:
-            num_constraint_functions = len(constraint_data_list)
-            print("\n CONSTRAINT VIOLATIONS")
-            for i in range(num_constraint_functions):
-                self.__print_violation(constraint_data_list[i], result.x)
-            print("")
-
-    def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: np.ndarray):
-        output = constraint_function_data.constraint_function(optimized_result)
-        violations = constraint_function_data.get_violations(output)
-        num_violations = len(violations)
-        if any(violations):
-            error = constraint_function_data.get_error(output)
-            violation_dict = {}
-            for i in range(num_violations):
-                if violations[i]:
-                    violation_name = constraint_function_data.key[i]
-                    if violation_name in violation_dict:
-                                if error[i] > violation_dict[violation_name]:
-                                    violation_dict[violation_name] = error[i]
-                    else:
-                        violation_dict[violation_name] = error[i]
-            print(constraint_function_data.constraint_class, "Constraint Violations: " , violation_dict)
-
-
     def __get_objective_function(self, objective_function_type):
         if objective_function_type == "minimal_distance_path":
             return minimize_velocity_control_points_objective_function
@@ -126,10 +97,14 @@ class TrajectoryGenerator:
         else:
             raise Exception("Error, Invalid objective function type")
 
-    def __get_num_intervals(self, sfc_data: SFC_Data):
-        num_intervals = self._num_intervals_free_space
-        if sfc_data is not None:
+    def __get_num_intervals(self, sfc_data: SFC_Data, initial_control_points: np.ndarray = None):
+        if initial_control_points is not None:
+            num_control_points = np.shape(initial_control_points)[1]
+            num_intervals = num_control_points - self._order
+        elif sfc_data is not None:
             num_intervals = sfc_data.get_num_intervals()
+        else:
+            num_intervals = self._num_intervals_free_space
         return num_intervals
     
     def __get_num_control_points(self, num_intervals):
@@ -195,4 +170,28 @@ class TrajectoryGenerator:
             constraints.append(obstacle_constraint)
             constraint_functions_data.append(obstacle_constraint_function_data)
         return tuple(constraints), constraint_functions_data
-        
+
+    def __display_violated_constraints(self, constraint_data_list: 'list[ConstraintFunctionData]',  result: OptimizeResult):
+        if not result.success:
+            num_constraint_functions = len(constraint_data_list)
+            print("\n CONSTRAINT VIOLATIONS")
+            for i in range(num_constraint_functions):
+                self.__print_violation(constraint_data_list[i], result.x)
+            print("")
+
+    def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: np.ndarray):
+        output = constraint_function_data.constraint_function(optimized_result)
+        violations = constraint_function_data.get_violations(output)
+        num_violations = len(violations)
+        if any(violations):
+            error = constraint_function_data.get_error(output)
+            violation_dict = {}
+            for i in range(num_violations):
+                if violations[i]:
+                    violation_name = constraint_function_data.key[i]
+                    if violation_name in violation_dict:
+                                if error[i] > violation_dict[violation_name]:
+                                    violation_dict[violation_name] = error[i]
+                    else:
+                        violation_dict[violation_name] = error[i]
+            print(constraint_function_data.constraint_class, "Constraint Violations: " , violation_dict)

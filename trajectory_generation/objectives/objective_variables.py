@@ -20,11 +20,18 @@ def get_waypoint_scalars(variables, num_waypoint_scalars, num_cont_pts, dimensio
     waypoint_scalars = variables[start_index:start_index+num_waypoint_scalars]
     return waypoint_scalars
 
-def create_initial_objective_variables(num_cont_pts: int, point_sequence, waypoint_data: WaypointData, dimension: int, order: int):
+def create_initial_objective_variables(num_cont_pts: int, point_sequence, \
+        waypoint_data: WaypointData, dimension: int, order: int, initial_control_points: np.ndarray = None, initial_scale_factor: int = None):
     waypoint_sequence = waypoint_data.get_waypoint_locations()
     num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
-    control_points = create_initial_control_points(num_cont_pts, point_sequence, dimension)
-    scale_factor = 1
+    if initial_control_points is not None:
+        control_points = initial_control_points
+    else:
+        control_points = create_initial_control_points(num_cont_pts, point_sequence, dimension)
+    if initial_scale_factor is not None:
+        scale_factor = initial_scale_factor
+    else:
+        scale_factor = 1
     waypoint_scalar = 1
     variables = np.concatenate((control_points.flatten(),[scale_factor]))
     if waypoint_data.start_waypoint.direction is not None:

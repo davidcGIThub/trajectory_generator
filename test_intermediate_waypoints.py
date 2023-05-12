@@ -10,8 +10,6 @@ from trajectory_generation.constraint_data_structures.dynamic_bounds import Deri
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
 import time
 
-#note incline constraints work much better when have a start and an end direction.
-
 dimension = 2
 # max_curvature = 1
 order = 3
@@ -22,11 +20,11 @@ sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 
-max_turning_bound = 0.2 #angular rate
+max_turning_bound = 1 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
-# turning_bound = None
+turning_bound = None
 
-max_velocity = 1.2
+max_velocity = 1.5
 # max_velocity = None
 # max_acceleration = 5
 max_acceleration = None
@@ -45,8 +43,13 @@ waypoint_data = WaypointData(waypoint_sequence)
 traj_gen = TrajectoryGenerator(dimension, 11)
 start_time_1 = time.time()
 
+initial_control_points = None
+initial_scale_factor = None
+
 control_points, scale_factor = traj_gen.generate_trajectory(waypoint_data, derivative_bounds, 
     turning_bound, sfc_data, obstacles, traj_objective_type)
+print("control_points: " , control_points)
+print("scale_factor: ", scale_factor)
 end_time_1 = time.time()
 spline_start_time_1 = 0
 bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)
@@ -63,8 +66,7 @@ centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_
 path_length = bspline.get_arc_length(number_data_points)
 start_velocity = bspline.get_derivative_at_time_t(0,1)
 start_acceleration = bspline.get_derivative_at_time_t(0,2)
-print("start_velocity: " , start_velocity)
-print("start_acceleraiton: " , start_acceleration)
+
 print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
 

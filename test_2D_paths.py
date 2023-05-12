@@ -33,7 +33,7 @@ turning_bound = TurningBound(max_turning_bound,"angular_rate")
 
 # turning_bound = None
 
-max_velocity = 5
+max_velocity = 1.5
 # max_velocity = None
 # max_acceleration = 0.1
 max_acceleration = None
@@ -41,10 +41,10 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 # derivative_bounds = None
 
 ### 1st path
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
-# waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[1]]))
-waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
-waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
+waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
+waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[1]]))
+# waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
+# waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
 
 waypoint_sequence = (waypoint_1, waypoint_2)
 waypoint_data = WaypointData(waypoint_sequence)

@@ -19,11 +19,8 @@ traj_objective_type = "minimal_acceleration_path"
 # traj_objective_type = "minimal_velocity_path"
 # traj_objective_type = "minimal_distance_path"
 sfc_data = None
-obstacle_1 = Obstacle(center=np.array([[3],[4]]), radius=1)
-obstacle_2 = Obstacle(center=np.array([[7],[10]]), radius=1)
-obstacles = [obstacle_1, obstacle_2]
-# obstacle_1 = Obstacle(center=np.array([[5.5],[7]]), radius=1)
-# obstacles = [obstacle_1]
+obstacle_1 = Obstacle(center=np.array([[5.5],[7]]), radius=1)
+obstacles = [obstacle_1]
 
 # obstacles = None
 max_turning_bound = 1.8
@@ -67,8 +64,7 @@ centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_
 path_length = bspline.get_arc_length(number_data_points)
 start_velocity = bspline.get_derivative_at_time_t(0,1)
 start_acceleration = bspline.get_derivative_at_time_t(0,2)
-print("start_velocity: " , start_velocity)
-print("start_acceleraiton: " , start_acceleration)
+
 print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
 
