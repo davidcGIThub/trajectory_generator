@@ -10,6 +10,9 @@ from trajectory_generation.constraint_data_structures.dynamic_bounds import Deri
 from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC, plot_sfcs
 import time
 
+plt.ion()
+fn = 0
+
 #note incline constraints work much better when have a start and an end direction
 
 dimension = 3
@@ -35,7 +38,7 @@ sfc_3 = SFC(np.array([[min_len_3+3],[2],[2]]), T3, R3)
 sfcs = (sfc_1, sfc_2, sfc_3)
 min_intervals_per_corridor = 1
 sfc_data = SFC_Data(sfcs, point_sequence,min_intervals_per_corridor)
-# sfc_data = None
+sfc_data = None
 
 obstacles = None
 max_turning_bound = 1
@@ -111,7 +114,8 @@ print("computation time: " , end_time_1 - start_time_1)
 velocity_matrix, time_data = bspline.get_spline_derivative_data(number_data_points,1)
 acceleration_matrix, time_data = bspline.get_spline_derivative_data(number_data_points,2)
 
-plt.figure()
+fn += 1
+plt.figure(fn).clear()
 ax = plt.axes(projection='3d')
 # ax.scatter(control_points[0,:], control_points[1,:], color="tab:orange")
 ax.plot(spline_data[0,:], spline_data[1,:], spline_data[2,:], color = "tab:blue")
@@ -145,7 +149,8 @@ plt.show()
 #     plt.show()
 
 if max_upward_velocity is not None:
-    plt.figure()
+    fn += 1
+    plt.figure(fn).clear()
     plt.plot(time_data, velocity_spline_data[2,:],color = "b")
     plt.plot(time_data, -max_upward_velocity + velocity_data*0)
     plt.plot(time_data, max_velocity + velocity_data*0)
@@ -154,7 +159,8 @@ if max_upward_velocity is not None:
     plt.show()
 
 if max_horizontal_velocity is not None:
-    plt.figure()
+    fn += 1
+    plt.figure(fn).clear()
     plt.plot(time_data, np.linalg.norm(velocity_spline_data[0:2,:],2,0),color = "b")
     plt.plot(time_data, max_horizontal_velocity + velocity_data*0)
     # plt.plot(time_data, velocity_data*0)

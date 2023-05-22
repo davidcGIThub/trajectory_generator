@@ -20,9 +20,10 @@ traj_objective_type = "minimal_velocity_path"
 sfc_data = None
 obstacles = None
 
-max_turning_bound = 1 #curv
+max_curvature = 0.5773502691896257
+max_turning_bound = max_curvature
 turning_bound = TurningBound(max_turning_bound,"curvature")
-# turning_bound = None
+turning_bound = None
 
 max_velocity = 3
 # max_velocity = None
@@ -31,8 +32,8 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 # derivative_bounds = None
 
 ### 1st path
-waypoint_1 = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[2.5]]))
-waypoint_2 = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[2.5]]))
+waypoint_1 = Waypoint(location=np.array([[-6],[0]]),velocity=np.array([[0],[2.5]]))
+waypoint_2 = Waypoint(location=np.array([[6],[0]]),velocity=np.array([[0],[2.5]]))
 # waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
 # waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
 
@@ -74,18 +75,11 @@ if max_velocity is not None:
     plt.title("velocity")
     plt.show()
 
-if turning_bound is not None:
-    turn_data = []
-    if turning_bound.bound_type == "angular_rate":
-        turn_data = angular_rate_data
-    elif turning_bound.bound_type == "curvature":
-        turn_data = curvature_data
-    elif turning_bound.bound_type == "centripetal_acceleration":
-        turn_data = centripetal_acceleration_data
-    turn_title = turning_bound.bound_type
-    plt.figure()
-    plt.plot(time_data, turn_data,color = "b")
-    # plt.plot(time_data, acceleration_data,color = "g")
-    plt.plot(time_data, max_turning_bound + turn_data*0)
-    plt.title(turn_title)
-    plt.show()
+
+
+plt.figure()
+plt.plot(time_data, curvature_data,color = "b")
+# plt.plot(time_data, acceleration_data,color = "g")
+plt.plot(time_data, max_curvature + curvature_data*0)
+plt.title('curvature')
+plt.show()
