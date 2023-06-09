@@ -5,6 +5,7 @@ safe flight corridors.
 """
 import os
 import numpy as np
+import numpy.typing as npt
 from scipy.optimize import minimize, OptimizeResult
 from trajectory_generation.constraint_functions.obstacle_constraints import ObstacleConstraints
 from trajectory_generation.constraint_functions.turning_constraints import TurningConstraints
@@ -22,7 +23,9 @@ from trajectory_generation.constraint_functions.waypoint_constraints import crea
 from trajectory_generation.constraint_functions.derivative_constraints import create_derivatives_constraint
 from trajectory_generation.constraint_functions.sfc_constraints import create_safe_flight_corridor_constraint
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
+from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
 import time
+
 
 class TrajectoryGenerator:
     """
@@ -55,10 +58,14 @@ class TrajectoryGenerator:
 # disp : bool
 # Set to True to print convergence messages.
 
-    def generate_trajectory(self, waypoint_data: WaypointData, derivative_bounds: DerivativeBounds = None, \
-            turning_bound: TurningBound = None, sfc_data: SFC_Data = None, obstacles: list = None, \
-            objective_function_type: str = "minimal_velocity_path", initial_control_points: np.ndarray = None, \
+    def generate_trajectory(self, constraints_container: ConstraintsContainer, \
+            objective_function_type: str = "minimal_velocity_path", initial_control_points: npt.NDArray[np.float64] = None, \
             initial_scale_factor: float = None):
+        waypoint_data = constraints_container.waypoint_constraints
+        derivative_bounds = constraints_container.derivative_constraints
+        turning_bound = constraints_container.turning_constraint
+        obstacles = constraints_container.obstacle_constraints
+        sfc_data = constraints_container.sfc_constraints
         num_intervals = self.__get_num_intervals(sfc_data, initial_control_points)
         num_cont_pts = self.__get_num_control_points(num_intervals)
         point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
@@ -82,12 +89,13 @@ class TrajectoryGenerator:
         self.__display_violated_constraints(constraint_data_list, result)
         return optimized_control_points, optimized_scale_factor
     
-    def __get_optimized_results(self, result, num_cont_pts):
+    def __get_optimized_results(self, result: OptimizeResult, num_cont_pts: int):
         control_points = np.reshape(result.x[0:num_cont_pts*self._dimension] ,(self._dimension,num_cont_pts))
         scale_factor = result.x[num_cont_pts*self._dimension]
+        # print("type result: " , )
         return control_points, scale_factor
     
-    def __get_objective_function(self, objective_function_type):
+    def __get_objective_function(self, objective_function_type: str):
         if objective_function_type == "minimal_distance_path":
             return minimize_velocity_control_points_objective_function
         elif objective_function_type == "minimal_velocity_path":
@@ -97,7 +105,7 @@ class TrajectoryGenerator:
         else:
             raise Exception("Error, Invalid objective function type")
 
-    def __get_num_intervals(self, sfc_data: SFC_Data, initial_control_points: np.ndarray = None):
+    def __get_num_intervals(self, sfc_data: SFC_Data, initial_control_points: npt.NDArray[np.float64] = None):
         if initial_control_points is not None:
             num_control_points = np.shape(initial_control_points)[1]
             num_intervals = num_control_points - self._order
@@ -107,7 +115,7 @@ class TrajectoryGenerator:
             num_intervals = self._num_intervals_free_space
         return num_intervals
     
-    def __get_num_control_points(self, num_intervals):
+    def __get_num_control_points(self, num_intervals: int):
         num_control_points = num_intervals + self._order
         return int(num_control_points)
         
@@ -120,7 +128,7 @@ class TrajectoryGenerator:
 
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
             derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
-            sfc_data: SFC_Data, obstacles: list):
+            sfc_data: SFC_Data, obstacles: 'list[Obstacle]'):
         num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
         num_waypoint_scalars = waypoint_data.get_num_waypoint_scalars()
         start_waypoint_location_constraint, start_waypoint_constraint_function_data = \
@@ -179,7 +187,7 @@ class TrajectoryGenerator:
                 self.__print_violation(constraint_data_list[i], result.x)
             print("")
 
-    def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: np.ndarray):
+    def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: npt.NDArray[np.float64]):
         output = constraint_function_data.constraint_function(optimized_result)
         violations = constraint_function_data.get_violations(output)
         num_violations = len(violations)

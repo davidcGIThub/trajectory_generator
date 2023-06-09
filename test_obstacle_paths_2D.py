@@ -5,6 +5,7 @@ from bsplinegenerator.bsplines import BsplineEvaluation
 from trajectory_generation.trajectory_generator import TrajectoryGenerator
 from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
 from trajectory_generation.path_plotter import set_axes_equal
+from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
@@ -20,7 +21,7 @@ traj_objective_type = "minimal_acceleration_path"
 # traj_objective_type = "minimal_distance_path"
 sfc_data = None
 obstacle_1 = Obstacle(center=np.array([[5.5],[7]]), radius=1)
-obstacles = [obstacle_1]
+obstacle_list = [obstacle_1]
 
 # obstacles = None
 max_turning_bound = 1.8
@@ -46,8 +47,11 @@ waypoint_data = WaypointData(waypoint_sequence)
 traj_gen = TrajectoryGenerator(dimension)
 start_time_1 = time.time()
 
-control_points, scale_factor = traj_gen.generate_trajectory(waypoint_data, derivative_bounds, 
-    turning_bound, sfc_data, obstacles, traj_objective_type)
+constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_data, derivative_constraints=derivative_bounds,
+    turning_constraint=turning_bound, sfc_constraints=sfc_data, obstacle_constraints=obstacle_list)
+
+control_points, scale_factor = traj_gen.generate_trajectory(constraints_container)
+
 end_time_1 = time.time()
 spline_start_time_1 = 0
 bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)
@@ -76,7 +80,7 @@ ax = plt.axes()
 # ax.scatter(control_points[0,:], control_points[1,:], color="tab:orange")
 ax.plot(spline_data[0,:], spline_data[1,:], color = "tab:blue")
 plot2D_waypoints(waypoint_data, ax)
-plot_2D_obstacles(obstacles, ax)
+plot_2D_obstacles(obstacle_list, ax)
 set_axes_equal(ax,dimension)
 plt.title("Optimized Path")
 plt.show()

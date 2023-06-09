@@ -1,18 +1,21 @@
 import numpy as np
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
-
+import numpy.typing as npt
 @dataclass
 class Obstacle:
-    center: np.ndarray
+    center: npt.NDArray[np.float64]
     radius: np.double
+
+class ObstacleList:
+    obstacle_list: 'list[Obstacle]'
 
 def plot_2D_obstacle(obstacle: Obstacle, ax):
     circle = plt.Circle((obstacle.center.item(0), obstacle.center.item(1)), 
                         obstacle.radius, color='r')
     ax.add_patch(circle)
 
-def plot_2D_obstacles(obstacles: list, ax):
+def plot_2D_obstacles(obstacles: 'list[Obstacle]', ax):
     for i in range(len(obstacles)):
         plot_2D_obstacle(obstacles[i], ax)
 
@@ -23,6 +26,6 @@ def plot_3D_obstacle(obstacle: Obstacle, ax):
     z = obstacle.radius * np.cos(v) + obstacle.center.item(2)
     ax.plot_surface(x, y, z, color="r")
 
-def plot_3D_obstacles(obstacles: list, ax):
+def plot_3D_obstacles(obstacles: 'list[Obstacle]', ax):
     for i in range(len(obstacles)):
         plot_3D_obstacle(obstacles[i], ax)

@@ -8,6 +8,8 @@ from trajectory_generation.path_plotter import set_axes_equal
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
+from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
+
 import time
 
 #note incline constraints work much better when have a start and an end direction.
@@ -21,6 +23,7 @@ traj_objective_type = "minimal_velocity_path"
 sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
+obstacle_list = None
 
 max_turning_bound = 1 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
@@ -40,6 +43,8 @@ max_acceleration = None
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 # derivative_bounds = None
 
+
+
 ### 1st path
 waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
 waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[1]]))
@@ -51,8 +56,11 @@ waypoint_data = WaypointData(waypoint_sequence)
 traj_gen = TrajectoryGenerator(dimension)
 start_time_1 = time.time()
 
-control_points, scale_factor = traj_gen.generate_trajectory(waypoint_data, derivative_bounds, 
-    turning_bound, sfc_data, obstacles, traj_objective_type)
+
+constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_data, derivative_constraints=derivative_bounds,
+    turning_constraint=turning_bound, sfc_constraints=sfc_data, obstacle_constraints=obstacle_list)
+
+control_points, scale_factor = traj_gen.generate_trajectory(constraints_container)
 end_time_1 = time.time()
 spline_start_time_1 = 0
 bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)

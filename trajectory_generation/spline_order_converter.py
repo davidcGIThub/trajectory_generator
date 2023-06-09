@@ -14,8 +14,9 @@ class SmoothingSpline:
     This class generates a new spline from a previous one
     """
 
-    def __init__(self, order, dimension):
+    def __init__(self, order, dimension, resolution):
         self._dimension = dimension
+        self._resolution = resolution # points spline
         self._order = order
         
     def generate_new_control_points(self, old_control_points, old_scale_factor, old_order, max_velocity = None):
@@ -32,20 +33,6 @@ class SmoothingSpline:
         optimized_control_points = np.reshape(result.x[0:num_cont_pts*self._dimension] ,(self._dimension,num_cont_pts))
         return optimized_control_points, scale_factor
     
-    # def generate_control_points(self, location_data, time_data, old_num_intervals, end_time):
-    #     num_cont_pts = self.__get_num_control_points_from_data(old_num_intervals)
-    #     initial_control_points = self.create_initial_control_points_from_data()
-    #     scale_factor = self.__get_scale_factor_from_data(old_num_intervals, end_time)
-    #     objective_function = self.__get_objective_function_from_data(location_data, time_data, num_cont_pts)
-    #     point_constraint = self.__get_point_constraints(num_cont_pts, old_order, old_control_points,old_scale_factor, scale_factor)
-    #     result = minimize(
-    #         objective_function,
-    #         x0=initial_control_points.flatten(),
-    #         constraints=(point_constraint),
-    #         method='SLSQP')
-    #     optimized_control_points = np.reshape(result.x[0:num_cont_pts*self._dimension] ,(self._dimension,num_cont_pts))
-    #     return optimized_control_points, scale_factor
-    
     def __get_objective_function(self, num_cont_pts, old_order, old_control_points, old_scale_factor, scale_factor):
         old_points = matrix_bspline_evaluation_for_dataset(old_order, old_control_points, self._resolution)
         def smoother(variables):
@@ -54,14 +41,6 @@ class SmoothingSpline:
             points_difference = (old_points - points)**2
             return np.sum(points_difference)
         return smoother
-
-    # def __get_objective_function_from_data(self, location_data, time_data, num_cont_pts):
-    #     def smoother(variables):
-    #         control_points = self.__get_objective_variables(variables, num_cont_pts)
-    #         points = matrix_bspline_evaluation_given_time_data(self._order, control_points, time_data)
-    #         points_difference = (location_data - points)**2
-    #         return np.sum(points_difference)
-    #     return smoother
     
     def __get_point_constraints(self, num_cont_pts, old_order, old_control_points,old_scale_factor, scale_factor):
         # constraining the initial and final location, velocity, and acceleration

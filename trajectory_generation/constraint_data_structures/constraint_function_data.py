@@ -1,15 +1,22 @@
 import numpy as np
 from dataclasses import dataclass
+import numpy.typing as npt
 
-        
 @dataclass
 class ConstraintFunctionData:
     constraint_function: callable
-    lower_bound: np.ndarray
-    upper_bound: np.ndarray
-    key: np.ndarray = None
+    lower_bound: npt.NDArray[np.float64]
+    upper_bound: npt.NDArray[np.float64]
+    key: npt.NDArray[np.dtype('U1')] = None
     constraint_class: str = None
     constraint_tolerance: float = 10e-6
+# class ConstraintFunctionData:
+#     constraint_function: callable
+#     lower_bound: np.ndarray
+#     upper_bound: np.ndarray
+#     key: np.ndarray = None
+#     constraint_class: str = None
+#     constraint_tolerance: float = 10e-6
 
     def __post_init__(self):
         if self.constraint_class == "Derivative" or \

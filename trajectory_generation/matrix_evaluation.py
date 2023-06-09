@@ -31,6 +31,74 @@ def matrix_bspline_evaluation_for_dataset(order, control_points, num_points):
         marker = marker + num_point_interval
     return spline_data
 
+def matrix_bspline_evaluation_for_timedataset(order, control_points, time_data, scale_factor):
+    """
+    This function evaluates the B spline for a given time data-set
+    """
+    #initialize variables
+    dimension = get_dimension(control_points)
+    number_of_control_points = count_number_of_control_points(control_points)
+    num_intervals = number_of_control_points - order
+    #create steps matrix
+    # Find M matrix
+    M = get_M_matrix(order)
+    #Evaluate spline data
+    num_points = len(time_data)
+    time_array = time_data/scale_factor
+    spline_data = np.zeros((dimension,num_points))
+    marker = 0
+    for i in range(num_intervals):
+        P = control_points[:,i:i+order+1]
+        if i == num_intervals - 1:
+            steps_array = time_array[(time_array >= i) & (time_array <= i+1)] - i
+        else:
+            steps_array = time_array[(time_array >= i) & (time_array < i+1)] - i
+        num_point_interval = len(steps_array)
+        L = np.ones((order+1,num_point_interval))
+        for i in range(order+1):
+            L[i,:] = steps_array**(order-i)
+        spline_data_over_interval = np.dot(np.dot(P,M),L)
+        spline_data[:,marker:marker+num_point_interval] = spline_data_over_interval
+        marker = marker + num_point_interval
+    return spline_data
+
+def matrix_bspline_evaluation_for_discrete_steps(order, control_points, start_time, starting_offset, dt, scale_factor):
+    """
+    This function evaluates the B spline for a given time data-set
+    """
+    #initialize variables
+    dimension = get_dimension(control_points)
+    number_of_control_points = count_number_of_control_points(control_points)
+    num_intervals = number_of_control_points - order
+    duration = scale_factor*num_intervals
+    num_samples = int((duration-starting_offset)/dt) + 1
+    last_time_sample = (num_samples-1)*dt + starting_offset
+    remainder_time = duration - last_time_sample
+    #create steps matrix
+    time_data = np.linspace(starting_offset,last_time_sample, num_samples)
+    time_array = time_data / scale_factor
+    # Find M matrix
+    M = get_M_matrix(order)
+    #Evaluate spline data
+    spline_data = np.zeros((dimension,num_samples))
+    marker = 0
+    for i in range(num_intervals):
+        P = control_points[:,i:i+order+1]
+        if i == num_intervals - 1:
+            steps_array = time_array[(time_array >= i) & (time_array <= i+1)] - i
+        else:
+            steps_array = time_array[(time_array >= i) & (time_array < i+1)] - i
+        num_point_interval = len(steps_array)
+        L = np.ones((order+1,num_point_interval))
+        for i in range(order+1):
+            L[i,:] = steps_array**(order-i)
+        spline_data_over_interval = np.dot(np.dot(P,M),L)
+        spline_data[:,marker:marker+num_point_interval] = spline_data_over_interval
+        marker = marker + num_point_interval
+    time_data = time_data + start_time
+    spline_end_time = duration + start_time
+    return spline_data, time_data, remainder_time, spline_end_time
+
 
 def matrix_bspline_derivative_evaluation_for_dataset(order, derivative_order, scale_factor, control_points, num_points):
     """
@@ -64,6 +132,45 @@ def matrix_bspline_derivative_evaluation_for_dataset(order, derivative_order, sc
         marker = marker + num_point_interval
     return spline_derivative_data
 
+def matrix_bspline_derivative_evaluation_for_discrete_steps(order, derivative_order, scale_factor, control_points, start_time, starting_offset, dt):
+    """
+    This function evaluates the B spline for a given time data-set
+    """
+    # Initialize variables
+    dimension = get_dimension(control_points)
+    number_of_control_points = count_number_of_control_points(control_points)
+    num_intervals = number_of_control_points - order
+    #create steps matrix
+    duration = scale_factor*num_intervals
+    num_samples = int((duration-starting_offset)/dt) + 1
+    last_time_sample = (num_samples-1)*dt + starting_offset
+    remainder_time = duration - last_time_sample
+    time_data = np.linspace(starting_offset,last_time_sample, num_samples)
+    time_array = time_data/scale_factor
+    # Find M matrix
+    M = get_M_matrix(order)
+    K = __create_k_matrix(order,derivative_order,scale_factor)
+    # Evaluate Spline data
+    marker = 0
+    spline_derivative_data = np.zeros((dimension,num_samples))
+    for i in range(num_intervals):
+        P = control_points[:,i:i+order+1]
+        # Find M matrix if clamped
+        if i == num_intervals - 1:
+            steps_array = time_array[(time_array >= i) & (time_array <= i+1)] - i
+        else:
+            steps_array = time_array[(time_array >= i) & (time_array < i+1)] - i
+        num_point_interval = len(steps_array)
+        L_r = np.zeros((order+1,num_point_interval))
+        for i in range(order-derivative_order+1):
+            L_r[i,:] = steps_array**(order-derivative_order-i)
+        spline_derivative_data_over_interval = np.dot(np.dot(P,M),np.dot(K,L_r))
+        spline_derivative_data[:,marker:marker+num_point_interval] = spline_derivative_data_over_interval
+        marker = marker + num_point_interval
+    time_data = time_data + start_time
+    spline_end_time = duration + start_time
+    return spline_derivative_data, time_data, remainder_time, spline_end_time
+
 def __create_k_matrix(order,derivative_order,scale_factor):
     K = np.zeros((order+1,order+1))
     for i in range(order-derivative_order+1):
@@ -71,11 +178,19 @@ def __create_k_matrix(order,derivative_order,scale_factor):
     K = K/scale_factor**(derivative_order)
     return K
 
+
 def evaluate_point_on_interval(control_points, t, tj, scale_factor):
     order = np.shape(control_points)[1] - 1
     M = get_M_matrix(order)
     T = get_T_vector(order, t, tj, scale_factor)
     point = control_points @ M @ T
+    return point
+
+def evaluate_point_derivative_on_interval(control_points, t, tj, scale_factor,rth_derivative):
+    order = np.shape(control_points)[1] - 1
+    M = get_M_matrix(order)
+    dT = get_T_derivative_vector(order,t,tj,rth_derivative,scale_factor)
+    point = control_points @ M @ dT
     return point
 
 def get_M_matrix(order):

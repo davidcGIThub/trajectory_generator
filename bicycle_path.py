@@ -75,8 +75,6 @@ if max_velocity is not None:
     plt.title("velocity")
     plt.show()
 
-
-
 plt.figure()
 plt.plot(time_data, curvature_data,color = "b")
 # plt.plot(time_data, acceleration_data,color = "g")
