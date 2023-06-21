@@ -88,6 +88,7 @@ class TrajectoryGenerator:
             constraints=constraints, 
             options = minimize_options)
         optimized_control_points, optimized_scale_factor = self.__get_optimized_results(result, num_cont_pts)
+        print("result: " , result)
         self.__display_violated_constraints(constraint_data_list, result)
         return optimized_control_points, optimized_scale_factor
     

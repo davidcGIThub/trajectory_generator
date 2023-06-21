@@ -49,7 +49,7 @@ def create_objective_variable_bounds(num_cont_pts, waypoint_data: WaypointData, 
     lower_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints + num_waypoint_scalars) - np.inf
     upper_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints + num_waypoint_scalars) + np.inf
     start_index = num_cont_pts*dimension
-    lower_bounds[start_index:start_index+num_waypoint_scalars] = 10e-8
+    lower_bounds[start_index:start_index+num_waypoint_scalars+1] = 10e-8
     if num_intermediate_waypoints > 0:
         num_intervals = num_cont_pts - order
         upper_bounds[-num_intermediate_waypoints:] = num_intervals
