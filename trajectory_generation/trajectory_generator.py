@@ -19,11 +19,13 @@ from trajectory_generation.objectives.objective_variables import create_initial_
 from trajectory_generation.objectives.objective_functions import minimize_acceleration_control_points_objective_function, \
     minimize_velocity_control_points_objective_function, minimize_jerk_control_points_objective_function
 from trajectory_generation.constraint_functions.waypoint_constraints import create_terminal_waypoint_location_constraint, \
-    create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints # create_intermediate_waypoint_time_scale_constraint
+    create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints, \
+    create_intermediate_waypoint_velocity_constraints # create_intermediate_waypoint_time_scale_constraint
 from trajectory_generation.constraint_functions.derivative_constraints import create_derivatives_constraint
 from trajectory_generation.constraint_functions.sfc_constraints import create_safe_flight_corridor_constraint
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
+from trajectory_generation.constraint_functions.waypoint_constraints import get_terminal_velocity, get_terminal_acceleration, get_terminal_location
 import time
 
 
@@ -38,13 +40,11 @@ class TrajectoryGenerator:
 # 2. add checks to make sure constraints are feasible with eachother
 # 3. Change obstacle constraints to check only intervals that have an obstacle in the same SFC
 
-    def __init__(self, dimension: int, 
-                 num_intervals_free_space: int = 5):
+    def __init__(self, dimension: int):
         self._dimension = dimension
         self._order = 3
         self._turning_const_obj = TurningConstraints(self._dimension)
         self._obstacle_cons_obj = ObstacleConstraints(self._dimension)
-        self._num_intervals_free_space = num_intervals_free_space
 
 # SLSQP options:
 # ftol : float
@@ -59,14 +59,16 @@ class TrajectoryGenerator:
 # Set to True to print convergence messages.
 
     def generate_trajectory(self, constraints_container: ConstraintsContainer, \
-            objective_function_type: str = "minimal_velocity_path", initial_control_points: npt.NDArray[np.float64] = None, \
+            objective_function_type: str = "minimal_velocity_path", 
+            num_intervals_free_space: int = 5,
+            initial_control_points: npt.NDArray[np.float64] = None, \
             initial_scale_factor: float = None):
         waypoint_data = constraints_container.waypoint_constraints
         derivative_bounds = constraints_container.derivative_constraints
         turning_bound = constraints_container.turning_constraint
         obstacles = constraints_container.obstacle_constraints
         sfc_data = constraints_container.sfc_constraints
-        num_intervals = self.__get_num_intervals(sfc_data, initial_control_points)
+        num_intervals = self.__get_num_intervals(sfc_data,num_intervals_free_space, initial_control_points)
         num_cont_pts = self.__get_num_control_points(num_intervals)
         point_sequence = self.__get_point_sequence(waypoint_data, sfc_data)
         constraints, constraint_data_list = self.__get_constraints(num_cont_pts, waypoint_data, \
@@ -89,6 +91,14 @@ class TrajectoryGenerator:
         self.__display_violated_constraints(constraint_data_list, result)
         return optimized_control_points, optimized_scale_factor
     
+    def get_terminal_waypoint_properties(self, control_points:np.ndarray, scale_factor:float, side:str):
+        terminal_location = get_terminal_location(side, control_points)[:,None]
+        terminal_velocity = get_terminal_velocity(side, control_points, scale_factor)[:,None]
+        terminal_acceleration = get_terminal_acceleration(side, control_points, scale_factor)[:,None]
+        terminal_waypoint = Waypoint(location=terminal_location,
+                                     velocity=terminal_velocity)  
+        return terminal_waypoint
+    
     def __get_optimized_results(self, result: OptimizeResult, num_cont_pts: int):
         control_points = np.reshape(result.x[0:num_cont_pts*self._dimension] ,(self._dimension,num_cont_pts))
         scale_factor = result.x[num_cont_pts*self._dimension]
@@ -105,14 +115,16 @@ class TrajectoryGenerator:
         else:
             raise Exception("Error, Invalid objective function type")
 
-    def __get_num_intervals(self, sfc_data: SFC_Data, initial_control_points: npt.NDArray[np.float64] = None):
+    def __get_num_intervals(self, sfc_data: SFC_Data, 
+                            num_intervals_free_space: int,
+                            initial_control_points: npt.NDArray[np.float64] = None):
         if initial_control_points is not None:
             num_control_points = np.shape(initial_control_points)[1]
             num_intervals = num_control_points - self._order
         elif sfc_data is not None:
             num_intervals = sfc_data.get_num_intervals()
         else:
-            num_intervals = self._num_intervals_free_space
+            num_intervals = num_intervals_free_space
         return num_intervals
     
     def __get_num_control_points(self, num_intervals: int):
@@ -155,9 +167,16 @@ class TrajectoryGenerator:
                     num_cont_pts, num_intermediate_waypoints, self._order)
             constraints.append(intermediate_waypoint_location_constraints)
             constraint_functions_data.append(intermediate_waypoint_location_constraint_function_data)
+            # Ensures that the waypoint sequence is followed in order
             # if(num_intermediate_waypoints > 1):
             #     intermediate_waypoint_time_constraints = create_intermediate_waypoint_time_scale_constraint(num_cont_pts, num_intermediate_waypoints, self._dimension)
             #     constraints.append(intermediate_waypoint_time_constraints)
+            if waypoint_data.intermediate_velocities is not None:
+                intermediate_waypoint_velocity_constraints, intermediate_waypoint_velocity_constraint_function_data  = \
+                create_intermediate_waypoint_velocity_constraints(waypoint_data.intermediate_velocities, \
+                    num_cont_pts, num_intermediate_waypoints, self._order)
+                constraints.append(intermediate_waypoint_velocity_constraints)
+                constraint_functions_data.append(intermediate_waypoint_velocity_constraint_function_data)
         if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive():
             derivatives_constraint, derivatives_constraint_function = create_derivatives_constraint( \
                 derivative_bounds, num_cont_pts, self._dimension, self._order)

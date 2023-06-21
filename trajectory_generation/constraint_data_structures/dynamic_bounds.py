@@ -14,9 +14,11 @@ class TurningBound:
             return False
     
     def __post_init__(self):
+        print("self.bound_type: " , self.bound_type)
+        print("max_turning_bound: " , self.max_turning_bound)
         if self.bound_type == "centripetal_acceleration" or \
-            self.bound_type == "curvature" or \
-            self.bound_type == "angular_rate":
+           self.bound_type == "curvature" or \
+           self.bound_type == "angular_rate":
             pass
         else:
             raise Exception("Bound type must be either [angular_rate, curvature, centripetal_acceleration]")

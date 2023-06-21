@@ -49,6 +49,7 @@ class WaypointData:
         self.end_waypoint = None
         self.dimension = None
         self.intermediate_locations = None
+        self.intermediate_velocities = None
         self.__initialize_terminal_waypoints(waypoint_sequence)
         self.__initialize_intermediate_waypoints(waypoint_sequence)
 
@@ -63,13 +64,20 @@ class WaypointData:
 
     def __initialize_intermediate_waypoints(self, waypoint_sequence: 'list[Waypoint]'):
         num_intermediate_waypoints = len(waypoint_sequence) - 2
+        velocities_on = False
         if num_intermediate_waypoints > 0:
             self.intermediate_locations = np.zeros((self.dimension, num_intermediate_waypoints))
+            self.intermediate_velocities = np.zeros((self.dimension, num_intermediate_waypoints))
             for i in range(num_intermediate_waypoints):
                 waypoint = waypoint_sequence[i+1]
                 if waypoint.dimension != self.dimension:
                     raise Exception("Waypoint dimensions do not match")
                 self.intermediate_locations[:,i] = waypoint.location.flatten()
+                if waypoint.velocity is not None:
+                    velocities_on = True
+                    self.intermediate_velocities[:,i] = waypoint.velocity.flatten()
+        if velocities_on == False:
+            self.intermediate_velocities = None
 
     def get_waypoint_locations(self):
         point_sequence = self.start_waypoint.location

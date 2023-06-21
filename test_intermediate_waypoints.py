@@ -8,6 +8,7 @@ from trajectory_generation.path_plotter import set_axes_equal
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
+from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
 import time
 
 dimension = 2
@@ -20,11 +21,12 @@ sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 
-max_turning_bound = 1 #angular rate
+max_turning_bound = 2 #angular rate
 turning_bound = TurningBound(max_turning_bound,"angular_rate")
-turning_bound = None
+# turning_bound = None
+obstacle_list = None
 
-max_velocity = 1.5
+max_velocity = 5
 # max_velocity = None
 # max_acceleration = 5
 max_acceleration = None
@@ -34,20 +36,24 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 ### 1st path
 
 waypoint_1 = Waypoint(location=np.array([[3  ],[4]]),velocity = np.array([[1],[0]]))
-waypoint_2 = Waypoint(location=np.array([[1.5],[6]]))
-waypoint_3 = Waypoint(location=np.array([[3.4],[8]]))
+waypoint_2 = Waypoint(location=np.array([[1.5],[6]]),velocity = np.array([[0],[1]]))
+waypoint_3 = Waypoint(location=np.array([[3.4],[8]]),velocity = np.array([[4],[0]]))
 waypoint_4 = Waypoint(location=np.array([[2  ],[10]]),velocity = np.array([[0],[1]]))
 
 waypoint_sequence = (waypoint_1, waypoint_2, waypoint_3, waypoint_4)
 waypoint_data = WaypointData(waypoint_sequence)
-traj_gen = TrajectoryGenerator(dimension, 11)
+traj_gen = TrajectoryGenerator(dimension)
 start_time_1 = time.time()
 
 initial_control_points = None
 initial_scale_factor = None
 
-control_points, scale_factor = traj_gen.generate_trajectory(waypoint_data, derivative_bounds, 
-    turning_bound, sfc_data, obstacles, traj_objective_type)
+constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_data, 
+    derivative_constraints=derivative_bounds, turning_constraint=turning_bound, 
+    sfc_constraints=sfc_data, obstacle_constraints=obstacle_list)
+
+control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, num_intervals_free_space=14)
+
 print("control_points: " , control_points)
 print("scale_factor: ", scale_factor)
 end_time_1 = time.time()
@@ -73,8 +79,6 @@ print("computation time: " , end_time_1 - start_time_1)
 velocity_matrix, time_data = bspline.get_spline_derivative_data(number_data_points,1)
 acceleration_matrix, time_data = bspline.get_spline_derivative_data(number_data_points,2)
 
-
-
 plt.figure()
 ax = plt.axes()
 # ax.scatter(control_points[0,:], control_points[1,:], color="tab:orange")
@@ -82,6 +86,15 @@ ax.plot(spline_data[0,:], spline_data[1,:], color = "tab:blue")
 plot2D_waypoints(waypoint_data, ax)
 set_axes_equal(ax,dimension)
 plt.title("Optimized Path")
+plt.show()
+
+
+plt.figure(2)
+plt.plot(time_data,velocity_matrix[0,:],label="x")
+plt.plot(time_data,velocity_matrix[1,:],label="y")
+plt.plot(time_data,np.linalg.norm(velocity_matrix,2,0),label="mag")
+plt.legend()
+plt.title("Velocity")
 plt.show()
 
 if turning_bound is not None:

@@ -12,7 +12,7 @@ class SplineDataConcatenater:
                                 control_point_array_list: 'list[np.ndarray]', 
                                 scale_factor_list: 'list[float]',
                                 derivative_order:int = 0,):
-        full_location_data = np.empty((self._dimension, 0))
+        full_spline_data = np.empty((self._dimension, 0))
         full_time_data = np.empty(0)
         spline_start_time = start_time
         starting_offset = 0
@@ -28,9 +28,16 @@ class SplineDataConcatenater:
                     matrix_bspline_derivative_evaluation_for_discrete_steps(order, derivative_order, scale_factor, control_points, spline_start_time, starting_offset, dt)
             spline_start_time = spline_end_time
             starting_offset = dt - time_remainder
-            full_location_data = np.concatenate((full_location_data, spline_data),1)
+            full_spline_data = np.concatenate((full_spline_data, spline_data),1)
             full_time_data = np.concatenate((full_time_data, time_data))
-        return full_location_data, full_time_data
+        return full_spline_data, full_time_data
+    
+
+    # def concatenate_spline_turn_data(self, dt: float, start_time: float,
+    #                             order_list: 'list[int]', 
+    #                             control_point_array_list: 'list[np.ndarray]', 
+    #                             scale_factor_list: 'list[float]',
+    #                             derivative_order:int = 0,)
 
 
 

@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.optimize import LinearConstraint, NonlinearConstraint
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint
-from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval
+from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval, \
+    evaluate_point_derivative_on_interval
 from trajectory_generation.objectives.objective_variables import get_control_points, get_scale_factor, \
     get_waypoint_scalars, get_intermediate_waypoint_scale_times
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
@@ -101,6 +102,13 @@ def initialize_derivative_constraints(waypoint: Waypoint):
     constraints = np.zeros(length)
     return constraints, constraints_key
 
+def get_terminal_location(side, control_points):
+    if side == "start":
+        direction = control_points[:,0]/6 + 2*control_points[:,1]/3 + control_points[:,2]/6
+    if side == "end":
+        direction = control_points[:,-3]/6 + 2*control_points[:,-2]/3 + control_points[:,-1]/6
+    return direction
+
 def get_terminal_direction(side, control_points, waypoint_scalar):
     if side == "start":
         direction = waypoint_scalar*(control_points[:,2] - control_points[:,0])
@@ -146,12 +154,47 @@ def create_intermediate_waypoint_location_constraints(intermediate_locations, nu
     intermediate_waypoint_constraint = NonlinearConstraint(intermediate_waypoint_constraint_function, lb= lower_bound, ub=upper_bound)
     return intermediate_waypoint_constraint, constraint_function_data
 
+### convert to C++ code ###
+def create_intermediate_waypoint_velocity_constraints(intermediate_velocities, num_cont_pts, num_intermediate_waypoints, order):
+    lower_bound = 0
+    upper_bound = 0
+    dimension = np.shape(intermediate_velocities)[0]
+    constraints = np.zeros((dimension, num_intermediate_waypoints))
+    constraints_key = create_intermediate_velocity_constraints_key(dimension, num_intermediate_waypoints)
+    def intermediate_velocity_constraint_function(variables):
+        control_points = get_control_points(variables, num_cont_pts, dimension)
+        scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
+        intermediate_waypoint_scale_times = get_intermediate_waypoint_scale_times(variables, num_intermediate_waypoints)
+        derivative_order = 1
+        for i in range(num_intermediate_waypoints):
+            desired_velocity = intermediate_velocities[:,i]
+            scale_time = intermediate_waypoint_scale_times[i]
+            interval = int(scale_time)
+            interval_cont_pts = control_points[:,interval:interval+order+1]
+            t_ = (scale_time - interval)*scale_factor
+            velocity = evaluate_point_derivative_on_interval(interval_cont_pts, t_, 0, scale_factor,derivative_order)
+            constraints[:,i] = velocity.flatten() - desired_velocity
+        return constraints.flatten()
+    constraint_class = "Intermediate_Waypoint_Velocities"
+    ####
+    constraint_function_data = ConstraintFunctionData(intermediate_velocity_constraint_function, lower_bound, upper_bound,constraints_key,constraint_class)
+    intermediate_waypoint_constraint = NonlinearConstraint(intermediate_velocity_constraint_function, lb= lower_bound, ub=upper_bound)
+    return intermediate_waypoint_constraint, constraint_function_data
+
 def create_intermediate_waypoint_constraints_key(dimension, num_intermediate_waypoints):
     constraints_key = np.empty((dimension,num_intermediate_waypoints)).astype(str)
     for i in range(num_intermediate_waypoints):
         constraints_key[0,i] = "x" + str(i+2)
         constraints_key[1,i] = "y" + str(i+2)
-        if dimension == 3: constraints_key[0,i] = "z" + str(i+2)
+        if dimension == 3: constraints_key[0,i] = "z " + str(i+2)
+    return constraints_key.flatten()
+
+def create_intermediate_velocity_constraints_key(dimension, num_intermediate_waypoints):
+    constraints_key = np.empty((dimension,num_intermediate_waypoints)).astype(str)
+    for i in range(num_intermediate_waypoints):
+        constraints_key[0,i] = "xdot" + str(i+2)
+        constraints_key[1,i] = "ydot" + str(i+2)
+        if dimension == 3: constraints_key[0,i] = "zdot" + str(i+2)
     return constraints_key.flatten()
 
 

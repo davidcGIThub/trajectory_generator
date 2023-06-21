@@ -8,76 +8,135 @@ from trajectory_generation.path_plotter import set_axes_equal
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
+from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
+from trajectory_generation.spline_data_concatenater import SplineDataConcatenater
+from vehicle_simulator.vehicle_models.bicycle_model import BicycleModel
+from vehicle_simulator.vehicle_controllers.bicycle_trajectory_tracker import BicycleTrajectoryTracker
+from vehicle_simulator.vehicle_simulators.vehicle_trajectory_tracking_simulator import VehicleTrajectoryTrackingSimulator, TrajectoryData
+
 import time
 
-#note incline constraints work much better when have a start and an end direction.
+#### Bicycle Properties ####
+L = 1
+l_r = 0.5
+R = 0.2 # animation property
+max_velocity = 10 #m/s
+max_acceleration = 2.5 #m/s^2
+max_longitudinal_acceleration = max_acceleration
+max_wheel_turn_angle = 25
+max_delta = max_wheel_turn_angle * np.pi/180
+# max_delta = np.pi/6
+max_beta = np.arctan2(l_r*np.tan(max_delta), L)
+max_curvature = np.tan(max_delta)*np.cos(max_beta)/ L
+max_angular_rate = max_curvature*max_velocity
+max_centripetal_acceleration = max_curvature*max_velocity**2
 
+#### Path Properties ####
 dimension = 2
 order = 3
-# traj_objective_type = "minimal_acceleration_path"
-traj_objective_type = "minimal_velocity_path"
-# traj_objective_type = "minimal_distance_path"
-sfc_data = None
-obstacles = None
+start_time = 0
 
-max_curvature = 0.5773502691896257
-max_turning_bound = max_curvature
-turning_bound = TurningBound(max_turning_bound,"curvature")
-turning_bound = None
+#### Path Objective ####
+traj_objective_type = "minimal_acceleration_path" 
+# traj_objective_type =  "minimal_velocity_path"
 
-max_velocity = 3
-# max_velocity = None
-max_acceleration = None
-derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
-# derivative_bounds = None
-
-### 1st path
-waypoint_1 = Waypoint(location=np.array([[-6],[0]]),velocity=np.array([[0],[2.5]]))
-waypoint_2 = Waypoint(location=np.array([[6],[0]]),velocity=np.array([[0],[2.5]]))
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
-# waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
-
-waypoint_data = WaypointData((waypoint_1, waypoint_2))
+#### Trajectory Generator Object ####
 traj_gen = TrajectoryGenerator(dimension)
-start_time = time.time()
-control_points, scale_factor = traj_gen.generate_trajectory(waypoint_data, derivative_bounds, 
-    turning_bound, sfc_data, obstacles, traj_objective_type)
-end_time = time.time()
-print("control_points: ", control_points)
-print("scale_factor: " , scale_factor)
 
-spline_start_time_1 = 0
-bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)
-end_time_spline = bspline.get_end_time()
+#### Path Constraints ####
+turn_type = "curvature"
+turn_type = "angular_rate"
+# turn_type = "centripetal_acceleration"
+if turn_type == "curvature": max_turn_value = max_curvature
+elif turn_type == "angular_rate": max_turn_value = max_angular_rate
+elif turn_type == "centripetal_acceleration": max_turn_value = max_centripetal_acceleration
+else: turn_type = None
+print("max " , turn_type , ": ", max_turn_value)
+turning_bound = TurningBound(max_turn_value, turn_type)
+# turning_bound = None
+derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 
-## spline 1 data
-number_data_points = 10000
-spline_data, time_data = bspline.get_spline_data(number_data_points)
-curvature_data, time_data = bspline.get_spline_curvature_data(number_data_points)
-velocity_data, time_data = bspline.get_derivative_magnitude_data(number_data_points,1)
-path_length = bspline.get_arc_length(number_data_points)
-print("path_length: " , path_length)
-print("computation time: " , end_time - start_time)
+# Path 1 generation
+start_point_1 = Waypoint(location=np.array([[-7],[-7]]),velocity=np.array([[0],[0.01]]))
+end_point_1 = Waypoint(location=np.array([[-7],[0]]),velocity=np.array([[0],[3]]))
+waypoint_data_1 = WaypointData((start_point_1, end_point_1))
+constraints_container_1 = ConstraintsContainer(waypoint_data_1, derivative_bounds,turning_bound)
+gen_start_time = time.time()
+control_points_1, scale_factor_1 = traj_gen.generate_trajectory(constraints_container_1, traj_objective_type)
+gen_end_time = time.time()
+print("Trajectory 1 generation time: " , gen_end_time - gen_start_time)
 
-plt.figure()
-ax = plt.axes()
-# ax.scatter(control_points[0,:], control_points[1,:], color="tab:orange")
-ax.plot(spline_data[0,:], spline_data[1,:], color = "tab:blue")
-plot2D_waypoints(waypoint_data, ax)
-set_axes_equal(ax,dimension)
-plt.title("Optimized Path")
-plt.show()
+# Path 2 generation
+start_point_2 = traj_gen.get_terminal_waypoint_properties(control_points_1, scale_factor_1, "end")
+end_point_2 = Waypoint(location=np.array([[7],[0]]),velocity=np.array([[0],[3]]))
+waypoint_data_2 = WaypointData((start_point_2, end_point_2))
+constraints_container_2 = ConstraintsContainer(waypoint_data_2, derivative_bounds, turning_bound)
+num_intervals_free_space_2 = 5
+gen_start_time = time.time()
+control_points_2, scale_factor_2 = traj_gen.generate_trajectory(constraints_container_2, traj_objective_type, num_intervals_free_space_2)
+gen_end_time = time.time()
+print("Trajectory 2 generation time: " , gen_end_time - gen_start_time)
 
-if max_velocity is not None:
-    plt.figure()
-    plt.plot(time_data, velocity_data,color = "b")
-    plt.plot(time_data, max_velocity + velocity_data*0)
-    plt.title("velocity")
-    plt.show()
+# Path 3 generation
+start_point_3 = traj_gen.get_terminal_waypoint_properties(control_points_2, scale_factor_2, "end")
+end_point_3 = Waypoint(location=np.array([[7],[7]]),velocity=np.array([[0],[0.01]]))
+waypoint_data_3 = WaypointData((start_point_3, end_point_3))
+constraints_container_3 = ConstraintsContainer(waypoint_data_3, derivative_bounds, turning_bound)
+num_intervals_free_space_3 = 5
+gen_start_time = time.time()
+control_points_3, scale_factor_3 = traj_gen.generate_trajectory(constraints_container_3, traj_objective_type, num_intervals_free_space_3)
+gen_end_time = time.time()
+print("Trajectory 3 generation time: " , gen_end_time - gen_start_time)
 
-plt.figure()
-plt.plot(time_data, curvature_data,color = "b")
-# plt.plot(time_data, acceleration_data,color = "g")
-plt.plot(time_data, max_curvature + curvature_data*0)
-plt.title('curvature')
-plt.show()
+order_list = [order, order, order]
+control_point_array_list = [control_points_1, control_points_2, control_points_3]
+scale_factor_list = [scale_factor_1, scale_factor_2, scale_factor_3]
+dt = 0.01
+spline_conc = SplineDataConcatenater(2)
+location_data, time_data = spline_conc.concatenate_spline_data(dt, start_time, order_list, control_point_array_list, scale_factor_list)
+velocity_data, time_data = spline_conc.concatenate_spline_data(dt, start_time, order_list, control_point_array_list, scale_factor_list, derivative_order=1)
+acceleration_data, time_data = spline_conc.concatenate_spline_data(dt, start_time, order_list, control_point_array_list, scale_factor_list, derivative_order=2)
+jerk_data, time_data = spline_conc.concatenate_spline_data(dt, start_time, order_list, control_point_array_list, scale_factor_list, derivative_order=2)
+print("end_time: " , time_data[-1])
+
+start_vel = velocity_data[:,0]
+start_direction = start_vel/np.linalg.norm(start_vel,2,0)
+start_point = location_data[:,0]
+start_heading = np.arctan2(start_direction[1], start_direction[0])
+
+
+# Bicycle Model
+bike = BicycleModel(
+                    x = start_point[0], 
+                    y = start_point[1],
+                    theta = start_heading,
+                    delta = 0,
+                    x_dot = start_vel[0], 
+                    y_dot = start_vel[1], 
+                    theta_dot = 0, 
+                    delta_dot = 0,
+                    lr = l_r,
+                    L = L,
+                    R = R,
+                    alpha = np.array([0.1,0.01,0.1,0.01]),
+                    max_delta = max_delta,
+                    max_vel = max_velocity,
+                    max_vel_dot = max_acceleration)
+
+controller = BicycleTrajectoryTracker(k_pos = 2, 
+                                        k_vel = 2,
+                                        k_delta = 3,
+                                        max_vel_dot = max_acceleration,
+                                        max_vel = max_velocity,
+                                        max_delta = max_delta,
+                                        lr = l_r,
+                                        L = L)
+
+
+bike_traj_sim = VehicleTrajectoryTrackingSimulator(bike, controller)
+des_traj_data = TrajectoryData(location_data, velocity_data, acceleration_data, 
+                           jerk_data, time_data)
+vehicle_traj_data, vehicle_motion_data = bike_traj_sim.run_simulation(des_traj_data)
+bike_traj_sim.plot_simulation_dynamics(vehicle_motion_data, des_traj_data, vehicle_traj_data, max_velocity,
+                                       max_acceleration, max_turn_value, turn_type, "bike")
+
