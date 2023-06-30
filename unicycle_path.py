@@ -20,11 +20,11 @@ import time
 L = 1
 l_r = 0.5
 R = 0.2 # animation property
-max_velocity = 20 #m/s
-max_acceleration = 10 #m/s^2
+max_velocity = 30 #m/s
+max_acceleration = 100 #m/s^2
 max_longitudinal_acceleration = max_acceleration
-expected_min_vel = 10
-max_angular_rate = 2
+expected_min_vel = 28
+max_angular_rate = 8
 max_curvature = max_angular_rate / expected_min_vel
 max_centripetal_acceleration = max_angular_rate * max_velocity
 
@@ -43,7 +43,7 @@ traj_gen = TrajectoryGenerator(dimension)
 #### Path Constraints ####
 turn_type = "curvature"
 turn_type = "angular_rate"
-turn_type = "centripetal_acceleration"
+# turn_type = "centripetal_acceleration"
 if turn_type == "curvature": max_turn_value = max_curvature
 elif turn_type == "angular_rate": max_turn_value = max_angular_rate
 elif turn_type == "centripetal_acceleration": max_turn_value = max_centripetal_acceleration
@@ -55,8 +55,8 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 
 
 # Path generation
-start_point = Waypoint(location=np.array([[-10],[0]]),velocity=np.array([[0],[10]]))
-end_point = Waypoint(location=np.array([[10],[0]]),velocity=np.array([[0],[10]]))
+start_point = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[expected_min_vel]]))
+end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[expected_min_vel]]))
 waypoint_data = WaypointData((start_point, end_point))
 constraints_container = ConstraintsContainer(waypoint_data, derivative_bounds, turning_bound)
 num_intervals_free_space = 5

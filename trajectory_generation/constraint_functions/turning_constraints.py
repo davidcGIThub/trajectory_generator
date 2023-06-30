@@ -6,6 +6,7 @@ from scipy.optimize import NonlinearConstraint
 from trajectory_generation.objectives.objective_variables import get_control_points, get_scale_factor
 from trajectory_generation.constraint_data_structures.dynamic_bounds import TurningBound
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
+from trajectory_generation.constraint_data_structures.waypoint_data import WaypointData
 
 script_dir = os.path.abspath(os.path.dirname(__file__))
 libname_str = os.path.join(script_dir)
@@ -75,20 +76,32 @@ class TurningConstraints(object):
         constraint = np.array([bound - max_centripetal_acceleration])
         return constraint
     
-    def create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts, dimension):
+    def create_turning_constraint(self, turning_bound: TurningBound, num_cont_pts, 
+                                  dimension, waypoint_data: WaypointData):
         def centripetal_acceleration_constraint_function(variables):
             control_points = get_control_points(variables, num_cont_pts, dimension)
+            if waypoint_data.start_waypoint.checkIfZeroVel():
+                control_points = control_points[:,1:]
+            if waypoint_data.end_waypoint.checkIfZeroVel():
+                control_points = control_points[:,0:-1]
             scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
             const = self.get_spline_centripetal_acceleration_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
             return const
         def angular_rate_constraint_function(variables):
             control_points = get_control_points(variables, num_cont_pts, dimension)
+            if waypoint_data.start_waypoint.checkIfZeroVel():
+                control_points = control_points[:,1:]
+            if waypoint_data.end_waypoint.checkIfZeroVel():
+                control_points = control_points[:,0:-1]
             scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
             constraint = self.get_spline_angular_rate_constraint(control_points, turning_bound.max_turning_bound, scale_factor)
             return constraint
         def curvature_constraint_function(variables):
             control_points = get_control_points(variables, num_cont_pts, dimension)
-            scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
+            if waypoint_data.start_waypoint.checkIfZeroVel():
+                control_points = control_points[:,1:]
+            if waypoint_data.end_waypoint.checkIfZeroVel():
+                control_points = control_points[:,0:-1]
             return self.get_spline_curvature_constraint(control_points,turning_bound.max_turning_bound)
         if turning_bound.bound_type == "curvature":
             constraint_function = curvature_constraint_function

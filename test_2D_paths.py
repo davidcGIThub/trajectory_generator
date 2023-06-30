@@ -25,14 +25,14 @@ sfc_data = None
 obstacles = None
 obstacle_list = None
 
-max_turning_bound = 1 #angular rate
-turning_bound = TurningBound(max_turning_bound,"angular_rate")
+# max_turning_bound = 1 #angular rate
+# turning_bound = TurningBound(max_turning_bound,"angular_rate")
 
 # max_turning_bound = 0.5 #cent accel
 # turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 
-# max_turning_bound = 1 #curv
-# turning_bound = TurningBound(max_turning_bound,"curvature")
+max_turning_bound = 1 #curv
+turning_bound = TurningBound(max_turning_bound,"curvature")
 
 # turning_bound = None
 
@@ -46,8 +46,12 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 
 
 ### 1st path
-waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
-waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[1]]))
+# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
+# waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[1],[0]]))
+waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]))
+# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
+waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[0]]))
+waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
 # waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
 # waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
 
@@ -66,6 +70,8 @@ spline_start_time_1 = 0
 bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)
 end_time_spline = bspline.get_end_time()
 
+bspline.plot_spline(1000)
+
 ## spline 1 data
 number_data_points = 10000
 spline_data, time_data = bspline.get_spline_data(number_data_points)
@@ -77,8 +83,6 @@ centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_
 path_length = bspline.get_arc_length(number_data_points)
 start_velocity = bspline.get_derivative_at_time_t(0,1)
 start_acceleration = bspline.get_derivative_at_time_t(0,2)
-# print("start_velocity: " , start_velocity)
-# print("start_acceleraiton: " , start_acceleration)
 print("path_length: " , path_length)
 print("computation time: " , end_time_1 - start_time_1)
 
