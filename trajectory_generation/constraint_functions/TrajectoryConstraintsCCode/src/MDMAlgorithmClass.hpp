@@ -4,13 +4,13 @@
 #include <eigen3/Eigen/Dense>
 
 
-template <int D>
+template <int D, int N>
 class MDMAlgorithmClass
 {
     public:
         MDMAlgorithmClass();
-        double min_norm(Eigen::MatrixXd &points, int &num_points,
-            int &max_iterations, unsigned int &initial_index,double &tolerance);
+        double min_norm(Eigen::Matrix<double,D,N> &points, int &max_iterations, 
+                        unsigned int &initial_index, double &tolerance);
     private:
         int find_max_index(Eigen::VectorXd &matrix, int &length);
         int find_min_index(Eigen::VectorXd &matrix, int &length);

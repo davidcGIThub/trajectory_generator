@@ -13,7 +13,6 @@ double DerivativeBounds<D>::find_min_velocity_of_spline(double cont_pts[], int n
 {   
     double min_velocity = std::numeric_limits<double>::max();
     double velocity;
-    int step = num_control_points;
     for (unsigned int i = 0; i < num_control_points-3; i++)
     {
         Eigen::Matrix<double,D,4> interval_control_points = cbind_help.array_section_to_eigen(cont_pts, num_control_points, i);
@@ -32,7 +31,6 @@ double DerivativeBounds<D>::find_max_acceleration_of_spline(double cont_pts[], i
 {   
     double max_acceleration = std::numeric_limits<double>::min();
     double acceleration;
-    int step = num_control_points;
     for (unsigned int i = 0; i < num_control_points-3; i++)
     {
         Eigen::Matrix<double,D,4> interval_control_points = cbind_help.array_section_to_eigen(cont_pts, num_control_points, i);

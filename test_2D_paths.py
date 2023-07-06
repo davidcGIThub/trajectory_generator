@@ -9,7 +9,6 @@ from trajectory_generation.constraint_data_structures.waypoint_data import Waypo
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle, plot_2D_obstacles
 from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
-
 import time
 
 #note incline constraints work much better when have a start and an end direction.
@@ -34,26 +33,28 @@ obstacle_list = None
 max_turning_bound = 1 #curv
 turning_bound = TurningBound(max_turning_bound,"curvature")
 
-# turning_bound = None
+turning_bound = None
 
-max_velocity = 1.5
+max_velocity = 3
+min_velocity = 1.8
 # max_velocity = None
 # max_acceleration = 0.1
-max_acceleration = None
-derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
+max_acceleration = 5
+# derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
+derivative_bounds = DerivativeBounds(max_acceleration=max_acceleration, min_velocity=min_velocity)
 # derivative_bounds = None
 
 
 
 ### 1st path
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[1],[0]]))
+waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[2],[0]]))
 # waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[1],[0]]))
-waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]))
+# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]))
 # waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
-waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[0]]))
-waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
+waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[2]]))
+# waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
 # waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
-# waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[-max_velocity]]))
+# waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[1]]))
 
 waypoint_sequence = (waypoint_1, waypoint_2)
 waypoint_data = WaypointData(waypoint_sequence)
@@ -102,6 +103,7 @@ if max_velocity is not None:
     plt.figure()
     plt.plot(time_data, velocity_data,color = "b")
     plt.plot(time_data, max_velocity + velocity_data*0)
+    plt.plot(time_data, min_velocity + velocity_data*0)
     plt.title("velocity")
     plt.show()
 

@@ -15,6 +15,8 @@ add_library(${PROJECT_NAME} SHARED
     ObstacleConstraints.hpp
     DerivativeBounds.cpp
     DerivativeBounds.hpp
+    ControlPointDerivativeBounds.cpp
+    ControlPointDerivativeBounds.hpp
     CrossTermEvaluator.cpp
     CrossTermEvaluator.hpp
     CrossTermProperties.cpp

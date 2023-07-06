@@ -4,16 +4,16 @@
 
 
 
-template <int D>
-MDMAlgorithmClass<D>::MDMAlgorithmClass(){}
+template <int D, int N>
+MDMAlgorithmClass<D, N>::MDMAlgorithmClass(){}
 
-template <int D>
-double MDMAlgorithmClass<D>::min_norm(Eigen::MatrixXd &points, int &num_points,
-            int &max_iterations, unsigned int &initial_index, double &tolerance)
+template <int D, int N>
+double MDMAlgorithmClass<D, N>::min_norm(Eigen::Matrix<double,D,N> &points, int &max_iterations, 
+                                    unsigned int &initial_index, double &tolerance)
 {
     int iterations{0};
     double delta_p{1.0};
-    double p_vector[num_points] = {0};
+    double p_vector[N] = {0};
     std::vector<int> supp_vector;
     int index{0};
     Eigen::Matrix<double,D,1> current_vector = points.block(0,index,D,1);
@@ -36,6 +36,7 @@ double MDMAlgorithmClass<D>::min_norm(Eigen::MatrixXd &points, int &num_points,
         int max_index = find_max_index(mult,length);
         max_index = supp_vector[max_index];
         mult = current_vector.transpose()*points;
+        int num_points = N;
         int min_index = find_min_index(mult,num_points);
         Eigen::Matrix<double,D,1> min_point = points.block(0,min_index,D,1);
         Eigen::Matrix<double,D,1> max_point = points.block(0,max_index,D,1);
@@ -55,7 +56,7 @@ double MDMAlgorithmClass<D>::min_norm(Eigen::MatrixXd &points, int &num_points,
             double temp2 = 1 - t_param;
             p_vector[min_index] += temp1;
             p_vector[max_index] *= temp2;
-            for(int i = 0; i< num_points; i++)
+            for(int i = 0; i< N; i++)
             {
                 if(p_vector[i] > tolerance)
                 {
@@ -69,8 +70,8 @@ double MDMAlgorithmClass<D>::min_norm(Eigen::MatrixXd &points, int &num_points,
     return min_norm;
 }
 
-template <int D>
-int MDMAlgorithmClass<D>::find_max_index(Eigen::VectorXd &matrix, int &length)
+template <int D, int N>
+int MDMAlgorithmClass<D, N>::find_max_index(Eigen::VectorXd &matrix, int &length)
 {
     double max_size = std::numeric_limits<double>::min();
     int max_index = 0;
@@ -85,8 +86,8 @@ int MDMAlgorithmClass<D>::find_max_index(Eigen::VectorXd &matrix, int &length)
     return max_index;
 }
 
-template <int D>
-int MDMAlgorithmClass<D>::find_min_index(Eigen::VectorXd &matrix, int &length)
+template <int D, int N>
+int MDMAlgorithmClass<D, N>::find_min_index(Eigen::VectorXd &matrix, int &length)
 {
     double min_size = std::numeric_limits<double>::max();
     int min_index = 0;
@@ -101,5 +102,23 @@ int MDMAlgorithmClass<D>::find_min_index(Eigen::VectorXd &matrix, int &length)
     return min_index;
 }
 
-template class MDMAlgorithmClass<2>;
-template class MDMAlgorithmClass<3>;
+template class MDMAlgorithmClass<2, 1>;
+template class MDMAlgorithmClass<2, 3>;
+template class MDMAlgorithmClass<2, 4>;
+template class MDMAlgorithmClass<2, 5>;
+template class MDMAlgorithmClass<2, 6>;
+template class MDMAlgorithmClass<2, 7>;
+template class MDMAlgorithmClass<2, 8>;
+template class MDMAlgorithmClass<2, 9>;
+template class MDMAlgorithmClass<2, 10>;
+template class MDMAlgorithmClass<3, 1>;
+template class MDMAlgorithmClass<3, 2>;
+template class MDMAlgorithmClass<3, 3>;
+template class MDMAlgorithmClass<3, 4>;
+template class MDMAlgorithmClass<3, 5>;
+template class MDMAlgorithmClass<3, 6>;
+template class MDMAlgorithmClass<3, 7>;
+template class MDMAlgorithmClass<3, 8>;
+template class MDMAlgorithmClass<3, 9>;
+template class MDMAlgorithmClass<3, 10>;
+

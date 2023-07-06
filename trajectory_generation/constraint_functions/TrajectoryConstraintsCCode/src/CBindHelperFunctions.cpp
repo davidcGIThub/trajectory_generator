@@ -29,6 +29,29 @@ Eigen::Matrix<double,D,4> CBindHelperFunctions<D>::array_section_to_eigen(double
     return interval_control_points;
 }
 
+//Function should be removed and function above should be converted to a template classs with different size options
+template<int D>
+Eigen::Matrix<double,D,3> CBindHelperFunctions<D>::array_section_to_eigen_3(double cont_pts[], int &num_cps, unsigned int &index)
+{
+    Eigen::Matrix<double,D,3> interval_control_points;
+    if (D == 1)
+    {
+        interval_control_points << cont_pts[index], cont_pts[index+1], cont_pts[index+2];
+    }
+    if (D == 2)
+    {
+        interval_control_points << cont_pts[index], cont_pts[index+1], cont_pts[index+2],
+            cont_pts[num_cps+index], cont_pts[num_cps+index+1], cont_pts[num_cps+index+2];
+    }
+    else
+    {
+        interval_control_points << cont_pts[index], cont_pts[index+1], cont_pts[index+2],
+            cont_pts[num_cps+index], cont_pts[num_cps+index+1], cont_pts[num_cps+index+2],
+            cont_pts[2*num_cps+index], cont_pts[2*num_cps+index+1], cont_pts[2*num_cps+index+2];
+    }
+    return interval_control_points;
+}
+
 template <int D>
 Eigen::MatrixXd CBindHelperFunctions<D>::array_to_eigen(double cont_pts[], int &num_cps)
 {

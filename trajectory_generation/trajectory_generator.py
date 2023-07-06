@@ -22,7 +22,7 @@ from trajectory_generation.constraint_functions.waypoint_constraints import crea
     create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints, \
     create_intermediate_waypoint_velocity_constraints, create_zero_velocity_terminal_waypoint_constraint
     # create_intermediate_waypoint_time_scale_constraint
-from trajectory_generation.constraint_functions.derivative_constraints import create_derivatives_constraint
+from trajectory_generation.constraint_functions.derivative_constraints import DerivativeConstraints
 from trajectory_generation.constraint_functions.sfc_constraints import create_safe_flight_corridor_constraint
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 from trajectory_generation.constraint_data_structures.constraints_container import ConstraintsContainer
@@ -46,6 +46,7 @@ class TrajectoryGenerator:
         self._order = 3
         self._turning_const_obj = TurningConstraints(self._dimension)
         self._obstacle_cons_obj = ObstacleConstraints(self._dimension)
+        self._derivative_constriants = DerivativeConstraints(self._dimension)
 
 # SLSQP options:
 # ftol : float
@@ -203,7 +204,7 @@ class TrajectoryGenerator:
                 constraints.append(intermediate_waypoint_velocity_constraints)
                 constraint_functions_data.append(intermediate_waypoint_velocity_constraint_function_data)
         if derivative_bounds is not None and derivative_bounds.checkIfDerivativesActive():
-            derivatives_constraint, derivatives_constraint_function = create_derivatives_constraint( \
+            derivatives_constraint, derivatives_constraint_function = self._derivative_constriants.create_derivatives_constraint( \
                 derivative_bounds, num_cont_pts, self._dimension, self._order)
             constraints.append(derivatives_constraint)
             constraint_functions_data.append(derivatives_constraint_function)

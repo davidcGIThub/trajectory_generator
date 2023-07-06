@@ -25,5 +25,6 @@ class DerivativeBounds
         DerivativeEvaluator<1> d_eval_single{};
         std::array<double,3> get_velocity_roots(Eigen::Matrix<double,D,4> &control_points, double &scale_factor);
 };
-#endif
 
+
+#endif

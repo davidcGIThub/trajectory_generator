@@ -5,8 +5,8 @@ add_executable(${TEST_NAME}
     UnitTestCubicEquationSolver.cpp
     UnitTestMDMAlgorithmClass.cpp
     UnitTestDerivativeEvaluator.cpp
-    # UnitTestCurvatureConstraints.cpp
     UnitTestDerivativeBounds.cpp
+    UnitTestControlPointDerivativeBounds.cpp
     UnitTestCrossTermEvaluator.cpp
     UnitTestCrossTermProperties.cpp
     UnitTestCrossTermBounds.cpp
