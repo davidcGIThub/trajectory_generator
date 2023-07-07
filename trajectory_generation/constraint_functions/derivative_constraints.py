@@ -19,11 +19,9 @@ class DerivativeConstraints(object):
             control_points = get_control_points(variables, num_cont_pts, dimension)
             scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
             velocity_control_points = (control_points[:,1:] - control_points[:,0:-1])/scale_factor
-            print("num vel cont pts: " , np.shape(velocity_control_points))
             count = 0
             if derivative_bounds.min_velocity is not None or derivative_bounds.max_velocity is not None:
                 bezier_velocity_control_points = np.transpose(np.dot(M_v, np.transpose(velocity_control_points)))
-                print("num bez vel cont pts: " , np.shape(bezier_velocity_control_points))
                 if derivative_bounds.min_velocity is not None:
                     min_velocity_constraint = self.calculate_min_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
                     constraints[count] = min_velocity_constraint
@@ -98,5 +96,4 @@ class DerivativeConstraints(object):
     def calculate_min_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds: DerivativeBounds):
         lower_bound_velocity = self.cont_pt_derivative_bounds.get_min_velocity_of_bez_vel_cont_pts(bezier_velocity_control_points)
         constraint = derivative_bounds.min_velocity - lower_bound_velocity
-        print("min vel const: " , constraint)
         return constraint

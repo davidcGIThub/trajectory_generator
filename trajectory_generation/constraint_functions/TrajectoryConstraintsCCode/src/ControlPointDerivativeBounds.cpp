@@ -24,9 +24,7 @@ double ControlPointDerivativeBounds<D>::find_min_velocity_of_bez_vel_cont_pts(do
         j = i*step_size;
         Eigen::Matrix<double,D,3> interval_bez_vel_cont_pts = 
             cbind_help.array_section_to_eigen_3(bez_vel_cont_pts, num_bez_vel_cont_pts, j);
-        std::cout << "bez cnt pts: " << interval_bez_vel_cont_pts << std::endl;
         velocity = find_min_velocity_hull_method(interval_bez_vel_cont_pts);
-        std::cout << "velocity bound: " << velocity << std::endl;
         if (velocity < min_velocity)
         {
             min_velocity = velocity;

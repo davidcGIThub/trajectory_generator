@@ -36,15 +36,15 @@ order = 3
 start_time = 0
 
 #### Path Objective ####
-traj_objective_type = "minimal_acceleration_path" 
-# traj_objective_type =  "minimal_velocity_path"
+# traj_objective_type = "minimal_acceleration_and_time_path" 
+traj_objective_type =  "minimal_velocity_and_time_path"
 
 #### Trajectory Generator Object ####
 traj_gen = TrajectoryGenerator(dimension)
 
 #### Path Constraints ####
 turn_type = "curvature"
-turn_type = "angular_rate"
+# turn_type = "angular_rate"
 # turn_type = "centripetal_acceleration"
 if turn_type == "curvature": max_turn_value = max_curvature
 elif turn_type == "angular_rate": max_turn_value = max_angular_rate
@@ -58,15 +58,15 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 
 # Path generation
 start_point = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[28]]))
-end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[28]]))
+end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[20]]))
 waypoint_data = WaypointData((start_point, end_point))
 constraints_container = ConstraintsContainer(waypoint_data, derivative_bounds, turning_bound)
 num_intervals_free_space = 5
 gen_start_time = time.time()
 control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, traj_objective_type, num_intervals_free_space)
+gen_end_time = time.time()
 print("control_points: " , control_points)
 print("scale_factor: " , scale_factor)
-gen_end_time = time.time()
 print("Trajectory generation time: " , gen_end_time - gen_start_time)
 
 

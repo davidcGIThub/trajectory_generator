@@ -20,10 +20,10 @@ import time
 L = 1
 l_r = 0.5
 R = 0.2 # animation property
-max_velocity = 40 #m/s
-max_acceleration = 10 #m/s^2
+max_velocity = 20 #m/s
+max_acceleration = 40 #m/s^2
 max_longitudinal_acceleration = max_acceleration
-max_wheel_turn_angle = 25
+max_wheel_turn_angle = 50
 max_delta = max_wheel_turn_angle * np.pi/180
 # max_delta = np.pi/6
 max_beta = np.arctan2(l_r*np.tan(max_delta), L)
@@ -37,8 +37,8 @@ order = 3
 start_time = 0
 
 #### Path Objective ####
-traj_objective_type = "minimal_acceleration_path" 
-# traj_objective_type =  "minimal_velocity_path"
+traj_objective_type = "minimal_acceleration_and_time_path" 
+# traj_objective_type =  "minimal_velocity_and_time_path"
 
 #### Trajectory Generator Object ####
 traj_gen = TrajectoryGenerator(dimension)
@@ -57,8 +57,8 @@ turning_bound = TurningBound(max_turn_value, turn_type)
 derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
 
 # Path 1 generation
-start_point_1 = Waypoint(location=np.array([[-7],[-7]]),velocity=np.array([[0],[1]]))
-end_point_1 = Waypoint(location=np.array([[-7],[0]]),velocity=np.array([[0],[3]]))
+start_point_1 = Waypoint(location=np.array([[-5],[-5]]),velocity=np.array([[0],[0]]))
+end_point_1 = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[10]]))
 waypoint_data_1 = WaypointData((start_point_1, end_point_1))
 constraints_container_1 = ConstraintsContainer(waypoint_data_1, derivative_bounds,turning_bound)
 gen_start_time = time.time()
@@ -68,7 +68,7 @@ print("Trajectory 1 generation time: " , gen_end_time - gen_start_time)
 
 # Path 2 generation
 start_point_2 = traj_gen.get_terminal_waypoint_properties(control_points_1, scale_factor_1, "end")
-end_point_2 = Waypoint(location=np.array([[7],[0]]),velocity=np.array([[0],[8]]))
+end_point_2 = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[10]]))
 waypoint_data_2 = WaypointData((start_point_2, end_point_2))
 constraints_container_2 = ConstraintsContainer(waypoint_data_2, derivative_bounds, turning_bound)
 num_intervals_free_space_2 = 5
@@ -79,7 +79,7 @@ print("Trajectory 2 generation time: " , gen_end_time - gen_start_time)
 
 # Path 3 generation
 start_point_3 = traj_gen.get_terminal_waypoint_properties(control_points_2, scale_factor_2, "end")
-end_point_3 = Waypoint(location=np.array([[7],[7]]),velocity=np.array([[0],[1]]))
+end_point_3 = Waypoint(location=np.array([[5],[5]]),velocity=np.array([[0],[0]]), direction=np.array([[0],[1]]))
 waypoint_data_3 = WaypointData((start_point_3, end_point_3))
 constraints_container_3 = ConstraintsContainer(waypoint_data_3, derivative_bounds, turning_bound)
 num_intervals_free_space_3 = 5

@@ -27,6 +27,8 @@ class ConstraintFunctionData:
            self.constraint_class == "End_Waypoint_Location" or \
            self.constraint_class == "Start_Waypoint_Derivatives" or \
            self.constraint_class == "End_Waypoint_Derivatives" or \
+           self.constraint_class == "Start_Waypoint_Direction" or \
+           self.constraint_class == "End_Waypoint_Direction" or \
            self.constraint_class == "Intermediate_Waypoint_Locations" or \
            self.constraint_class == "Intermediate_Waypoint_Velocities" or \
            self.constraint_class == "Zero_Velocity_End_Waypoint_Location" or \
@@ -57,6 +59,9 @@ class ConstraintFunctionData:
             return np.abs(output - self.lower_bound)
         if self.constraint_class == "Start_Waypoint_Derivatives" or \
            self.constraint_class == "End_Waypoint_Derivatives":
+            return np.abs(output - self.lower_bound)
+        if self.constraint_class == "Start_Waypoint_Direction" or \
+           self.constraint_class == "End_Waypoint_Direction":
             return np.abs(output - self.lower_bound)
         if self.constraint_class == "Intermediate_Waypoint_Locations":
             return np.abs(output - self.lower_bound)
