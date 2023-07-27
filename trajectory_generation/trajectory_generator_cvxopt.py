@@ -100,9 +100,7 @@ class TrajectoryGenerator:
         terminal_location = get_terminal_location(side, control_points)[:,None]
         terminal_velocity = get_terminal_velocity(side, control_points, scale_factor)[:,None]
         terminal_acceleration = get_terminal_acceleration(side, control_points, scale_factor)[:,None]
-        terminal_waypoint = Waypoint(location=terminal_location,
-                                     velocity=terminal_velocity,
-                                     acceleration=terminal_acceleration)  
+        terminal_waypoint = Waypoint(location=terminal_location, velocity=terminal_velocity)  
         return terminal_waypoint
     
     def __get_optimized_results(self, result: OptimizeResult, num_cont_pts: int):
