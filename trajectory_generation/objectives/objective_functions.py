@@ -6,7 +6,7 @@ def minimize_jerk_control_points_and_time_objective_function(variables, num_cont
     scale_factor = get_scale_factor(variables, num_cont_pts, dimension)
     jerk_cps = control_points[:,3:] - 3*control_points[:,2:-1] + 3*control_points[:,1:-2] - control_points[:,0:-3]
     square_jerk_control_points = np.sum(jerk_cps**2,0)
-    objective = np.sum(square_jerk_control_points) + scale_factor
+    objective = np.sum(square_jerk_control_points) * scale_factor
     return objective
 
 def minimize_velocity_control_points_and_time_objective_function(variables, num_cont_pts, dimension):

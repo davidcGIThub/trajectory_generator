@@ -93,8 +93,8 @@ class TrajectoryGenerator:
             constraints=constraints, 
             options = minimize_options)
         optimized_control_points, optimized_scale_factor = self.__get_optimized_results(result, num_cont_pts)
-        self.__display_violated_constraints(constraint_data_list, result)
-        return optimized_control_points, optimized_scale_factor
+        is_violation = self.__display_violated_constraints(constraint_data_list, result)
+        return optimized_control_points, optimized_scale_factor, is_violation
     
     def get_terminal_waypoint_properties(self, control_points:np.ndarray, scale_factor:float, side:str):
         terminal_location = get_terminal_location(side, control_points)[:,None]
@@ -235,19 +235,23 @@ class TrajectoryGenerator:
         return tuple(constraints), constraint_functions_data
 
     def __display_violated_constraints(self, constraint_data_list: 'list[ConstraintFunctionData]',  result: OptimizeResult):
+        is_violation = False
         if not result.success:
             num_constraint_functions = len(constraint_data_list)
             if num_constraint_functions > 0:
                 print("")
                 for i in range(num_constraint_functions):
-                    self.__print_violation(constraint_data_list[i], result.x)
+                    is_violation = self.__print_violation(constraint_data_list[i], result.x)
                 print("")
+        return is_violation
 
     def __print_violation(self, constraint_function_data: ConstraintFunctionData, optimized_result: npt.NDArray[np.float64]):
+        is_violation = False
         output = constraint_function_data.constraint_function(optimized_result)
         violations = constraint_function_data.get_violations(output)
         num_violations = len(violations)
         if any(violations):
+            is_violation = True
             error = constraint_function_data.get_error(output)
             violation_dict = {}
             for i in range(num_violations):
@@ -259,3 +263,4 @@ class TrajectoryGenerator:
                     else:
                         violation_dict[violation_name] = error[i]
             print(constraint_function_data.constraint_class, "Constraint Violations: " , violation_dict)
+        return is_violation
