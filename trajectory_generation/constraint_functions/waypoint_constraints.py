@@ -32,6 +32,9 @@ def create_terminal_waypoint_location_constraint(waypoint: Waypoint, num_cont_pt
         return constraints
     lower_bound = waypoint.location.flatten()
     upper_bound = waypoint.location.flatten()
+    print("constraint_matrix: " , np.shape(constraint_matrix))
+    print("lower bound: " , np.shape(lower_bound))
+    print("upper bound: " , np.shape(upper_bound))
     if d ==2: constraints_key = np.array(["x","y"])
     else: constraints_key = np.array(["x","y","z"])
     if waypoint.side == "start": constraint_class = "Start_Waypoint_Location"
@@ -115,6 +118,36 @@ def create_terminal_waypoint_derivative_constraints(waypoint: Waypoint, num_cont
     constraint_function_data = ConstraintFunctionData(waypoint_derivative_constraint_function, lower_bound, upper_bound,constraints_key,constraint_class)
     waypoint_derivative_constraint = NonlinearConstraint(waypoint_derivative_constraint_function, lb= lower_bound, ub=upper_bound)
     return waypoint_derivative_constraint, constraint_function_data
+
+def create_target_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints, num_waypoint_scalars, order):
+    initial_point = waypoint.location
+    target_velocity = waypoint.velocity
+    num_extra_spaces = 1 + num_intermediate_waypoints + num_waypoint_scalars
+    n = num_cont_pts
+    mew = num_cont_pts - order
+    k = order
+    d = np.shape(initial_point)[0]
+    constraint_matrix = np.zeros((d,n*d+num_extra_spaces))
+    M_ = get_M_matrix(order)
+    Gamma_f = np.ones((order+1,1))
+    M_Gamma_f_T = np.dot(M_,Gamma_f).T
+    for i in range(d):
+        constraint_matrix[i, (i+1)*n-k-1 : (i+1)*n] = M_Gamma_f_T
+    constraint_matrix[:,n*d] = -mew*target_velocity.flatten()
+    def terminal_target_location_constraint(variables):
+        constraints = np.dot(constraint_matrix, variables).flatten()
+        return constraints
+    lower_bound = initial_point.flatten()
+    upper_bound = initial_point.flatten()
+    if d ==2: constraints_key = np.array(["x","y"])
+    else: constraints_key = np.array(["x","y","z"])
+    constraint_class = "Target_Location"
+    print("constraint_matrix: " , np.shape(constraint_matrix))
+    print("lower bound: " , np.shape(lower_bound))
+    print("upper bound: " , np.shape(upper_bound))
+    constraint_function_data = ConstraintFunctionData(terminal_target_location_constraint, lower_bound, upper_bound,constraints_key,constraint_class)
+    constraint = LinearConstraint(constraint_matrix, lb=lower_bound, ub=upper_bound)
+    return constraint, constraint_function_data
 
 def create_terminal_waypoint_direction_constraint(waypoint: Waypoint, num_cont_pts: int, num_waypoint_scalars: int, isIndirect: bool = False):
     lower_bound = 0

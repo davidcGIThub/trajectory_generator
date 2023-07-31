@@ -11,6 +11,7 @@ class Waypoint:
     jerk: np.ndarray = None
     dimension: int = None
     side: str = None
+    is_target: bool = None
 
     def checkIfDerivativesActive(self):
         if self.checkIfAccelerationActive() or self.checkIfDirectionActive():

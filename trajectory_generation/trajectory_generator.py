@@ -22,7 +22,7 @@ from trajectory_generation.objectives.objective_functions import minimize_accele
     minimize_jerk_control_points_and_time_objective_function
 from trajectory_generation.constraint_functions.waypoint_constraints import create_terminal_waypoint_location_constraint, \
     create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints, \
-    create_intermediate_waypoint_velocity_constraints, create_zero_velocity_terminal_waypoint_constraint
+    create_intermediate_waypoint_velocity_constraints, create_zero_velocity_terminal_waypoint_constraint, create_target_constraint
     # create_intermediate_waypoint_time_scale_constraint
 from trajectory_generation.constraint_functions.derivative_constraints import DerivativeConstraints
 from trajectory_generation.constraint_functions.sfc_constraints import create_safe_flight_corridor_constraint
@@ -102,7 +102,7 @@ class TrajectoryGenerator:
         terminal_acceleration = get_terminal_acceleration(side, control_points, scale_factor)[:,None]
         terminal_waypoint = Waypoint(location=terminal_location,
                                      velocity=terminal_velocity,
-                                     acceleration=terminal_acceleration)  
+                                     acceleration=terminal_acceleration) 
         return terminal_waypoint
     
     def __get_optimized_results(self, result: OptimizeResult, num_cont_pts: int):
@@ -181,6 +181,12 @@ class TrajectoryGenerator:
             end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
                 create_zero_velocity_terminal_waypoint_constraint(waypoint_data.end_waypoint, num_cont_pts,
                 num_intermediate_waypoints, num_waypoint_scalars, self._order)
+        elif waypoint_data.end_waypoint.is_target:
+            end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
+                create_target_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, \
+                                         num_waypoint_scalars, self._order)
+                # create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, \
+                # num_intermediate_waypoints, num_waypoint_scalars, self._order)
         else:
             end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
                 create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, \
