@@ -3,8 +3,8 @@ from scipy.optimize import LinearConstraint, NonlinearConstraint
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint
 from trajectory_generation.matrix_evaluation import get_M_matrix, evaluate_point_on_interval, \
     evaluate_point_derivative_on_interval
-from trajectory_generation.objectives.objective_variables import get_control_points, get_scale_factor, \
-    get_waypoint_scalars, get_intermediate_waypoint_scale_times
+from trajectory_generation.objectives.objective_variables_orbit import get_control_points, get_scale_factor, \
+    get_waypoint_scalars, get_intermediate_waypoint_scale_times, get_orbit_radius
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
 
 def create_terminal_waypoint_location_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints, num_waypoint_scalars, order):
@@ -144,6 +144,43 @@ def create_target_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_
     constraint_class = "Target_Location"
     constraint_function_data = ConstraintFunctionData(terminal_target_location_constraint, lower_bound, upper_bound,constraints_key,constraint_class)
     constraint = LinearConstraint(constraint_matrix, lb=lower_bound, ub=upper_bound)
+    return constraint, constraint_function_data
+
+def create_orbit_target_constraint(waypoint: Waypoint, num_cont_pts, num_intermediate_waypoints, num_waypoint_scalars, order):
+    orbit_center = waypoint.location
+    orbit_linear_speed = waypoint.velocity
+    num_extra_spaces = 2 + num_intermediate_waypoints + num_waypoint_scalars # +2 for scale factor and orbit radius
+    n = num_cont_pts
+    mew = num_cont_pts - order
+    k = order
+    d = np.shape(orbit_center)[0]
+    constraint_matrix = np.zeros((d,n*d+num_extra_spaces))
+    M_ = get_M_matrix(order)
+    Gamma_f = np.ones((order+1,1))
+    M_Gamma_f_T = np.dot(M_,Gamma_f).T
+    for i in range(d):
+        constraint_matrix[i, (i+1)*n-k-1 : (i+1)*n] = M_Gamma_f_T
+    def terminal_orbit_target_location_constraint(variables):
+        R = get_orbit_radius(variables)
+        scale_factor = get_scale_factor(variables)
+        angular_rate = orbit_linear_speed/R
+        end_time = scale_factor*mew
+        x = R*np.cos(angular_rate*end_time) + orbit_center.item(0)
+        y = R*np.sin(angular_rate*end_time) + orbit_center.item(1)
+        if d == 2:
+            end_point = np.array([x,y])
+        else:
+            z = 0
+            end_point = np.array([x,y,z])
+        constraints = np.dot(constraint_matrix, variables).flatten() - end_point
+        return constraints
+    lower_bound = 0
+    upper_bound = 0
+    if d ==2: constraints_key = np.array(["x","y"])
+    else: constraints_key = np.array(["x","y","z"])
+    constraint_class = "Target_Orbit_Location"
+    constraint_function_data = ConstraintFunctionData(terminal_orbit_target_location_constraint, lower_bound, upper_bound,constraints_key,constraint_class)
+    constraint = NonlinearConstraint(terminal_orbit_target_location_constraint, lb=lower_bound, ub=upper_bound)
     return constraint, constraint_function_data
 
 def create_terminal_waypoint_direction_constraint(waypoint: Waypoint, num_cont_pts: int, num_waypoint_scalars: int, isIndirect: bool = False):

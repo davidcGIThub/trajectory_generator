@@ -16,37 +16,38 @@ import time
 
 dimension = 3
 order = 3
-traj_objective_type = "minimal_acceleration_and_time_path"
-# traj_objective_type = "minimal_velocity_and_time_path"
+# traj_objective_type = "minimal_acceleration_and_time_path"
+traj_objective_type = "minimal_velocity_and_time_path"
 # traj_objective_type = "minimal_distance_and_time_path"
-max_velocity = 20
+max_velocity = 22
 max_acceleration = 3
-# max_acceleration = 12.8
+max_jerk = 10
 gravity = 9.8
 max_upward_velocity = 6
 gravity = None
-max_upward_velocity = None
+# max_upward_velocity = None
 derivative_bounds = DerivativeBounds(max_velocity=max_velocity, max_acceleration=max_acceleration,
+                                     max_jerk = max_jerk,
                                      gravity=gravity, max_upward_velocity=max_upward_velocity)
 
 ### Collect Flight Info
-# bag_name = '../bag_parser/rosbag_defend_point.bag'
-# isTarget = False
+bag_name = '../bag_parser/rosbag_defend_point.bag'
+isTarget = False
 # bag_name = '../bag_parser/rosbag_defend_point_2.bag'
 # isTarget = False
 # bag_name = '../bag_parser/rosbag_attack_target.bag'
 # isTarget = True
 # bag_name = '../bag_parser/rosbag_attack_target_2.bag'
 # isTarget = True
-bag_name = '../bag_parser/rosbag_to_waypoint.bag'
-isTarget = False
+# bag_name = '../bag_parser/rosbag_to_waypoint.bag'
+# isTarget = False
 # bag_name = '../bag_parser/rosbag_pursue_target.bag'
 # isTarget = True
-# bag_name = '../bag_parser/rosbag_pursue_target_2.bag'
-# isTarget = True
+bag_name = '../bag_parser/rosbag_pursue_target_2.bag'
+isTarget = True
 
 
-num_samples = 20
+num_samples = 1200
 start_pos_data, start_vel_data, end_pos_data, end_vel_data = get_start_and_end_condition_data(bag_name, isTarget, num_samples)
 
 
@@ -60,7 +61,10 @@ ax2 = fig.add_subplot(2, 3, 2)
 ax3 = fig.add_subplot(2, 3, 3)
 ax4 = fig.add_subplot(2, 3, 4)
 ax5 = fig.add_subplot(2, 3, 5)
-for i in range(np.shape(start_pos_data)[1]-1):
+ax6 = fig.add_subplot(2, 3, 6)
+end_index = 10
+print("np.shape(start_pos_data): ", np.shape(start_pos_data))
+for i in range(1000,1010):
     # extract conditions
     start_pos = start_pos_data[0:3,i][:,None]
     start_vel = start_vel_data[0:3,i][:,None]
@@ -78,12 +82,16 @@ for i in range(np.shape(start_pos_data)[1]-1):
     control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, traj_objective_type)
     end_time = time.time()
     evaluation_time = end_time - start_time
-    if is_violation:
+    spline_start_time_1 = 0
+    bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)
+    path_length = bspline.get_arc_length(1000)
+    waypoint_distance = np.linalg.norm(end_pos - start_pos)
+    # if is_violation or path_length > waypoint_distance*4:
+    if path_length > waypoint_distance*100:
         pass
     else:
+
         # spline data
-        spline_start_time_1 = 0
-        bspline = BsplineEvaluation(control_points, order, spline_start_time_1, scale_factor, False)
         end_time_spline = bspline.get_end_time()
         number_data_points = 10000
         spline_data, time_data = bspline.get_spline_data(number_data_points)
@@ -91,6 +99,7 @@ for i in range(np.shape(start_pos_data)[1]-1):
         velocity_mag_data, time_data = bspline.get_derivative_magnitude_data(number_data_points,1)
         velocity_data, time_data = bspline.get_spline_derivative_data(number_data_points, 1)
         acceleration_data, time_data = bspline.get_derivative_magnitude_data(number_data_points,2)
+        jerk_data, time_data = bspline.get_derivative_magnitude_data(number_data_points,3)
         end_time_spline = bspline.get_end_time()
         print("evaluation time: " , evaluation_time)
         if isTarget:
@@ -107,17 +116,21 @@ for i in range(np.shape(start_pos_data)[1]-1):
         ax3.plot(time_data, velocity_mag_data*0 + max_velocity, label="max_velocity", color="k")
         ax4.plot(time_data, acceleration_data, label="acceleration")
         ax4.plot(time_data, acceleration_data*0 + max_acceleration, label="max_acceleration", color="k")
-        ax5.plot(time_data, -velocity_data[2,:])
+        ax5.plot(time_data, jerk_data*0 + max_jerk, label="max jerk", color="k")
+        ax6.plot(time_data, -velocity_data[2,:])
         if max_upward_velocity is not None:
-            ax5.plot(time_data, velocity_data[2,:]*0 + max_upward_velocity, color ="k")
-ax1.plot(start_pos_data[0,:], start_pos_data[1,:], start_pos_data[2,:], color="tab:gray", alpha=0.4)
-ax1.plot(end_pos_data[0,:], end_pos_data[1,:], end_pos_data[2,:], color="tab:brown", alpha=0.4)
-ax1.scatter(start_pos_data[0,:], start_pos_data[1,:], start_pos_data[2,:],facecolors="tab:gray", edgecolors="tab:gray")
-ax1.scatter(end_pos_data[0,:], end_pos_data[1,:], end_pos_data[2,:], facecolors="tab:brown", edgecolors="tab:brown")
-ax2.plot(start_pos_data[0,:], start_pos_data[1,:], color="k", alpha=0.2)
-ax2.plot(end_pos_data[0,:], end_pos_data[1,:], color="tab:brown", alpha=0.2)
-ax2.scatter(start_pos_data[0,:], start_pos_data[1,:],facecolors="none", edgecolors="tab:gray",label ="start")
-ax2.scatter(end_pos_data[0,:], end_pos_data[1,:], facecolors="tab:brown", edgecolors="tab:brown",label ="end")
+            ax6.plot(time_data, velocity_data[2,:]*0 + max_upward_velocity, color ="k")
+        print(" ")
+        print("time data: " , start_pos_data[3,i])
+        print(" ")
+# ax1.plot(start_pos_data[0,:], start_pos_data[1,:], start_pos_data[2,:], color="tab:gray", alpha=0.4)
+# ax1.plot(end_pos_data[0,:], end_pos_data[1,:], end_pos_data[2,:], color="tab:brown", alpha=0.4)
+# ax1.scatter(start_pos_data[0,:], start_pos_data[1,:], start_pos_data[2,:],facecolors="tab:gray", edgecolors="tab:gray")
+# ax1.scatter(end_pos_data[0,:], end_pos_data[1,:], end_pos_data[2,:], facecolors="tab:brown", edgecolors="tab:brown")
+# ax2.plot(start_pos_data[0,:], start_pos_data[1,:], color="k", alpha=0.2)
+# ax2.plot(end_pos_data[0,:], end_pos_data[1,:], color="tab:brown", alpha=0.2)
+# ax2.scatter(start_pos_data[0,:], start_pos_data[1,:],facecolors="none", edgecolors="tab:gray",label ="start")
+# ax2.scatter(end_pos_data[0,:], end_pos_data[1,:], facecolors="tab:brown", edgecolors="tab:brown",label ="end")
 ax1.set_xlabel("X")
 ax1.set_ylabel("Y")
 ax1.set_zlabel("Z")
@@ -127,6 +140,12 @@ ax3.set_xlabel("time (sec)")
 ax3.set_ylabel("velocity (m/s)")
 ax4.set_xlabel("time (sec)")
 ax4.set_ylabel("acceleration (m/s^2)")
+ax5.set_xlabel("time (sec)")
+ax5.set_ylabel("jerk")
+ax5.set_title("Jerk")
+ax6.set_ylabel("vertical velocity")
+ax6.set_xlabel("time")
+ax6.set_title("Vertical Velocity")
 # ax2.xla
 set_axes_equal(ax1,dimension)
 ax2.legend()

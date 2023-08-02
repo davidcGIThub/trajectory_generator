@@ -37,10 +37,16 @@ class DerivativeConstraints(object):
                     if derivative_bounds.max_horizontal_velocity is not None and dimension == 3:
                         constraints[count] = self.calculate_max_horizontal_velocity_constraint(bezier_velocity_control_points, derivative_bounds)
                         count += 1
-            if derivative_bounds.max_acceleration is not None:
-                acceleration_constraint = self.calculate_max_acceleration_constraint(derivative_bounds, velocity_control_points, scale_factor, M_a)
-                constraints[count] = acceleration_constraint
-                count += 1
+            if derivative_bounds.max_acceleration is not None or derivative_bounds.max_jerk is not None:
+                acceleration_control_points = (velocity_control_points[:,1:] - velocity_control_points[:,0:-1])/scale_factor
+                if derivative_bounds.max_acceleration is not None:
+                    acceleration_constraint = self.calculate_max_acceleration_constraint(derivative_bounds, acceleration_control_points, scale_factor, M_a)
+                    constraints[count] = acceleration_constraint
+                    count += 1
+                if derivative_bounds.max_jerk is not None:
+                    jerk_constraint = self.calculate_max_jerk_constraint(derivative_bounds, acceleration_control_points, scale_factor)
+                    constraints[count] = jerk_constraint
+                    count += 1
             return constraints
         lower_bound = np.zeros(length) - np.inf
         upper_bound = np.zeros(length)
@@ -67,6 +73,9 @@ class DerivativeConstraints(object):
         if derivative_bounds.max_acceleration is not None:
             length += 1
             constraint_key = np.concatenate((constraint_key,["max_acceleration"]))
+        if derivative_bounds.max_jerk is not None:
+            length += 1
+            constraint_key = np.concatenate((constraint_key,["max_jerk"]))
         constraint_array = np.zeros(length)
         return constraint_array, constraint_key, length
 
@@ -85,15 +94,20 @@ class DerivativeConstraints(object):
         constraint = -min_z_vel - derivative_bounds.max_upward_velocity
         return constraint
 
-    def calculate_max_acceleration_constraint(self, derivative_bounds: DerivativeBounds, velocity_control_points, scale_factor, M_a):
-        acceleration_control_points = (velocity_control_points[:,1:] - velocity_control_points[:,0:-1])/scale_factor
+    def calculate_max_acceleration_constraint(self, derivative_bounds: DerivativeBounds, acceleration_control_points, scale_factor, M_a):
         bezier_acceleration_control_points = np.transpose(np.dot(M_a, np.transpose(acceleration_control_points)))
-        dimension = np.shape(velocity_control_points)[0]
+        dimension = np.shape(acceleration_control_points)[0]
         if derivative_bounds.gravity is not None and dimension == 3:
             gravity = np.array([[0],[0],[derivative_bounds.gravity]])
             bezier_acceleration_control_points = bezier_acceleration_control_points - gravity
         acceleration_bound = np.max(np.linalg.norm(bezier_acceleration_control_points,2,0))
         constraint = acceleration_bound - derivative_bounds.max_acceleration
+        return constraint
+    
+    def calculate_max_jerk_constraint(self, derivative_bounds: DerivativeBounds, acceleration_control_points, scale_factor):
+        jerk_control_points = (acceleration_control_points[:,1:] - acceleration_control_points[:,0:-1])/scale_factor
+        jerk_bound = np.max(np.linalg.norm(jerk_control_points,2,0))
+        constraint = jerk_bound - derivative_bounds.max_jerk
         return constraint
 
     def calculate_min_velocity_constraint(self, bezier_velocity_control_points, derivative_bounds: DerivativeBounds):

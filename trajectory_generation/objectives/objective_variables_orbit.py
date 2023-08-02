@@ -25,7 +25,8 @@ def get_waypoint_scalars(variables, num_waypoint_scalars, num_cont_pts, dimensio
     return waypoint_scalars
 
 def create_initial_objective_variables(num_cont_pts: int, point_sequence, \
-        waypoint_data: WaypointData, dimension: int, order: int, initial_control_points: np.ndarray = None, initial_scale_factor: int = None):
+        waypoint_data: WaypointData, dimension: int, order: int, initial_control_points: np.ndarray = None, initial_scale_factor: int = None,
+        initial_orbit_radius: float = None):
     waypoint_sequence = waypoint_data.get_waypoint_locations()
     num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
     if initial_control_points is not None:
@@ -45,9 +46,12 @@ def create_initial_objective_variables(num_cont_pts: int, point_sequence, \
     if (num_intermediate_waypoints > 0):
         intermediate_waypoint_time_scales = create_initial_intermediate_waypoint_time_scales(waypoint_sequence, num_cont_pts, order)
         variables = np.concatenate((variables, intermediate_waypoint_time_scales))
+    elif initial_orbit_radius is not None:
+        variables = np.concatenate((variables, [initial_orbit_radius]))
     return variables
 
-def create_objective_variable_bounds(num_cont_pts, waypoint_data: WaypointData, dimension, order):
+def create_objective_variable_bounds(num_cont_pts, waypoint_data: WaypointData, dimension, order,
+                                     initial_orbit_radius: float = None):
     num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
     num_waypoint_scalars = waypoint_data.get_num_waypoint_scalars()
     lower_bounds = np.zeros(num_cont_pts*dimension + 1 + num_intermediate_waypoints + num_waypoint_scalars) - np.inf
@@ -58,6 +62,9 @@ def create_objective_variable_bounds(num_cont_pts, waypoint_data: WaypointData, 
         num_intervals = num_cont_pts - order
         upper_bounds[-num_intermediate_waypoints:] = num_intervals
         lower_bounds[-num_intermediate_waypoints:] = 0
+    elif initial_orbit_radius is not None:
+        upper_bounds[-1] = initial_orbit_radius
+        lower_bounds[-1] = 0
     return Bounds(lb=lower_bounds, ub=upper_bounds)
 
 def create_initial_control_points(total_num_cont_pts, point_sequence, dimension):
