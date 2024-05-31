@@ -24,11 +24,14 @@ max_velocity = 30 #m/s
 max_acceleration = 100
 max_wheel_turn_angle = 30
 max_delta = max_wheel_turn_angle * np.pi/180
+min_operating_velocity = 15
 # max_delta = np.pi/6
 max_beta = np.arctan2(l_r*np.tan(max_delta), L)
 max_curvature = np.tan(max_delta)*np.cos(max_beta)/ L
 max_angular_rate = max_curvature*max_velocity
+# max_angular_rate = max_curvature*min_operating_velocity
 max_centripetal_acceleration = max_curvature*max_velocity**2
+
 
 #### Path Properties ####
 dimension = 2
@@ -43,8 +46,8 @@ traj_objective_type =  "minimal_velocity_and_time_path"
 traj_gen = TrajectoryGenerator(dimension)
 
 #### Path Constraints ####
-turn_type = "curvature"
-# turn_type = "angular_rate"
+# turn_type = "curvature"
+turn_type = "angular_rate"
 # turn_type = "centripetal_acceleration"
 if turn_type == "curvature": max_turn_value = max_curvature
 elif turn_type == "angular_rate": max_turn_value = max_angular_rate
