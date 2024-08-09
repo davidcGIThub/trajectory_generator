@@ -56,7 +56,7 @@ std::array<double,2> DerivativeBounds<D>::find_min_velocity_and_time(Eigen::Matr
     if (velocity_at_tf < min_velocity)
     {
         min_velocity = velocity_at_tf;
-        double time_at_min = tf;
+        time_at_min = tf;
     }
     for(int index = 0; index < 3; index++)
     {
@@ -67,7 +67,7 @@ std::array<double,2> DerivativeBounds<D>::find_min_velocity_and_time(Eigen::Matr
             if (velocity < min_velocity)
             {
                 min_velocity = velocity;
-                double time_at_min = root;
+                time_at_min = root;
             }
         }
     }

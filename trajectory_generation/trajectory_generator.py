@@ -19,7 +19,7 @@ from trajectory_generation.objectives.objective_variables import create_initial_
 from trajectory_generation.objectives.objective_functions import minimize_acceleration_control_points_objective_function, \
     minimize_velocity_control_points_objective_function, minimize_jerk_control_points_objective_function, \
     minimize_acceleration_control_points_and_time_objective_function, minimize_velocity_control_points_and_time_objective_function, \
-    minimize_jerk_control_points_and_time_objective_function
+    minimize_jerk_control_points_and_time_objective_function, minimize_time_objective_function, minimize_time_velocity_penalty_objective_function
 from trajectory_generation.constraint_functions.waypoint_constraints import create_terminal_waypoint_location_constraint, \
     create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints, \
     create_intermediate_waypoint_velocity_constraints, create_zero_velocity_terminal_waypoint_constraint, create_target_constraint
@@ -112,7 +112,9 @@ class TrajectoryGenerator:
         return control_points, scale_factor
     
     def __get_objective_function(self, objective_function_type: str):
-        if objective_function_type == "minimal_distance_path":
+        if objective_function_type == "minimal_time_path":
+            return minimize_time_objective_function
+        elif objective_function_type == "minimal_distance_path":
             return minimize_velocity_control_points_objective_function
         elif objective_function_type == "minimal_velocity_path":
             return minimize_acceleration_control_points_objective_function
@@ -124,6 +126,8 @@ class TrajectoryGenerator:
             return minimize_acceleration_control_points_and_time_objective_function
         elif objective_function_type == "minimal_acceleration_and_time_path":
             return minimize_jerk_control_points_and_time_objective_function
+        elif objective_function_type == "minimal_time_path_velocity_penalty":
+            return minimize_time_velocity_penalty_objective_function
         else:
             raise Exception("Error, Invalid objective function type")
         
@@ -224,6 +228,11 @@ class TrajectoryGenerator:
                 derivative_bounds, num_cont_pts, self._dimension, self._order)
             constraints.append(derivatives_constraint)
             constraint_functions_data.append(derivatives_constraint_function)
+        if derivative_bounds is not None and derivative_bounds.checkIfTangentialAccelerationActive():
+            tang_accel_constraint, tang_accel_constraint_function = self._derivative_constriants.create_tangential_acceleration_constraint( \
+                derivative_bounds, num_cont_pts, self._dimension, self._order)
+            constraints.append(tang_accel_constraint)
+            constraint_functions_data.append(tang_accel_constraint_function)
         if turning_bound is not None and turning_bound.checkIfTurningBoundActive():
             turning_constraint, turning_constraint_function_data = self._turning_const_obj.create_turning_constraint(\
                 turning_bound, num_cont_pts, self._dimension, waypoint_data)

@@ -21,11 +21,9 @@ L = 1
 l_r = 0.5
 R = 0.2 # animation property
 max_velocity = 30 #m/s
-max_acceleration = 100 #m/s^2
-max_longitudinal_acceleration = max_acceleration
-expected_min_vel = 20
+max_tangential_acceleration = 100
 max_angular_rate = 7
-max_curvature = max_angular_rate / expected_min_vel
+max_curvature = max_angular_rate / max_velocity
 max_centripetal_acceleration = max_angular_rate * max_velocity
 
 #### Path Properties ####
@@ -41,27 +39,29 @@ traj_objective_type =  "minimal_velocity_and_time_path"
 traj_gen = TrajectoryGenerator(dimension)
 
 #### Path Constraints ####
-turn_type = "curvature"
-# turn_type = "angular_rate"
+# turn_type = "curvature"
+turn_type = "angular_rate"
 # turn_type = "centripetal_acceleration"
 if turn_type == "curvature": max_turn_value = max_curvature
 elif turn_type == "angular_rate": max_turn_value = max_angular_rate
 elif turn_type == "centripetal_acceleration": max_turn_value = max_centripetal_acceleration
-else: turn_type = None
+# else: turn_type = None
 print("max " , turn_type , ": ", max_turn_value)
 turning_bound = TurningBound(max_turn_value, turn_type)
 # turning_bound = None
-derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
+derivative_bounds = DerivativeBounds(max_velocity,
+                                     max_tangential_acceleration= max_tangential_acceleration,
+                                      min_tangential_acceleration= -max_tangential_acceleration)
 
 
 # Path generation
 start_point = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[28]]))
-end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[20]]))
+end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[28]]))
 waypoint_data = WaypointData((start_point, end_point))
 constraints_container = ConstraintsContainer(waypoint_data, derivative_bounds, turning_bound)
-num_intervals_free_space = 5
+num_intervals_free_space = 8
 gen_start_time = time.time()
-control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, traj_objective_type, num_intervals_free_space)
+control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, traj_objective_type, num_intervals_free_space)
 print("control_points: " , control_points)
 print("scale_factor: " , scale_factor)
 gen_end_time = time.time()
@@ -93,12 +93,12 @@ unicycle = UnicycleModel(
                     alpha = np.array([0,0,0,0]),
                     max_theta_dot = max_angular_rate,
                     max_vel = max_velocity,
-                    max_vel_dot = max_acceleration)
+                    max_vel_dot = max_tangential_acceleration)
 
 controller = UnicycleTrajectoryTracker(k_pos = 8, 
                                         k_vel = 5,
                                         k_theta = 7,
-                                        max_vel_dot = max_acceleration,
+                                        max_vel_dot = max_tangential_acceleration,
                                         max_vel = max_velocity,
                                         max_theta_dot= max_angular_rate)
 
@@ -108,5 +108,5 @@ des_traj_data = TrajectoryData(location_data, velocity_data, acceleration_data,
                            jerk_data, time_data)
 vehicle_traj_data, vehicle_motion_data = unicycle_traj_sim.run_simulation(des_traj_data)
 unicycle_traj_sim.plot_simulation_dynamics(vehicle_motion_data, des_traj_data, vehicle_traj_data, max_velocity,
-                                       max_acceleration, max_turn_value, turn_type, "unicyle")
+                                       max_tangential_acceleration, max_turn_value, turn_type, "unicyle")
 

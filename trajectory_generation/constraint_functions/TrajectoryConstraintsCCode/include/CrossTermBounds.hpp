@@ -58,6 +58,18 @@ extern "C"
         double scale_factor){return obj->get_spline_angular_rate_bound(cont_pts, num_control_points,scale_factor);}
     double get_spline_centripetal_acceleration_bound_3(CrossTermBounds<3>* obj, double cont_pts[], int num_control_points,
         double scale_factor){return obj->get_spline_centripetal_acceleration_bound(cont_pts, num_control_points,scale_factor);}
+
+
+    DerivativeBounds<2>* DerivativeBounds_2(){return new DerivativeBounds<2>();}
+    double find_min_velocity_of_spline_2(DerivativeBounds<2>* obj, 
+                    double cont_pts[], int num_control_points, double scale_factor){
+        return obj->find_min_velocity_of_spline(cont_pts, num_control_points, scale_factor);}
+    DerivativeBounds<3>* DerivativeBounds_3(){return new DerivativeBounds<3>();}
+    double find_min_velocity_of_spline_3(DerivativeBounds<3>* obj, 
+                double cont_pts[], int num_control_points, double scale_factor){
+        return obj->find_min_velocity_of_spline(cont_pts, num_control_points, scale_factor);}
+
 }
+
 #endif
 

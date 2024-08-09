@@ -19,24 +19,30 @@ import time
 #### Bicycle Properties ####
 
 gravity = 9.8
-max_velocity = 25 #m/s
+max_velocity = 28 #m/s
 min_velocity = 16 #m/s
-max_roll = np.radians(20)
+max_roll = np.radians(25)
 max_centripetal_acceleration = gravity*np.tan(max_roll)
-print("centr accel bound: " , max_centripetal_acceleration)
-max_linear_acceleration = 5
 
 max_curvature = max_centripetal_acceleration/max_velocity**2
 max_angular_rate = max_centripetal_acceleration/max_velocity
+max_tang_acceleration = 5
+min_tang_acceleration = -1.5
+
+# print("centr accel bound: " , max_centripetal_acceleration)
+# print("curvature bound: " , max_curvature)
 
 #### Path Properties ####
-dimension = 3
+dimension = 2
 order = 3
 start_time = 0
 
 #### Path Objective ####
-# traj_objective_type = "minimal_acceleration_and_time_path" 
-traj_objective_type =  "minimal_velocity_and_time_path"
+traj_objective_type = "minimal_acceleration_and_time_path" 
+# traj_objective_type =  "minimal_velocity_and_time_path"
+# traj_objective_type = "minimal_distance_and_time_path"
+# traj_objective_type = "minimal_time_path"
+# traj_objective_type = "minimal_time_path_velocity_penalty"
 
 #### Trajectory Generator Object ####
 traj_gen = TrajectoryGenerator(dimension)
@@ -52,13 +58,20 @@ else: turn_type = None
 print("max " , turn_type , ": ", max_turn_value)
 turning_bound = TurningBound(max_turn_value, turn_type)
 # turning_bound = None
-derivative_bounds = DerivativeBounds(max_velocity, max_linear_acceleration)
-
+derivative_bounds = DerivativeBounds(
+                                    #  max_velocity=max_velocity, \
+                                    #  max_tangential_acceleration=max_tang_acceleration, \
+                                    #  min_tangential_acceleration=min_tang_acceleration, \
+                                        )
 # Path generation
-start_point = Waypoint(location = np.array([600,-100,300])[:,None],
-                         velocity = np.array([-20,  0, 0])[:,None])
-end_point = Waypoint(location=np.array([600,  307.97318145,  300])[:,None],
-                      velocity=np.array([-20, 0,  0.])[:,None])
+# start_point = Waypoint(location = np.array([600,-100,300])[:,None],
+#                          velocity = np.array([-(max_velocity-0.5),  0, 0])[:,None])
+# end_point = Waypoint(location=np.array([600,  400,  300])[:,None],
+#                       velocity=np.array([-(max_velocity-0.5), 0,  0.])[:,None])
+start_point = Waypoint(location = np.array([600,-100])[:,None],
+                         velocity = np.array([-300,  0])[:,None])
+end_point = Waypoint(location=np.array([600,  400])[:,None],
+                      velocity=np.array([-300, 0])[:,None])
 waypoint_data = WaypointData((start_point, end_point))
 constraints_container = ConstraintsContainer(waypoint_data, derivative_bounds, turning_bound)
 num_intervals_free_space = 8
@@ -69,21 +82,27 @@ print("control_points: " , control_points)
 print("scale_factor: " , scale_factor)
 print("Trajectory generation time: " , gen_end_time - gen_start_time)
 
-
 bspline = BsplineEvaluation(control_points, order, 0, scale_factor)
 num_points_per_interval = 500
 location_data, time_data = bspline.get_spline_data(num_points_per_interval)
 velocity_data, time_data = bspline.get_spline_derivative_data(num_points_per_interval, 1)
+velocity_magnitude_data = np.max(np.linalg.norm(velocity_data,2,0))
 acceleration_data, time_data = bspline.get_spline_derivative_data(num_points_per_interval, 2)
 jerk_data, time_data = bspline.get_spline_derivative_data(num_points_per_interval, 3)
 centripetal_acceleration_data, time_data = bspline.get_centripetal_acceleration_data(num_points_per_interval)
+angular_rate_data, time_data = bspline.get_angular_rate_data(num_points_per_interval)
 curvature_data, time_data = bspline.get_spline_curvature_data(num_points_per_interval)
-
+unit_velocity_data = velocity_data/velocity_magnitude_data
+tangential_acceleration_magnitude_data = np.diag(np.dot(acceleration_data.T, unit_velocity_data))
 
 print("max velocity: " , np.max(np.linalg.norm(velocity_data,2,0)))
-print("max_acceleration: " , np.max(np.linalg.norm(acceleration_data,2,0)))
+print("min velocity: " , np.min(np.linalg.norm(velocity_data,2,0)))
+# print("max_acceleration: " , np.max(np.linalg.norm(acceleration_data,2,0)))
 print("max centr accel: " , np.max(centripetal_acceleration_data))
+print("max ang rate: " , np.max(angular_rate_data))
 print("max_curvature: " , np.max(curvature_data))
+print("max tangential acceleration: " , np.max(tangential_acceleration_magnitude_data))
+print("min tangential acceleration: " , np.min(tangential_acceleration_magnitude_data))
 
 bspline.plot_spline(1000)
 

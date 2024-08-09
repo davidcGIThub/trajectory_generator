@@ -21,14 +21,17 @@ L = 1
 l_r = 0.5
 R = 0.2 # animation property
 max_velocity = 30 #m/s
-max_acceleration = 100
-max_wheel_turn_angle = 30
+max_wheel_turn_angle = 25
 max_delta = max_wheel_turn_angle * np.pi/180
 # max_delta = np.pi/6
 max_beta = np.arctan2(l_r*np.tan(max_delta), L)
 max_curvature = np.tan(max_delta)*np.cos(max_beta)/ L
 max_angular_rate = max_curvature*max_velocity
 max_centripetal_acceleration = max_curvature*max_velocity**2
+tangential_acceleration_bound = 100
+print("max_curvature: " , max_curvature)
+print("max_angular_rate: " , max_angular_rate)
+print("max_centripetal_acceleration: " , max_centripetal_acceleration)
 
 #### Path Properties ####
 dimension = 2
@@ -38,6 +41,8 @@ start_time = 0
 #### Path Objective ####
 # traj_objective_type = "minimal_acceleration_and_time_path" 
 traj_objective_type =  "minimal_velocity_and_time_path"
+# traj_objective_type = "minimal_distance_and_time_path"
+# traj_objective_type = "minimal_time_path"
 
 #### Trajectory Generator Object ####
 traj_gen = TrajectoryGenerator(dimension)
@@ -53,21 +58,23 @@ else: turn_type = None
 print("max " , turn_type , ": ", max_turn_value)
 turning_bound = TurningBound(max_turn_value, turn_type)
 # turning_bound = None
-derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
-
+derivative_bounds = DerivativeBounds(max_velocity,
+                                     max_tangential_acceleration= tangential_acceleration_bound,
+                                    min_tangential_acceleration= -tangential_acceleration_bound)
+print("max tang accel: " , tangential_acceleration_bound)
 
 # Path generation
 start_point = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[28]]))
-end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[20]]))
+end_point = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[28]]))
 waypoint_data = WaypointData((start_point, end_point))
 constraints_container = ConstraintsContainer(waypoint_data, derivative_bounds, turning_bound)
-num_intervals_free_space = 5
+num_intervals_free_space = 8
 gen_start_time = time.time()
 control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, traj_objective_type, num_intervals_free_space)
 gen_end_time = time.time()
+print("Trajectory generation time: " , gen_end_time - gen_start_time)
 print("control_points: " , control_points)
 print("scale_factor: " , scale_factor)
-print("Trajectory generation time: " , gen_end_time - gen_start_time)
 
 
 bspline = BsplineEvaluation(control_points, order, 0, scale_factor)
@@ -100,12 +107,12 @@ bike = BicycleModel(
                     alpha = np.array([0,0,0,0]),
                     max_delta = max_delta,
                     max_vel = max_velocity,
-                    max_vel_dot = max_acceleration)
+                    max_vel_dot = tangential_acceleration_bound)
 
 controller = BicycleTrajectoryTracker(k_pos = 4, 
                                         k_vel = 3,
                                         k_delta = 5,
-                                        max_vel_dot = max_acceleration,
+                                        max_vel_dot = tangential_acceleration_bound,
                                         max_vel = max_velocity,
                                         max_delta = max_delta,
                                         lr = l_r,
@@ -117,5 +124,5 @@ des_traj_data = TrajectoryData(location_data, velocity_data, acceleration_data,
                            jerk_data, time_data)
 vehicle_traj_data, vehicle_motion_data = bike_traj_sim.run_simulation(des_traj_data)
 bike_traj_sim.plot_simulation_dynamics(vehicle_motion_data, des_traj_data, vehicle_traj_data, max_velocity,
-                                       max_acceleration, max_turn_value, turn_type, "bike")
+                                       tangential_acceleration_bound, max_turn_value, turn_type, "bike")
 
