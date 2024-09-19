@@ -39,7 +39,7 @@ sfc_3 = SFC(np.array([[min_len_3+3],[2],[2]]), T3, R3)
 sfcs = (sfc_1, sfc_2, sfc_3)
 min_intervals_per_corridor = 1
 sfc_data = SFC_Data(sfcs, point_sequence,min_intervals_per_corridor)
-sfc_data = None
+# sfc_data = None
 
 obstacles = None
 max_turning_bound = 1
@@ -86,7 +86,7 @@ constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_dat
     turning_constraint=turning_bound, sfc_constraints=sfc_data, obstacle_constraints=None)
 
 
-control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, traj_objective_type, initial_control_points, initial_scale_factor)
+control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, traj_objective_type, initial_control_points, initial_scale_factor)
 
 end_time_1 = time.time()
 spline_start_time_1 = 0

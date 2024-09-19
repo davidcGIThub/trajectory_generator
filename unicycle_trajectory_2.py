@@ -61,7 +61,7 @@ waypoint_data = WaypointData((start_point, end_point))
 constraints_container = ConstraintsContainer(waypoint_data, derivative_bounds, turning_bound)
 num_intervals_free_space = 5
 gen_start_time = time.time()
-control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, traj_objective_type, num_intervals_free_space)
+control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, traj_objective_type, num_intervals_free_space)
 print("control_points: " , control_points)
 print("scale_factor: " , scale_factor)
 gen_end_time = time.time()

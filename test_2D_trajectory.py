@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from bsplinegenerator.bsplines import BsplineEvaluation
 from trajectory_generation.trajectory_generator import TrajectoryGenerator
-from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data, get3DRotationAndTranslationFromPoints
+from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data, SFC, plot_sfcs, get2DRotationAndTranslationFromPoints
 from trajectory_generation.path_plotter import set_axes_equal
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData, plot2D_waypoints
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
@@ -18,8 +18,29 @@ dimension = 2
 order = 3
 # traj_objective_type = "minimal_acceleration_path"
 # traj_objective_type = "minimal_velocity_path"
-traj_objective_type = "minimal_distance_path"
-sfc_data = None
+# traj_objective_type = "minimal_distance_path"
+traj_objective_type = "minimal_time_path"
+
+waypoint_1 = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[15]]))
+waypoint_2 = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[10]]))
+
+point_1 = np.array([[-5],[0]])
+point_2 = np.array([[0],[5]])
+point_3 = np.array([[0],[-5]])
+point_4 = np.array([[5],[0]])
+point_sequence = np.concatenate((point_1,point_2,point_3,point_4),1)
+dimension = np.shape(point_1)[0]
+R1, T1, min_len_1 = get2DRotationAndTranslationFromPoints(point_1, point_2)
+R2, T2, min_len_2 = get2DRotationAndTranslationFromPoints(point_2, point_3)
+R3, T3, min_len_3 = get2DRotationAndTranslationFromPoints(point_3, point_4)
+sfc_1 = SFC(np.array([[min_len_1+3],[2]]), T1, R1)
+sfc_2 = SFC(np.array([[min_len_2 + 2],[3]]), T2, R2)
+sfc_3 = SFC(np.array([[min_len_3+3],[2]]), T3, R3)
+sfcs = (sfc_1, sfc_2, sfc_3)
+min_intervals_per_corridor = 1
+sfc_data = SFC_Data(sfcs, point_sequence,min_intervals_per_corridor,intervals_per_corridor=np.array([1,1,1]))
+
+# sfc_data = None
 # obstacles = [Obstacle(center=np.array([[5.5],[7]]), radius=1)]
 obstacles = None
 obstacle_list = None
@@ -46,17 +67,6 @@ derivative_bounds = DerivativeBounds(max_velocity, max_acceleration)
                                     #  min_velocity=min_velocity)
 # derivative_bounds = None
 
-
-
-### 1st path
-waypoint_1 = Waypoint(location=np.array([[-5],[0]]),velocity=np.array([[0],[29]]))
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[1],[0]]))
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]))
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
-waypoint_2 = Waypoint(location=np.array([[5],[0]]),velocity=np.array([[0],[20]]))
-# waypoint_2 = Waypoint(location=np.array([[2],[10]]),velocity=np.array([[0],[0]]),direction=np.array([[0],[-1]]))
-# waypoint_1 = Waypoint(location=np.array([[3],[4]]),direction=np.array([[-max_velocity],[0]]))
-# waypoint_2 = Waypoint(location=np.array([[2],[10]]),direction=np.array([[0],[1]]))
 
 waypoint_sequence = (waypoint_1, waypoint_2)
 waypoint_data = WaypointData(waypoint_sequence)
@@ -97,6 +107,7 @@ ax = plt.axes()
 # ax.scatter(control_points[0,:], control_points[1,:], color="tab:orange")
 ax.plot(spline_data[0,:], spline_data[1,:], color = "tab:blue", label="optimized path")
 plot2D_waypoints(waypoint_data, ax)
+plot_sfcs(sfcs, ax)
 set_axes_equal(ax,dimension)
 plt.xlim(np.min(spline_data[0,:])-2, np.max(spline_data[0,:])+2)
 plt.ylim(np.min(spline_data[1,:])-2, np.max(spline_data[1,:])+2)

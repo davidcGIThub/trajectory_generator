@@ -50,7 +50,7 @@ start_time_1 = time.time()
 constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_data, derivative_constraints=derivative_bounds,
     turning_constraint=turning_bound, sfc_constraints=sfc_data, obstacle_constraints=obstacle_list)
 
-control_points, scale_factor = traj_gen.generate_trajectory(constraints_container)
+control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container)
 
 end_time_1 = time.time()
 spline_start_time_1 = 0
