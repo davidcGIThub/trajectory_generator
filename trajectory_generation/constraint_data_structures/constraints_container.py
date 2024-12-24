@@ -4,7 +4,7 @@ from trajectory_generation.constraint_data_structures.obstacle import Obstacle
 from trajectory_generation.constraint_data_structures.safe_flight_corridor import SFC_Data
 from trajectory_generation.constraint_data_structures.waypoint_data import WaypointData
 from dataclasses import dataclass
-from typeguard import typechecked
+
 
 @dataclass
 class ConstraintsContainer:
