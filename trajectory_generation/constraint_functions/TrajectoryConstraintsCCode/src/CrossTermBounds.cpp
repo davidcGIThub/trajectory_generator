@@ -186,7 +186,7 @@ double CrossTermBounds<D>::find_maximum_cross_term(Eigen::Matrix<double,D,4> &co
     }
     for(int index = 0; index < 3; index++)
     {
-        double root = roots[index];
+        double root = roots[index]*scale_factor;
         if(root > 0 && root < scale_factor)
         {
             double cross_term =  c_eval.calculate_cross_term_magnitude(root, control_points,scale_factor);

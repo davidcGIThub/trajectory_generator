@@ -48,12 +48,16 @@ class SFC:
     
 
 class SFC_Data:
-    def __init__(self, sfc_list: list, point_sequence: np.ndarray, min_num_intervals_per_corridor: int = 1):
+    def __init__(self, sfc_list: list, point_sequence: np.ndarray, min_num_intervals_per_corridor: int = 1,
+                 intervals_per_corridor = None):
         self._sfc_list = sfc_list
         self._num_corridors = len(self._sfc_list)
         self._point_sequence = point_sequence
         self._min_num_intervals_per_corridor = min_num_intervals_per_corridor
-        self._intervals_per_corridor = self.__evaluate_intervals_per_corridor()
+        if intervals_per_corridor is None:
+            self._intervals_per_corridor = self.__evaluate_intervals_per_corridor()
+        else:
+            self._intervals_per_corridor = intervals_per_corridor
         self._num_intervals = np.sum(self._intervals_per_corridor)
 
     def get_sfc_list(self):

@@ -19,36 +19,16 @@ import time
 dimension = 3
 # max_curvature = 1
 order = 3
-# traj_objective_type = "minimal_acceleration_path"
-traj_objective_type = "minimal_velocity_path"
-# traj_objective_type = "minimal_distance_path"
+traj_objective_type = "minimal_time_path"
 
 
-point_1 = np.array([[3],[4],[0]])
-point_2 = np.array([[7],[10],[3]])
-point_3 = np.array([[14],[7],[7]])
-point_4 = np.array([[20],[31],[20]])
-point_sequence = np.concatenate((point_1,point_2,point_3,point_4),1)
-dimension = np.shape(point_1)[0]
-R1, T1, min_len_1 = get3DRotationAndTranslationFromPoints(point_1, point_2)
-R2, T2, min_len_2 = get3DRotationAndTranslationFromPoints(point_2, point_3)
-R3, T3, min_len_3 = get3DRotationAndTranslationFromPoints(point_3, point_4)
-sfc_1 = SFC(np.array([[min_len_1+3],[2],[3]]), T1, R1)
-sfc_2 = SFC(np.array([[min_len_2 + 2],[3],[4]]), T2, R2)
-sfc_3 = SFC(np.array([[min_len_3+3],[2],[2]]), T3, R3)
-sfcs = (sfc_1, sfc_2, sfc_3)
-min_intervals_per_corridor = 1
-sfc_data = SFC_Data(sfcs, point_sequence,min_intervals_per_corridor)
-# sfc_data = None
 
+sfc_data = None
 obstacles = None
-max_turning_bound = 1
-# turning_bound = TurningBound(max_turning_bound,"angular_rate")
-# turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
-turning_bound = TurningBound(max_turning_bound,"curvature")
-turning_bound = None
+max_turning_bound = 60
+turning_bound = TurningBound(max_turning_bound,"centripetal_acceleration")
 
-max_velocity = 5
+max_velocity = 400
 # max_velocity = None
 max_acceleration = 0.3
 gravity = 0.1
@@ -86,7 +66,7 @@ constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_dat
     turning_constraint=turning_bound, sfc_constraints=sfc_data, obstacle_constraints=None)
 
 
-control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, traj_objective_type, initial_control_points, initial_scale_factor)
+control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, traj_objective_type, initial_control_points, initial_scale_factor)
 
 end_time_1 = time.time()
 spline_start_time_1 = 0

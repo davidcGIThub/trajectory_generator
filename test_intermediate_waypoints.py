@@ -52,7 +52,7 @@ constraints_container = ConstraintsContainer(waypoint_constraints = waypoint_dat
     derivative_constraints=derivative_bounds, turning_constraint=turning_bound, 
     sfc_constraints=sfc_data, obstacle_constraints=obstacle_list)
 
-control_points, scale_factor = traj_gen.generate_trajectory(constraints_container, num_intervals_free_space=14)
+control_points, scale_factor, is_violation = traj_gen.generate_trajectory(constraints_container, num_intervals_free_space=14)
 
 print("control_points: " , control_points)
 print("scale_factor: ", scale_factor)

@@ -14,16 +14,16 @@ from trajectory_generation.constraint_data_structures.safe_flight_corridor impor
 from trajectory_generation.constraint_data_structures.obstacle import Obstacle
 from trajectory_generation.constraint_data_structures.waypoint_data import Waypoint, WaypointData
 from trajectory_generation.constraint_data_structures.dynamic_bounds import DerivativeBounds, TurningBound
-from trajectory_generation.objectives.objective_variables import create_initial_objective_variables, \
+from trajectory_generation.objectives.objective_variables_orbit import create_initial_objective_variables, \
     create_objective_variable_bounds
-from trajectory_generation.objectives.objective_functions import minimize_acceleration_control_points_objective_function, \
+from trajectory_generation.objectives.objective_functions_orbit import minimize_acceleration_control_points_objective_function, \
     minimize_velocity_control_points_objective_function, minimize_jerk_control_points_objective_function, \
     minimize_acceleration_control_points_and_time_objective_function, minimize_velocity_control_points_and_time_objective_function, \
-    minimize_jerk_control_points_and_time_objective_function, minimize_time_objective_function, minimize_time_velocity_penalty_objective_function
-from trajectory_generation.constraint_functions.waypoint_constraints import create_terminal_waypoint_location_constraint, \
+    minimize_jerk_control_points_and_time_objective_function, get_orbit_radius
+from trajectory_generation.constraint_functions.waypoint_constraints_orbit import create_terminal_waypoint_location_constraint, \
     create_intermediate_waypoint_location_constraints, create_terminal_waypoint_derivative_constraints, \
-    create_intermediate_waypoint_velocity_constraints, create_zero_velocity_terminal_waypoint_constraint, create_target_constraint
-    # create_intermediate_waypoint_time_scale_constraint
+    create_intermediate_waypoint_velocity_constraints, create_zero_velocity_terminal_waypoint_constraint, create_target_constraint, \
+    create_orbit_target_constraint
 from trajectory_generation.constraint_functions.derivative_constraints import DerivativeConstraints
 from trajectory_generation.constraint_functions.sfc_constraints import create_safe_flight_corridor_constraint
 from trajectory_generation.constraint_data_structures.constraint_function_data import ConstraintFunctionData
@@ -66,7 +66,8 @@ class TrajectoryGenerator:
             objective_function_type: str = "minimal_velocity_and_time_path", 
             num_intervals_free_space: int = None,
             initial_control_points: npt.NDArray[np.float64] = None, \
-            initial_scale_factor: float = None):
+            initial_scale_factor: float = None,
+            orbit_radius: float = None):
         waypoint_data = constraints_container.waypoint_constraints
         derivative_bounds = constraints_container.derivative_constraints
         turning_bound = constraints_container.turning_constraint
@@ -112,9 +113,7 @@ class TrajectoryGenerator:
         return control_points, scale_factor
     
     def __get_objective_function(self, objective_function_type: str):
-        if objective_function_type == "minimal_time_path":
-            return minimize_time_objective_function
-        elif objective_function_type == "minimal_distance_path":
+        if objective_function_type == "minimal_distance_path":
             return minimize_velocity_control_points_objective_function
         elif objective_function_type == "minimal_velocity_path":
             return minimize_acceleration_control_points_objective_function
@@ -126,8 +125,6 @@ class TrajectoryGenerator:
             return minimize_acceleration_control_points_and_time_objective_function
         elif objective_function_type == "minimal_acceleration_and_time_path":
             return minimize_jerk_control_points_and_time_objective_function
-        elif objective_function_type == "minimal_time_path_velocity_penalty":
-            return minimize_time_velocity_penalty_objective_function
         else:
             raise Exception("Error, Invalid objective function type")
         
@@ -170,7 +167,7 @@ class TrajectoryGenerator:
 
     def __get_constraints(self, num_cont_pts: int, waypoint_data: WaypointData, 
             derivative_bounds: DerivativeBounds, turning_bound: TurningBound, 
-            sfc_data: SFC_Data, obstacles: 'list[Obstacle]'):
+            sfc_data: SFC_Data, obstacles: 'list[Obstacle]', orbit_radius: float = None):
         num_intermediate_waypoints = waypoint_data.get_num_intermediate_waypoints()
         num_waypoint_scalars = waypoint_data.get_num_waypoint_scalars()
         if waypoint_data.start_waypoint.checkIfZeroVel():
@@ -186,9 +183,13 @@ class TrajectoryGenerator:
                 create_zero_velocity_terminal_waypoint_constraint(waypoint_data.end_waypoint, num_cont_pts,
                 num_intermediate_waypoints, num_waypoint_scalars, self._order)
         elif waypoint_data.end_waypoint.is_target:
-            end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
-                create_target_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, \
-                                         num_waypoint_scalars, self._order)
+            if orbit_radius is None:
+                end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
+                    create_target_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, \
+                                            num_waypoint_scalars, self._order)
+            else:
+                end_waypoint_location_constraint, end_waypoint_constraint_function_data = \
+                    create_orbit_target_constraint(waypoint_data.end_waypoint, num_cont_pts, num_intermediate_waypoints, num_waypoint_scalars, self._order)
                 # create_terminal_waypoint_location_constraint(waypoint_data.end_waypoint, num_cont_pts, \
                 # num_intermediate_waypoints, num_waypoint_scalars, self._order)
         else:
@@ -228,11 +229,6 @@ class TrajectoryGenerator:
                 derivative_bounds, num_cont_pts, self._dimension, self._order)
             constraints.append(derivatives_constraint)
             constraint_functions_data.append(derivatives_constraint_function)
-        if derivative_bounds is not None and derivative_bounds.checkIfTangentialAccelerationActive():
-            tang_accel_constraint, tang_accel_constraint_function = self._derivative_constriants.create_tangential_acceleration_constraint( \
-                derivative_bounds, num_cont_pts, self._dimension, self._order)
-            constraints.append(tang_accel_constraint)
-            constraint_functions_data.append(tang_accel_constraint_function)
         if turning_bound is not None and turning_bound.checkIfTurningBoundActive():
             turning_constraint, turning_constraint_function_data = self._turning_const_obj.create_turning_constraint(\
                 turning_bound, num_cont_pts, self._dimension, waypoint_data)

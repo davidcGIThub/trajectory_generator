@@ -11,6 +11,7 @@ class Waypoint:
     jerk: np.ndarray = None
     dimension: int = None
     side: str = None
+    is_target: bool = None
 
     def checkIfDerivativesActive(self):
         if self.checkIfAccelerationActive() or self.checkIfDirectionActive():
@@ -111,22 +112,22 @@ class WaypointData:
         
 def plot2D_waypoints(waypoint_data: WaypointData, ax):
     locations = waypoint_data.get_waypoint_locations()
-    ax.scatter(locations[0,:],locations[1,:],color="b")
+    ax.scatter(locations[0,:],locations[1,:],facecolors='none', edgecolors="r", label="waypoint constraints")
     if waypoint_data.start_waypoint.checkIfVelocityActive():
         start_pos = waypoint_data.start_waypoint.location
         if not waypoint_data.start_waypoint.checkIfZeroVel():
             start_dir = waypoint_data.start_waypoint.velocity
             ax.quiver(start_pos.item(0), start_pos.item(1), 
-                    start_dir.item(0), start_dir.item(1), color = "b")
+                    start_dir.item(0), start_dir.item(1), color = "r")
     if waypoint_data.end_waypoint.checkIfVelocityActive():
         end_pos = waypoint_data.end_waypoint.location
         if not waypoint_data.end_waypoint.checkIfZeroVel():
             end_dir = waypoint_data.end_waypoint.velocity
             ax.quiver(end_pos.item(0), end_pos.item(1), 
-                    end_dir.item(0), end_dir.item(1), color = "b")
+                    end_dir.item(0), end_dir.item(1), color = "r")
     if waypoint_data.intermediate_locations is not None:
         ax.scatter(waypoint_data.intermediate_locations[0,:], 
-                   waypoint_data.intermediate_locations[1,:],color="b")
+                   waypoint_data.intermediate_locations[1,:],facecolors='none', edgecolors="r")
 
 def plot3D_waypoints(waypoint_data: WaypointData, ax):
     locations = waypoint_data.get_waypoint_locations()

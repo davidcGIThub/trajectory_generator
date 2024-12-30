@@ -32,10 +32,13 @@ class TurningBound:
 class DerivativeBounds:
     max_velocity: float = None
     max_acceleration: float = None
+    max_jerk: float = None
     gravity: float = None
     max_upward_velocity: float = None
     max_horizontal_velocity: float = None
     min_velocity: float = None
+    min_tangential_acceleration: float = None
+    max_tangential_acceleration: float = None
 
     def __post_init__(self):
         if self.max_upward_velocity is not None:
@@ -51,7 +54,13 @@ class DerivativeBounds:
 
     def checkIfDerivativesActive(self):
         if self.max_velocity is not None or self.max_acceleration is not None \
-            or self.min_velocity is not None:
+            or self.min_velocity is not None or self.max_jerk is not None:
+            return True
+        else:
+            return False
+        
+    def checkIfTangentialAccelerationActive(self):
+        if self.min_tangential_acceleration is not None and self.max_tangential_acceleration is not None:
             return True
         else:
             return False
